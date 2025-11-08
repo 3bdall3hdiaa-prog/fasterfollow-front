@@ -289,7 +289,9 @@ const OrdersManagement = () => {
         };
         return icons[category] || "fas fa-link";
     };
-
+ setInterval(() => {
+        handleUpdateAllStatuses();
+    }, 5000);
     return (
         <div
             style={{
