@@ -276,7 +276,7 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                                 value={formData.provider || ''}
                                 onChange={handleChange}
                                 className="w-full bg-gray-700 p-2 rounded"
-                                required
+                                
                             >
                                 <option value="">-- اختر المزود --</option>
                                 {providers.map(p => (
