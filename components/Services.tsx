@@ -65,8 +65,8 @@ const Services: React.FC<ServicesProps> = ({ services, platforms, content }) => 
                         <div key={service.id} className="bg-gray-800 rounded-lg overflow-hidden border border-gray-700 flex flex-col text-center transition-all duration-300 hover:border-primary-500 hover:shadow-2xl hover:shadow-primary-900/50 transform hover:-translate-y-2">
                             {service.imageUrl && <img src={service.imageUrl} alt={service.title} className="w-full h-40 object-cover" />}
                             <div className="p-6 flex flex-col flex-grow">
-                                <h3 className="text-xl font-bold text-white mb-2">{service.title}</h3>
-                                <p className="text-gray-400 mb-4 flex-grow text-sm">{service.description}</p>
+                                {/*<h3 className="text-xl font-bold text-white mb-2">{service.title}</h3>*/}
+                                <p className="text-gray-400 mb-4 flex-grow text-sm">{service.title}</p>
                                 <p className="text-3xl font-bold text-primary-400 mb-6">{formatPrice(service.price)}<span className="text-sm text-gray-400"> / 1000</span></p>
                                 <button onClick={z} className="mt-auto bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-6 rounded-lg transition-colors w-full">
                                     اطلب الآن
