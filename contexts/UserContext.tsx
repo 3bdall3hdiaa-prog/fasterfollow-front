@@ -39,7 +39,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 const cleanedUserData = {
                     ...userData,
                     name: userData.name ? userData.name.replace(' undefined', '') : 'User',
-                    username: userData.name ? userData.name.replace(' undefined', '') : 'User', // أضف username
+                    username: userData.username ? userData.username.replace(' undefined', '') : 'User', // أضف username
                     email: userData.email,
                     picture: userData.picture,
                     accessToken: userData.access_token,
