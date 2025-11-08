@@ -291,7 +291,7 @@ const OrdersManagement = () => {
     };
  setInterval(() => {
         handleUpdateAllStatuses();
-    }, 5000);
+    }, 30000);
     return (
         <div
             style={{
