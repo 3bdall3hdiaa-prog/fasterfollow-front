@@ -41,25 +41,24 @@ const OrdersHistory = () => {
     // دالة لاستخراج username من التوكن
     const getUsernameFromToken = (): string => {
         try {
-            const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-            if (!token) {
-                console.warn('No token found');
+            // نحاول نجيب بيانات المستخدم من localStorage أو sessionStorage
+            const userData = localStorage.getItem('user') || sessionStorage.getItem('user');
+            if (!userData) {
+                console.warn('No user data found');
                 return '';
             }
 
-            const tokenParts = token.split('.');
-            if (tokenParts.length !== 3) {
-                console.error('Invalid token format');
-                return '';
-            }
+            // نحولها من string إلى object
+            const user = JSON.parse(userData);
 
-            const payload = JSON.parse(atob(tokenParts[1]));
-            return payload.username || payload.sub || '';
+            // نرجع اليوزر نيم لو موجود
+            return user.username || user.name || '';
         } catch (error) {
-            console.error('Error decoding token:', error);
+            console.error('Error parsing user data:', error);
             return '';
         }
     };
+
 
     // جلب البيانات من السيرفر
     useEffect(() => {

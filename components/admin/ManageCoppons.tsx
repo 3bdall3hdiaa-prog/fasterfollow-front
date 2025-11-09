@@ -4,7 +4,7 @@ interface Coupon {
     _id?: string;
     id: string;
     code: string;
-    amount: number; // القيمة التي ستضاف للرصيد
+    amount: number;
     createdAt: string;
     status: 'active' | 'notactive';
 }
@@ -14,9 +14,10 @@ const ManageCoupons: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingCoupon, setEditingCoupon] = useState<Coupon | null>(null);
     const [loading, setLoading] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
     const [formData, setFormData] = useState({
         code: '',
-        amount: 0, // قيمة الرصيد التي ستضاف
+        amount: 0,
         status: 'active' as 'active' | 'notactive'
     });
 
@@ -36,12 +37,12 @@ const ManageCoupons: React.FC = () => {
 
             // تحويل البيانات من API إلى الشكل المطلوب وفلترة الكوبونات التي تحتوي على code فقط
             const formattedCoupons: Coupon[] = data
-                .filter((coupon: any) => coupon.code && coupon.code.trim() !== '') // فلترة الكوبونات التي تحتوي على code
+                .filter((coupon: any) => coupon.code && coupon.code.trim() !== '')
                 .map((coupon: any) => ({
                     id: coupon._id || coupon.id,
                     _id: coupon._id,
                     code: coupon.code || '',
-                    amount: coupon.amount || coupon.discountValue || 0, // استخدام amount أو discountValue
+                    amount: coupon.amount || coupon.discountValue || 0,
                     createdAt: coupon.createdAt || new Date().toISOString(),
                     status: coupon.status || 'notactive'
                 }));
@@ -103,7 +104,7 @@ const ManageCoupons: React.FC = () => {
             }
             const couponData = {
                 code: formData.code.trim(),
-                amount: formData.amount, // إرسال amount بدلاً من discountValue
+                amount: formData.amount,
                 status: formData.status
             };
 
@@ -249,91 +250,196 @@ const ManageCoupons: React.FC = () => {
             : 'bg-gray-600 text-gray-200';
     };
 
+    // فلترة الكوبونات حسب البحث
+    const filteredCoupons = coupons.filter(coupon =>
+        coupon.code?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        coupon.amount?.toString().includes(searchTerm) ||
+        coupon.status?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
     return (
-        <div>
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold text-white">إدارة كوبونات الشحن</h1>
+        <div className="p-4">
+            <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                <h1 className="text-2xl md:text-3xl font-bold text-white text-center md:text-right">
+                    إدارة كوبونات الشحن
+                </h1>
                 <button
                     onClick={() => handleOpenModal()}
-                    className="bg-primary-600 hover:bg-primary-700 text-white font-bold py-2 px-4 rounded-lg"
+                    className="bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-6 rounded-lg w-full md:w-auto"
                     disabled={loading}
                 >
                     {loading ? 'جاري التحميل...' : 'إضافة كوبون جديد'}
                 </button>
             </div>
 
+            {/* حقل البحث */}
+            <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 mb-6">
+                <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
+                    <input
+                        type="text"
+                        placeholder="ابحث بكود الشحن، القيمة، أو الحالة..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="bg-gray-700 border border-gray-600 rounded-md p-3 text-white w-full md:w-1/2 text-sm md:text-base"
+                    />
+                    <div className="text-gray-400 text-sm md:text-base">
+                        إجمالي الكوبونات: {coupons.length} | المعروض: {filteredCoupons.length}
+                    </div>
+                </div>
+            </div>
+
             {loading && coupons.length === 0 ? (
                 <div className="text-center text-gray-400 py-8">جاري تحميل الكوبونات...</div>
             ) : (
-                <div className="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
-                    <table className="w-full text-sm text-right text-gray-300">
-                        <thead className="text-xs text-gray-400 uppercase bg-gray-700/50">
-                            <tr>
-                                <th className="px-4 py-3">كود الشحن</th>
-                                <th className="px-4 py-3">قيمة الرصيد</th>
-                                <th className="px-4 py-3">تاريخ الإنشاء</th>
-                                <th className="px-4 py-3">الحالة</th>
-                                <th className="px-4 py-3">الإجراءات</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {coupons.map(coupon => (
-                                <tr key={coupon.id} className="border-b border-gray-700 hover:bg-gray-700/50">
-                                    <td className="px-4 py-4">
-                                        <div className="font-bold text-white text-lg">{coupon.code}</div>
-                                    </td>
-                                    <td className="px-4 py-4">
-                                        <div className="text-white font-bold">${coupon.amount}</div>
-                                    </td>
-                                    <td className="px-4 py-4">
-                                        <div className="text-white">{formatDate(coupon.createdAt)}</div>
-                                    </td>
-                                    <td className="px-4 py-4">
-                                        <span className={`px-2 py-1 text-xs rounded-full ${getStatusClass(coupon.status)}`}>
-                                            {getStatusText(coupon.status)}
-                                        </span>
-                                    </td>
-                                    <td className="px-4 py-4 flex space-x-2 space-x-reverse">
-                                        <button
-                                            onClick={() => handleOpenModal(coupon)}
-                                            className="text-primary-400 hover:text-primary-300"
-                                            disabled={loading}
-                                        >
-                                            تعديل
-                                        </button>
-                                        <button
-                                            onClick={() => toggleCouponStatus(coupon.id, coupon.status)}
-                                            className="text-yellow-400 hover:text-yellow-300"
-                                            disabled={loading}
-                                        >
-                                            {coupon.status === 'active' ? 'إلغاء' : 'تفعيل'}
-                                        </button>
-                                        <button
-                                            onClick={() => handleDelete(coupon.id)}
-                                            className="text-red-400 hover:text-red-300"
-                                            disabled={loading}
-                                        >
-                                            حذف
-                                        </button>
-                                    </td>
+                <>
+                    {/* ✅ جدول الكوبونات - للشاشات الكبيرة */}
+                    <div className="hidden md:block bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
+                        <table className="w-full text-sm text-right text-gray-300">
+                            <thead className="text-xs text-gray-400 uppercase bg-gray-700/50">
+                                <tr>
+                                    <th className="px-4 py-3">كود الشحن</th>
+                                    <th className="px-4 py-3">قيمة الرصيد</th>
+                                    <th className="px-4 py-3">تاريخ الإنشاء</th>
+                                    <th className="px-4 py-3">الحالة</th>
+                                    <th className="px-4 py-3">الإجراءات</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                {filteredCoupons.map(coupon => (
+                                    <tr key={coupon.id} className="border-b border-gray-700 hover:bg-gray-700/50">
+                                        <td className="px-4 py-4">
+                                            <div className="font-bold text-white text-lg">{coupon.code}</div>
+                                        </td>
+                                        <td className="px-4 py-4">
+                                            <div className="text-green-400 font-bold text-lg">${coupon.amount}</div>
+                                        </td>
+                                        <td className="px-4 py-4">
+                                            <div className="text-white">{formatDate(coupon.createdAt)}</div>
+                                        </td>
+                                        <td className="px-4 py-4">
+                                            <span className={`px-3 py-1 text-xs rounded-full ${getStatusClass(coupon.status)}`}>
+                                                {getStatusText(coupon.status)}
+                                            </span>
+                                        </td>
+                                        <td className="px-4 py-4">
+                                            <div className="flex justify-end gap-2">
+                                                <button
+                                                    onClick={() => handleOpenModal(coupon)}
+                                                    className="bg-yellow-600 hover:bg-yellow-700 text-white p-2 rounded flex items-center gap-1 text-xs"
+                                                    disabled={loading}
+                                                >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                    </svg>
+                                                    تعديل
+                                                </button>
+                                                <button
+                                                    onClick={() => toggleCouponStatus(coupon.id, coupon.status)}
+                                                    className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded flex items-center gap-1 text-xs"
+                                                    disabled={loading}
+                                                >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                    </svg>
+                                                    {coupon.status === 'active' ? 'إلغاء' : 'تفعيل'}
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDelete(coupon.id)}
+                                                    className="bg-red-600 hover:bg-red-700 text-white p-2 rounded flex items-center gap-1 text-xs"
+                                                    disabled={loading}
+                                                >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    </svg>
+                                                    حذف
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
 
-                    {coupons.length === 0 && !loading && (
-                        <div className="text-center text-gray-400 py-8">
-                            لا توجد كوبونات شحن
+                        {filteredCoupons.length === 0 && !loading && (
+                            <div className="text-center text-gray-400 py-8">
+                                {coupons.length === 0 ? 'لا توجد كوبونات شحن' : 'لم يتم العثور على كوبونات تطابق البحث'}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* ✅ تصميم البطاقات للهواتف */}
+                    <div className="block md:hidden">
+                        <div className="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
+                            {filteredCoupons.length === 0 ? (
+                                <div className="text-center py-8 text-gray-400">
+                                    {coupons.length === 0 ? 'لا توجد كوبونات شحن حالياً' : 'لم يتم العثور على كوبونات تطابق البحث'}
+                                </div>
+                            ) : (
+                                filteredCoupons.map(coupon => (
+                                    <div key={coupon.id} className="border-b border-gray-700 p-4 hover:bg-gray-700/50 transition-colors">
+                                        {/* رأس البطاقة */}
+                                        <div className="flex justify-between items-start mb-3">
+                                            <div>
+                                                <div className="font-bold text-white text-xl mb-1">{coupon.code}</div>
+                                                <div className="text-green-400 font-bold text-lg">${coupon.amount}</div>
+                                            </div>
+                                            <span className={`px-2 py-1 text-xs rounded-full ${getStatusClass(coupon.status)}`}>
+                                                {getStatusText(coupon.status)}
+                                            </span>
+                                        </div>
+
+                                        {/* معلومات الكوبون */}
+                                        <div className="mb-4">
+                                            <div className="text-gray-400 text-xs mb-1">تاريخ الإنشاء</div>
+                                            <div className="text-white text-sm">{formatDate(coupon.createdAt)}</div>
+                                        </div>
+
+                                        {/* أزرار الإجراءات */}
+                                        <div className="flex gap-2">
+                                            <button
+                                                onClick={() => handleOpenModal(coupon)}
+                                                className="bg-yellow-600 hover:bg-yellow-700 text-white p-2 rounded flex items-center gap-1 flex-1 justify-center text-sm"
+                                                disabled={loading}
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                </svg>
+                                                تعديل
+                                            </button>
+                                            <button
+                                                onClick={() => toggleCouponStatus(coupon.id, coupon.status)}
+                                                className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded flex items-center gap-1 flex-1 justify-center text-sm"
+                                                disabled={loading}
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                </svg>
+                                                {coupon.status === 'active' ? 'إلغاء' : 'تفعيل'}
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(coupon.id)}
+                                                className="bg-red-600 hover:bg-red-700 text-white p-2 rounded flex items-center gap-1 flex-1 justify-center text-sm"
+                                                disabled={loading}
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                                حذف
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
                         </div>
-                    )}
-                </div>
+                    </div>
+                </>
             )}
 
             {/* Modal لإضافة/تعديل الكوبون */}
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
-                    <div className="bg-gray-800 text-white rounded-2xl shadow-xl w-full max-w-md">
-                        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                    <div className="bg-gray-800 text-white rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-hidden">
+                        <form onSubmit={handleSubmit} className="p-4 md:p-6 space-y-4">
                             <h3 className="text-xl font-bold">
                                 {editingCoupon ? 'تعديل كوبون الشحن' : 'إضافة كوبون شحن جديد'}
                             </h3>
@@ -348,7 +454,7 @@ const ManageCoupons: React.FC = () => {
                                         name="code"
                                         value={formData.code}
                                         onChange={handleChange}
-                                        className="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-3 focus:ring-primary-500 focus:border-primary-500"
+                                        className="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-3 focus:ring-primary-500 focus:border-primary-500 text-sm md:text-base"
                                         required
                                         placeholder="مثال: CHARGE25"
                                         disabled={loading}
@@ -367,7 +473,7 @@ const ManageCoupons: React.FC = () => {
                                         name="amount"
                                         value={formData.amount}
                                         onChange={handleChange}
-                                        className="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-3 focus:ring-primary-500 focus:border-primary-500"
+                                        className="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-3 focus:ring-primary-500 focus:border-primary-500 text-sm md:text-base"
                                         required
                                         min="1"
                                         step="0.01"
@@ -387,7 +493,7 @@ const ManageCoupons: React.FC = () => {
                                         name="status"
                                         value={formData.status}
                                         onChange={handleChange}
-                                        className="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-3 focus:ring-primary-500 focus:border-primary-500"
+                                        className="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-3 focus:ring-primary-500 focus:border-primary-500 text-sm md:text-base"
                                         disabled={loading}
                                     >
                                         <option value="active">نشط</option>
@@ -400,14 +506,14 @@ const ManageCoupons: React.FC = () => {
                                 <button
                                     type="button"
                                     onClick={handleCloseModal}
-                                    className="bg-gray-600 hover:bg-gray-500 py-2 px-4 rounded transition-colors"
+                                    className="bg-gray-600 hover:bg-gray-500 py-2 px-4 rounded transition-colors text-sm md:text-base flex-1 md:flex-none"
                                     disabled={loading}
                                 >
                                     إلغاء
                                 </button>
                                 <button
                                     type="submit"
-                                    className="bg-primary-600 hover:bg-primary-500 py-2 px-4 rounded transition-colors"
+                                    className="bg-primary-600 hover:bg-primary-500 py-2 px-4 rounded transition-colors text-sm md:text-base flex-1 md:flex-none"
                                     disabled={loading}
                                 >
                                     {loading ? 'جاري الحفظ...' : (editingCoupon ? 'تحديث' : 'إضافة')}

@@ -44,53 +44,6 @@ const mockPlatforms: Platform[] = [
     { id: '5', name: 'Facebook', iconUrl: '👍' },
 ]
 
-const mockSiteSettings: SiteSettings = {
-    siteName: 'فاستر فولو',
-    logoUrl: 'https://i.imgur.com/3Z4Qj4a.png',
-    faviconUrl: '/favicon.ico',
-    primaryColor: '#6366f1',
-    seoTitle: 'فاستر فولو - أفضل خدمات دعم حسابات التواصل الاجتماعي',
-    seoDescription: 'زيادة متابعين، لايكات، ومشاهدات لجميع المنصات. أسعار تنافسية وجودة عالية.',
-    announcement: {
-        text: '🎉 خصم 15% على جميع خدمات انستغرام لفترة محدودة!',
-        isEnabled: true,
-    },
-    homepageContent: {
-        hero: {
-            title: 'عزز حضورك الرقمي مع',
-            subtitle: 'نقدم لك أفضل خدمات الدعم لشبكات التواصل الاجتماعي لزيادة متابعينك وتفاعلك بأسعار تنافسية وجودة عالية.',
-            cta1: 'اكتشف خدماتنا',
-            cta2: 'كيف نعمل؟'
-        },
-        features: {
-            title: 'لماذا تختارنا؟',
-            items: [
-                { icon: '⚡️', title: 'تنفيذ فوري', description: 'تبدأ طلباتك في التنفيذ فور إتمام عملية الدفع مباشرة لضمان سرعة الخدمة.' },
-                { icon: '🛡️', title: 'جودة عالية وضمان', description: 'نقدم متابعين وحسابات عالية الجودة مع ضمان تعويض النقص في بعض الخدمات.' },
-                { icon: '💵', title: 'أسعار تنافسية', description: 'نوفر لك أفضل الأسعار في السوق لتتمكن من تحقيق أهدافك بأقل تكلفة ممكنة.' },
-                { icon: '🎧', title: 'دعم فني 24/7', description: 'فريق دعم فني متخصص جاهز للإجابة على استفساراتك وحل مشاكلك في أي وقت.' }
-            ]
-        },
-        services: {
-            title: 'خدماتنا المميزة',
-            subtitle: 'اختر الباقة التي تناسب احتياجاتك وابدأ في تنمية حسابك اليوم.'
-        },
-        howItWorks: {
-            title: 'كيف يعمل الموقع؟',
-            subtitle: 'ثلاث خطوات بسيطة تفصلك عن تحقيق أهدافك.',
-            steps: [
-                { title: 'اختر الخدمة', description: 'تصفح خدماتنا المتنوعة واختر الباقة التي تناسب أهدافك وميزانيتك.' },
-                { title: 'أدخل معلوماتك', description: 'أضف رابط حسابك أو المنشور الذي تريد دعمه. لا نطلب كلمة المرور أبداً.' },
-                { title: 'شاهد النتائج', description: 'استرخ وشاهد حسابك ينمو. تبدأ النتائج بالظهور في وقت قصير جداً.' }
-            ]
-        },
-        testimonials: {
-            title: 'آراء عملائنا',
-            subtitle: 'ماذا يقول عملاؤنا عن خدماتنا.'
-        }
-    }
-};
-
 const Redirector: React.FC<{ message: string; to?: string }> = ({ message, to = '/' }) => {
     useEffect(() => {
         window.location.hash = to;
@@ -110,7 +63,7 @@ const App: React.FC = () => {
     const prevUser = useRef(user);
 
     // Mock data state
-    const [siteSettings, setSiteSettings] = useState<SiteSettings>(mockSiteSettings);
+    const [siteSettings, setSiteSettings] = useState<SiteSettings | null>(null);
     const [services, setServices] = useState<ServicePackage[]>([]); // Empty array initially
     const [pages, setPages] = useState<Page[]>([]); // Empty array initially
     const [posts, setPosts] = useState<BlogPostType[]>(mockBlogPosts);
@@ -120,11 +73,125 @@ const App: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
+    // Function to fetch site settings from endpoint
+    const fetchSiteSettingsFromEndpoint = async () => {
+        try {
+            setError(null);
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/manage-setting`);
+
+            if (!response.ok) {
+                throw new Error(`Failed to fetch site settings: ${response.status} ${response.statusText}`);
+            }
+
+            const data = await response.json();
+
+            // Transform the API data to match the SiteSettings type
+            const formattedSiteSettings: SiteSettings = {
+                siteName: data[0].siteName || '',
+                logoUrl: data[0].logoUrl || 'https://i.imgur.com/3Z4Qj4a.png',
+                faviconUrl: data[0].faviconUrl || '/favicon.ico',
+                primaryColor: data[0].primaryColor || '#6366f1',
+                seoTitle: data[0].seoTitle || 'فاستر فولو - أفضل خدمات دعم حسابات التواصل الاجتماعي',
+                seoDescription: data[0].seoDescription || 'زيادة متابعين، لايكات، ومشاهدات لجميع المنصات. أسعار تنافسية وجودة عالية.',
+                announcement: data.announcement || {
+                    text: data[0].announcement.text || '🎉 خصم 15% على جميع خدمات انستغرام لفترة محدودة!',
+                    isEnabled: data[0].announcement.isEnabled || true,
+                },
+                homepageContent: data.homepageContent || {
+                    hero: {
+                        title: data[0].homepageContent.hero.title || 'عزز حضورك الرقمي مع',
+                        subtitle: data[0].homepageContent.hero.subtitle || 'نقدم لك أفضل خدمات الدعم لشبكات التواصل الاجتماعي لزيادة متابعينك وتفاعلك بأسعار تنافسية وجودة عالية.',
+                        cta1: data[0].homepageContent.hero.cta1 || 'اكتشف خدماتنا',
+                        cta2: data[0].homepageContent.hero.cta2 || 'كيف نعمل؟'
+                    },
+                    features: {
+                        title: 'لماذا تختارنا؟',
+                        items: [
+                            { icon: '⚡️', title: 'تنفيذ فوري', description: 'تبدأ طلباتك في التنفيذ فور إتمام عملية الدفع مباشرة لضمان سرعة الخدمة.' },
+                            { icon: '🛡️', title: 'جودة عالية وضمان', description: 'نقدم متابعين وحسابات عالية الجودة مع ضمان تعويض النقص في بعض الخدمات.' },
+                            { icon: '💵', title: 'أسعار تنافسية', description: 'نوفر لك أفضل الأسعار في السوق لتتمكن من تحقيق أهدافك بأقل تكلفة ممكنة.' },
+                            { icon: '🎧', title: 'دعم فني 24/7', description: 'فريق دعم فني متخصص جاهز للإجابة على استفساراتك وحل مشاكلك في أي وقت.' }
+                        ]
+                    },
+                    services: {
+                        title: data[0].homepageContent.services.title || 'خدماتنا المميزة',
+                        subtitle: data[0].homepageContent.services.subtitle || 'اختر الباقة التي تناسب احتياجاتك وابدأ في تنمية حسابك اليوم.'
+                    },
+                    howItWorks: {
+                        title: 'كيف يعمل الموقع؟',
+                        subtitle: 'ثلاث خطوات بسيطة تفصلك عن تحقيق أهدافك.',
+                        steps: [
+                            { title: 'اختر الخدمة', description: 'تصفح خدماتنا المتنوعة واختر الباقة التي تناسب أهدافك وميزانيتك.' },
+                            { title: 'أدخل معلوماتك', description: 'أضف رابط حسابك أو المنشور الذي تريد دعمه. لا نطلب كلمة المرور أبداً.' },
+                            { title: 'شاهد النتائج', description: 'استرخ وشاهد حسابك ينمو. تبدأ النتائج بالظهور في وقت قصير جداً.' }
+                        ]
+                    },
+                    testimonials: {
+                        title: 'آراء عملائنا',
+                        subtitle: 'ماذا يقول عملاؤنا عن خدماتنا.'
+                    }
+                }
+            };
+
+            setSiteSettings(formattedSiteSettings);
+        } catch (error) {
+            console.error('Error fetching site settings:', error);
+            setError('فشل في تحميل إعدادات الموقع. يرجى المحاولة مرة أخرى.');
+            // Use default settings if fetch fails
+            setSiteSettings({
+                siteName: 'فاستر فولو',
+                logoUrl: 'https://i.imgur.com/3Z4Qj4a.png',
+                faviconUrl: '/favicon.ico',
+                primaryColor: '#6366f1',
+                seoTitle: 'فاستر فولو - أفضل خدمات دعم حسابات التواصل الاجتماعي',
+                seoDescription: 'زيادة متابعين، لايكات، ومشاهدات لجميع المنصات. أسعار تنافسية وجودة عالية.',
+                announcement: {
+                    text: '🎉 خصم 15% على جميع خدمات انستغرام لفترة محدودة!',
+                    isEnabled: true,
+                },
+                homepageContent: {
+                    hero: {
+                        title: 'عزز حضورك الرقمي مع',
+                        subtitle: 'نقدم لك أفضل خدمات الدعم لشبكات التواصل الاجتماعي لزيادة متابعينك وتفاعلك بأسعار تنافسية وجودة عالية.',
+                        cta1: 'اكتشف خدماتنا',
+                        cta2: 'كيف نعمل؟'
+                    },
+                    features: {
+                        title: 'لماذا تختارنا؟',
+                        items: [
+                            { icon: '⚡️', title: 'تنفيذ فوري', description: 'تبدأ طلباتك في التنفيذ فور إتمام عملية الدفع مباشرة لضمان سرعة الخدمة.' },
+                            { icon: '🛡️', title: 'جودة عالية وضمان', description: 'نقدم متابعين وحسابات عالية الجودة مع ضمان تعويض النصف في بعض الخدمات.' },
+                            { icon: '💵', title: 'أسعار تنافسية', description: 'نوفر لك أفضل الأسعار في السوق لتتمكن من تحقيق أهدافك بأقل تكلفة ممكنة.' },
+                            { icon: '🎧', title: 'دعم فني 24/7', description: 'فريق دعم فني متخصص جاهز للإجابة على استفساراتك وحل مشاكلك في أي وقت.' }
+                        ]
+                    },
+                    services: {
+                        title: 'خدماتنا المميزة',
+                        subtitle: 'اختر الباقة التي تناسب احتياجاتك وابدأ في تنمية حسابك اليوم.'
+                    },
+                    howItWorks: {
+                        title: 'كيف يعمل الموقع؟',
+                        subtitle: 'ثلاث خطوات بسيطة تفصلك عن تحقيق أهدافك.',
+                        steps: [
+                            { title: 'اختر الخدمة', description: 'تصفح خدماتنا المتنوعة واختر الباقة التي تناسب أهدافك وميزانيتك.' },
+                            { title: 'أدخل معلوماتك', description: 'أضف رابط حسابك أو المنشور الذي تريد دعمه. لا نطلب كلمة المرور أبداً.' },
+                            { title: 'شاهد النتائج', description: 'استرخ وشاهد حسابك ينمو. تبدأ النتائج بالظهور في وقت قصير جداً.' }
+                        ]
+                    },
+                    testimonials: {
+                        title: 'آراء عملائنا',
+                        subtitle: 'ماذا يقول عملاؤنا عن خدماتنا.'
+                    }
+                }
+            });
+        }
+    };
+
     // Function to fetch pages from endpoint
     const fetchPagesFromEndpoint = async () => {
         try {
             setError(null);
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/managepages`);
+            const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/managepages`);
 
             if (!response.ok) {
                 throw new Error(`Failed to fetch pages: ${response.status} ${response.statusText}`);
@@ -153,7 +220,7 @@ const App: React.FC = () => {
     const fetchServicesFromEndpoint = async () => {
         try {
             setError(null);
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/services-list`);
+            const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/services-list`);
 
             if (!response.ok) {
                 throw new Error(`Failed to fetch services: ${response.status} ${response.statusText}`);
@@ -191,7 +258,7 @@ const App: React.FC = () => {
     const fetchBannersFromEndpoint = async () => {
         try {
             setError(null);
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/managepanners`);
+            const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/managepanners`);
 
             if (!response.ok) {
                 throw new Error(`Failed to fetch banners: ${response.status} ${response.statusText}`);
@@ -222,6 +289,7 @@ const App: React.FC = () => {
         const fetchData = async () => {
             setLoading(true);
             await Promise.all([
+                fetchSiteSettingsFromEndpoint(),
                 fetchPagesFromEndpoint(),
                 fetchServicesFromEndpoint(),
                 fetchBannersFromEndpoint()
@@ -298,6 +366,11 @@ const App: React.FC = () => {
             return <div className="text-center pt-40 text-red-400">{error}</div>;
         }
 
+        // Show loading if siteSettings is not loaded yet
+        if (!siteSettings) {
+            return <div className="text-center pt-40">جاري تحميل إعدادات الموقع...</div>;
+        }
+
         switch (appView.view) {
             case 'admin':
                 if (user?.role !== 'admin') {
@@ -350,37 +423,39 @@ const App: React.FC = () => {
         }
     };
 
-    let pageTitle = siteSettings.siteName;
-    let pageDescription = siteSettings.seoDescription;
+    let pageTitle = siteSettings?.siteName || 'فاستر فولو';
+    let pageDescription = siteSettings?.seoDescription || 'زيادة متابعين، لايكات، ومشاهدات لجميع المنصات. أسعار تنافسية وجودة عالية.';
 
     if (appView.view === 'page') {
         const currentPage = pages.find(p => p.slug === appView.slug);
         if (currentPage) {
-            pageTitle = `${currentPage.title} | ${siteSettings.siteName}`;
+            pageTitle = `${currentPage.title} | ${siteSettings?.siteName || 'فاستر فولو'}`;
             pageDescription = currentPage.content.replace(/<[^>]*>?/gm, '').substring(0, 160);
         }
     } else if (appView.view === 'blogPost') {
         const currentPost = posts.find(p => p.slug === appView.slug);
         if (currentPost) {
-            pageTitle = `${currentPost.metaTitle || currentPost.title} | ${siteSettings.siteName}`;
+            pageTitle = `${currentPost.metaTitle || currentPost.title} | ${siteSettings?.siteName || 'فاستر فولو'}`;
             pageDescription = currentPost.metaDescription || currentPost.excerpt;
         }
     }
     useSEO(pageTitle, pageDescription);
 
     useEffect(() => {
-        document.documentElement.style.setProperty('--color-primary-500', siteSettings.primaryColor);
-        document.documentElement.style.setProperty('--color-primary-600', `${siteSettings.primaryColor}E6`);
-        document.documentElement.style.setProperty('--color-primary-700', `${siteSettings.primaryColor}CC`);
-        document.documentElement.style.setProperty('--color-primary-400', `${siteSettings.primaryColor}B3`);
-        document.documentElement.style.setProperty('--color-primary-900', `${siteSettings.primaryColor}33`);
-    }, [siteSettings.primaryColor]);
+        if (siteSettings?.primaryColor) {
+            document.documentElement.style.setProperty('--color-primary-500', siteSettings.primaryColor);
+            document.documentElement.style.setProperty('--color-primary-600', `${siteSettings.primaryColor}E6`);
+            document.documentElement.style.setProperty('--color-primary-700', `${siteSettings.primaryColor}CC`);
+            document.documentElement.style.setProperty('--color-primary-400', `${siteSettings.primaryColor}B3`);
+            document.documentElement.style.setProperty('--color-primary-900', `${siteSettings.primaryColor}33`);
+        }
+    }, [siteSettings?.primaryColor]);
 
     return (
         <div className="bg-gray-900 text-white min-h-screen font-sans" dir="rtl">
-            <Header siteName={siteSettings.siteName} logoUrl={siteSettings.logoUrl} pages={pages} />
+            <Header siteName={siteSettings?.siteName || 'فاستر فولو'} logoUrl={siteSettings?.logoUrl} pages={pages} />
             <main>{renderView()}</main>
-            {(appView.view === 'home' || appView.view === 'blog' || appView.view === 'blogPost' || appView.view === 'page') && <Footer siteName={siteSettings.siteName} pages={pages} onNavigate={onNavigate} />}
+            {(appView.view === 'home' || appView.view === 'blog' || appView.view === 'blogPost' || appView.view === 'page') && <Footer siteName={siteSettings?.siteName || 'فاستر فولو'} pages={pages} onNavigate={onNavigate} />}
             <Chatbot />
         </div>
     );

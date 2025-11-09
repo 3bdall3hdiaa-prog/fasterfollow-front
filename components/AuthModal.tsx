@@ -6,7 +6,7 @@ interface AuthModalProps {
 }
 
 const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
-    const [view, setView] = useState<'login' | 'register' | 'forgotPassword' | 'verifyCode' | 'newPassword'>('login');
+    const [view, setView] = useState<'login' | 'register' | 'forgotPassword' | 'verifyCode' | 'newPassword' | 'verify2FA'>('login');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [email, setEmail] = useState('');
@@ -16,6 +16,10 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
     const [error, setError] = useState('');
     const [resetMessage, setResetMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+
+    // states for 2FA
+    const [twoFAUsername, setTwoFAUsername] = useState('');
+
     const { login, register } = useUser();
 
     const handleLoginSubmit = async (e: React.FormEvent) => {
@@ -26,8 +30,14 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
         if (username.trim() && password.trim()) {
             const result = await login(username, password);
             setIsLoading(false);
+
             if (result.success) {
                 onClose();
+            } else if (result.needs2FA) {
+                // حالة الـ 2FA
+                setTwoFAUsername(username);
+                setResetMessage('تم إرسال كود التحقق إلى بريدك الإلكتروني');
+                setView('verify2FA');
             } else {
                 setError(result.message || 'حدث خطأ ما.');
             }
@@ -75,7 +85,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
 
             if (response.ok) {
                 setResetMessage('تم إرسال رمز التحقق إلى بريدك الإلكتروني.');
-                // الانتقال إلى نافذة إدخال الكود بعد نجاح الإرسال
                 setTimeout(() => {
                     setView('verifyCode');
                     setResetMessage('');
@@ -126,7 +135,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
         e.preventDefault();
         setError('');
 
-
         if (newPassword.length < 3) {
             setError('كلمة المرور يجب أن تكون 3 أحرف على الأقل.');
             return;
@@ -150,7 +158,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
                 setTimeout(() => {
                     setView('login');
                     setResetMessage('');
-                    // إعادة تعيين الحقول
                     setNewPassword('');
                     setConfirmPassword('');
                     setResetCode('');
@@ -165,7 +172,142 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
         }
     };
 
+    // دالة التحقق من كود الـ 2FA
+    const handleVerify2FACode = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError('');
+        setIsLoading(true);
+
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/2FA/verify2fa`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: twoFAUsername,
+                    verificationCode: resetCode
+                }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.token) {
+                // حفظ التوكن والمستخدم
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+
+                setResetMessage('تم تسجيل الدخول بنجاح!');
+                setTimeout(() => {
+                    onClose();
+                    window.location.reload();
+                }, 1500);
+            } else {
+                setError(data.message || 'رمز التحقق غير صحيح.');
+            }
+        } catch (error: any) {
+            console.error('2FA Verification error:', error);
+            setError(error.response?.data?.message || 'حدث خطأ في الاتصال بالخادم.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // دالة إعادة إرسال كود الـ 2FA
+    const handleResend2FACode = async () => {
+        setError('');
+        setIsLoading(true);
+
+        try {
+            // إعادة إرسال الكود عن طريق عمل login تاني
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/signin`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: twoFAUsername,
+                    password: password
+                }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.message === "2fa enabled") {
+                setResetMessage('تم إعادة إرسال كود التحقق إلى بريدك الإلكتروني');
+            } else {
+                setError('حدث خطأ أثناء إعادة الإرسال');
+            }
+        } catch (error) {
+            setError('حدث خطأ في الاتصال بالخادم.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const renderContent = () => {
+        // view للـ 2FA
+        if (view === 'verify2FA') {
+            return (
+                <>
+                    <h2 className="text-2xl font-bold text-center mb-6">التحقق بخطوتين</h2>
+                    <form onSubmit={handleVerify2FACode}>
+                        {resetMessage && (
+                            <p className="bg-green-900/50 text-green-300 text-center text-sm p-3 rounded-md mb-4">{resetMessage}</p>
+                        )}
+                        <p className="text-center text-gray-400 mb-4 text-sm">
+                            تم إرسال كود التحقق إلى بريدك الإلكتروني. يرجى إدخاله أدناه.
+                        </p>
+                        <div className="mb-4">
+                            <label htmlFor="2fa-code" className="block mb-2 text-sm font-medium text-gray-300">
+                                كود التحقق
+                            </label>
+                            <input
+                                type="text"
+                                id="2fa-code"
+                                value={resetCode}
+                                onChange={(e) => setResetCode(e.target.value)}
+                                className="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 text-center"
+                                placeholder="أدخل الكود المكون من 6 أرقام"
+                                required
+                                maxLength={6}
+                            />
+                        </div>
+                        <button
+                            type="submit"
+                            disabled={isLoading}
+                            className="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-6 rounded-lg transition-colors disabled:opacity-50"
+                        >
+                            {isLoading ? 'جاري التحقق...' : 'تحقق وتسجيل الدخول'}
+                        </button>
+                    </form>
+                    <div className="mt-4 text-center">
+                        <button
+                            type="button"
+                            onClick={handleResend2FACode}
+                            disabled={isLoading}
+                            className="text-sm text-primary-400 hover:underline disabled:opacity-50"
+                        >
+                            لم تستلم الكود؟ إعادة الإرسال
+                        </button>
+                    </div>
+                    <div className="mt-4 text-center">
+                        <button
+                            onClick={() => {
+                                setView('login');
+                                setError('');
+                                setResetMessage('');
+                                setResetCode('');
+                            }}
+                            className="text-sm text-primary-400 hover:underline"
+                        >
+                            العودة إلى تسجيل الدخول
+                        </button>
+                    </div>
+                </>
+            );
+        }
+
         if (view === 'forgotPassword') {
             return (
                 <>
@@ -253,7 +395,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
                         )}
                         <p className="text-center text-gray-400 mb-4 text-sm">أدخل كلمة المرور الجديدة.</p>
 
-                        {/* حقل الإيميل المضاف */}
                         <div className="mb-4">
                             <label htmlFor="email-new-password" className="block mb-2 text-sm font-medium text-gray-300">البريد الإلكتروني</label>
                             <input
@@ -280,18 +421,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
                                 required
                             />
                         </div>
-                        {/* <div className="mb-4">
-                            <label htmlFor="confirm-password" className="block mb-2 text-sm font-medium text-gray-300">تأكيد كلمة المرور</label>
-                            <input
-                                type="password"
-                                id="confirm-password"
-                                value={confirmPassword}
-                                onChange={(e) => setConfirmPassword(e.target.value)}
-                                className="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5"
-                                placeholder="••••••••"
-                                required
-                            />
-                        </div> */}
                         <button
                             type="submit"
                             disabled={isLoading}
@@ -398,7 +527,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
             <div className="bg-gray-800 text-white rounded-2xl shadow-xl w-full max-w-md transform transition-all duration-300 scale-95 animate-scale-in" onClick={(e) => e.stopPropagation()}>
                 <div className="p-8 relative">
                     <button onClick={onClose} className="absolute top-4 left-4 text-gray-400 hover:text-white">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
                     </button>
                     {renderContent()}
                 </div>

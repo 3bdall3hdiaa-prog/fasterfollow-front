@@ -29,7 +29,7 @@ const Header: React.FC<HeaderProps> = ({ siteName, logoUrl, pages }) => {
         if (!user) return '';
 
         // أولوية username، ثم name، ثم email
-        return user.username || user.email || 'User';
+        return user.username || 'User';
     };
 
     // دالة علشان تجيب الحرف الأول للصورة

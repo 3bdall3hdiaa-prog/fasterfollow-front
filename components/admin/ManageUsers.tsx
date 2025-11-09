@@ -8,7 +8,8 @@ const UsersManagement = () => {
     const [selectedUser, setSelectedUser] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [hoveredRow, setHoveredRow] = useState(null);
-    const [userBalance, setUserBalance] = useState(0); // إضافة state للرصيد
+    const [userBalance, setUserBalance] = useState(0);
+    const [searchTerm, setSearchTerm] = useState("");
 
     // إضافة مستخدم جديد
     const [showAddModal, setShowAddModal] = useState(false);
@@ -268,6 +269,13 @@ const UsersManagement = () => {
         return firstInitial + lastInitial;
     };
 
+    // فلترة المستخدمين حسب البحث
+    const filteredUsers = users.filter(user =>
+        user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.job?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
     return (
         <div
             style={{
@@ -309,10 +317,39 @@ const UsersManagement = () => {
                     </div>
                 </div>
 
-                {/* باقي الكود بدون تغيير */}
+                {/* حقل البحث */}
+                <Card className="mb-4" style={{ backgroundColor: "#252a41", border: "none", borderRadius: "15px" }}>
+                    <Card.Body>
+                        <div className="row align-items-center">
+                            <div className="col-md-6">
+                                <Form.Group>
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="ابحث بالاسم، البريد الإلكتروني، أو الوظيفة..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        style={{
+                                            backgroundColor: "#f8f8f9ff",
+                                            border: "1px solid #4a90e2",
+                                            color: "white",
+                                            borderRadius: "8px",
+                                            padding: "12px"
+                                        }}
+                                    />
+                                </Form.Group>
+                            </div>
+                            <div className="col-md-6 text-md-end text-center mt-2 mt-md-0">
+                                <span className="text-muted">
+                                    إجمالي المستخدمين: {users.length} | المعروض: {filteredUsers.length}
+                                </span>
+                            </div>
+                        </div>
+                    </Card.Body>
+                </Card>
+
                 {/* بطاقات الإحصائيات */}
                 <div className="row justify-content-center mb-4 text-center">
-                    <div className="col-md-3 mb-3">
+                    <div className="col-6 col-md-3 mb-3">
                         <Card
                             className="h-100"
                             style={{
@@ -320,22 +357,22 @@ const UsersManagement = () => {
                                 border: "none",
                                 borderRadius: "15px",
                                 boxShadow: "0 4px 12px rgba(74, 144, 226, 0.3)",
-                                minHeight: "140px",
+                                minHeight: "120px",
                             }}
                         >
                             <Card.Body className="text-white d-flex flex-column justify-content-center align-items-center">
                                 <div className="d-flex align-items-center justify-content-center mb-2">
-                                    <i className="fas fa-users fa-2x me-3"></i>
-                                    <h2 className="mb-0 fw-bold" style={{ fontSize: "2.5rem" }}>
+                                    <i className="fas fa-users fa-lg me-2"></i>
+                                    <h4 className="mb-0 fw-bold">
                                         {users.length}
-                                    </h2>
+                                    </h4>
                                 </div>
-                                <p className="mb-0 fs-5 fw-bold">إجمالي المستخدمين</p>
+                                <p className="mb-0 fw-bold" style={{ fontSize: "0.9rem" }}>إجمالي المستخدمين</p>
                             </Card.Body>
                         </Card>
                     </div>
 
-                    <div className="col-md-3 mb-3">
+                    <div className="col-6 col-md-3 mb-3">
                         <Card
                             className="h-100"
                             style={{
@@ -343,22 +380,22 @@ const UsersManagement = () => {
                                 border: "none",
                                 borderRadius: "15px",
                                 boxShadow: "0 4px 12px rgba(46, 204, 113, 0.3)",
-                                minHeight: "140px",
+                                minHeight: "120px",
                             }}
                         >
                             <Card.Body className="text-white d-flex flex-column justify-content-center align-items-center">
                                 <div className="d-flex align-items-center justify-content-center mb-2">
-                                    <i className="fas fa-check-circle fa-2x me-3"></i>
-                                    <h2 className="mb-0 fw-bold" style={{ fontSize: "2.5rem" }}>
+                                    <i className="fas fa-check-circle fa-lg me-2"></i>
+                                    <h4 className="mb-0 fw-bold">
                                         {users.filter((u) => u.status === "active").length}
-                                    </h2>
+                                    </h4>
                                 </div>
-                                <p className="mb-0 fs-5 fw-bold">المستخدمين النشطين</p>
+                                <p className="mb-0 fw-bold" style={{ fontSize: "0.9rem" }}>المستخدمين النشطين</p>
                             </Card.Body>
                         </Card>
                     </div>
 
-                    <div className="col-md-3 mb-3">
+                    <div className="col-6 col-md-3 mb-3">
                         <Card
                             className="h-100"
                             style={{
@@ -366,22 +403,22 @@ const UsersManagement = () => {
                                 border: "none",
                                 borderRadius: "15px",
                                 boxShadow: "0 4px 12px rgba(231, 76, 60, 0.3)",
-                                minHeight: "140px",
+                                minHeight: "120px",
                             }}
                         >
                             <Card.Body className="text-white d-flex flex-column justify-content-center align-items-center">
                                 <div className="d-flex align-items-center justify-content-center mb-2">
-                                    <i className="fas fa-pause-circle fa-2x me-3"></i>
-                                    <h2 className="mb-0 fw-bold" style={{ fontSize: "2.5rem" }}>
+                                    <i className="fas fa-pause-circle fa-lg me-2"></i>
+                                    <h4 className="mb-0 fw-bold">
                                         {users.filter((u) => u.status === "inactive").length}
-                                    </h2>
+                                    </h4>
                                 </div>
-                                <p className="mb-0 fs-5 fw-bold">المستخدمين غير النشطين</p>
+                                <p className="mb-0 fw-bold" style={{ fontSize: "0.9rem" }}>المستخدمين غير النشطين</p>
                             </Card.Body>
                         </Card>
                     </div>
 
-                    <div className="col-md-3 mb-3">
+                    <div className="col-6 col-md-3 mb-3">
                         <Card
                             className="h-100"
                             style={{
@@ -389,121 +426,207 @@ const UsersManagement = () => {
                                 border: "none",
                                 borderRadius: "15px",
                                 boxShadow: "0 4px 12px rgba(142, 68, 173, 0.3)",
-                                minHeight: "140px"
+                                minHeight: "120px"
                             }}
                         >
                             <Card.Body className="text-center text-white d-flex flex-column justify-content-center">
                                 <div className="d-flex align-items-center justify-content-center mb-2">
-                                    <i className="fas fa-ban fa-2x me-3"></i>
-                                    <h2 className="mb-0 fw-bold" style={{ fontSize: "2.5rem" }}>
+                                    <i className="fas fa-ban fa-lg me-2"></i>
+                                    <h4 className="mb-0 fw-bold">
                                         {users.filter(u => u.status === "banned").length}
-                                    </h2>
+                                    </h4>
                                 </div>
-                                <p className="mb-0 fs-5 fw-bold">المستخدمين المحظورين</p>
+                                <p className="mb-0 fw-bold" style={{ fontSize: "0.9rem" }}>المستخدمين المحظورين</p>
                             </Card.Body>
                         </Card>
                     </div>
                 </div>
 
-                {/* جدول المستخدمين */}
-                <Card style={{ backgroundColor: "#252a41", border: "none", borderRadius: "15px" }}>
-                    <Card.Header style={{ backgroundColor: "#2f3450", border: "none", padding: "20px" }}>
-                        <h5 className="mb-0" style={{ color: "#ffffff" }}>قائمة المستخدمين</h5>
-                    </Card.Header>
-                    <Card.Body className="p-0">
-                        {loading ? (
-                            <div className="text-center py-5">
-                                <Spinner animation="border" variant="light" />
-                            </div>
-                        ) : (
-                            <Table responsive hover className="mb-0" style={{ color: "#ffffff" }}>
-                                <thead style={{ backgroundColor: "#2f3450" }}>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>الاسم</th>
-                                        <th>الوظيفة</th>
-                                        <th>البريد الإلكتروني</th>
-                                        <th>الحالة</th>
-                                        <th>الإجراءات</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {users.length > 0 ? (
-                                        users.map((user, index) => (
-                                            <tr
-                                                key={user._id}
-                                                style={getRowStyle(user._id)}
-                                                onMouseEnter={() => setHoveredRow(user._id)}
-                                                onMouseLeave={() => setHoveredRow(null)}
-                                            >
-                                                <td>{index + 1}</td>
-                                                <td>
-                                                    <div className="d-flex align-items-center">
-                                                        <div
-                                                            className="rounded-circle d-flex align-items-center justify-content-center me-3"
-                                                            style={{
-                                                                width: "40px",
-                                                                height: "40px",
-                                                                backgroundColor: "#4a90e2",
-                                                                color: "white",
-                                                                fontSize: "14px",
-                                                                fontWeight: "bold"
-                                                            }}
-                                                        >
-                                                            {getInitials(user.name)}
+                {/* جدول المستخدمين - للشاشات الكبيرة */}
+                <div className="d-none d-md-block">
+                    <Card style={{ backgroundColor: "#252a41", border: "none", borderRadius: "15px" }}>
+                        <Card.Header style={{ backgroundColor: "#2f3450", border: "none", padding: "20px" }}>
+                            <h5 className="mb-0" style={{ color: "#ffffff" }}>قائمة المستخدمين</h5>
+                        </Card.Header>
+                        <Card.Body className="p-0">
+                            {loading ? (
+                                <div className="text-center py-5">
+                                    <Spinner animation="border" variant="light" />
+                                </div>
+                            ) : (
+                                <Table responsive hover className="mb-0" style={{ color: "#ffffff" }}>
+                                    <thead style={{ backgroundColor: "#2f3450" }}>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>الاسم</th>
+                                            <th>الوظيفة</th>
+                                            <th>البريد الإلكتروني</th>
+                                            <th>الحالة</th>
+                                            <th>الإجراءات</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {filteredUsers.length > 0 ? (
+                                            filteredUsers.map((user, index) => (
+                                                <tr
+                                                    key={user._id}
+                                                    style={getRowStyle(user._id)}
+                                                    onMouseEnter={() => setHoveredRow(user._id)}
+                                                    onMouseLeave={() => setHoveredRow(null)}
+                                                >
+                                                    <td>{index + 1}</td>
+                                                    <td>
+                                                        <div className="d-flex align-items-center">
+                                                            <div
+                                                                className="rounded-circle d-flex align-items-center justify-content-center me-3"
+                                                                style={{
+                                                                    width: "40px",
+                                                                    height: "40px",
+                                                                    backgroundColor: "#4a90e2",
+                                                                    color: "white",
+                                                                    fontSize: "14px",
+                                                                    fontWeight: "bold"
+                                                                }}
+                                                            >
+                                                                {getInitials(user.name)}
+                                                            </div>
+                                                            <div>
+                                                                <div className="fw-bold" style={{ color: "#000000ff", fontSize: "16px" }}>{user.name}</div>
+                                                            </div>
                                                         </div>
-                                                        <div>
-                                                            <div className="fw-bold" style={{ color: "#000000ff", fontSize: "16px" }}>{user.name}</div>
+                                                    </td>
+                                                    <td>{user.job}</td>
+                                                    <td>{user.email}</td>
+                                                    <td>
+                                                        <Badge bg={getStatusBadge(user.status)}>
+                                                            {user.status === "active"
+                                                                ? "نشط"
+                                                                : user.status === "banned"
+                                                                    ? "محظور"
+                                                                    : "غير نشط"}
+                                                        </Badge>
+                                                    </td>
+                                                    <td>
+                                                        <div className="d-flex gap-2">
+                                                            <Button
+                                                                size="sm"
+                                                                variant="outline-info"
+                                                                onClick={() => handleView(user)}
+                                                            >
+                                                                عرض
+                                                            </Button>
+                                                            <Button
+                                                                size="sm"
+                                                                variant="outline-warning"
+                                                                onClick={() => handleShowEditModal(user)}
+                                                            >
+                                                                تعديل
+                                                            </Button>
                                                         </div>
-                                                    </div>
-                                                </td>
-                                                <td>{user.job}</td>
-                                                <td>{user.email}</td>
-                                                <td>
-                                                    <Badge bg={getStatusBadge(user.status)}>
-                                                        {user.status === "active"
-                                                            ? "نشط"
-                                                            : user.status === "banned"
-                                                                ? "محظور"
-                                                                : "غير نشط"}
-                                                    </Badge>
-                                                </td>
-                                                <td>
-                                                    <div className="d-flex gap-2" style={{ width: "200px" }}>
-                                                        <Button
-                                                            size="sm"
-                                                            variant="outline-info"
-                                                            onClick={() => handleView(user)}
-                                                            style={{ flex: 1 }}
-                                                        >
-                                                            عرض
-                                                        </Button>
-                                                        <Button
-                                                            size="sm"
-                                                            variant="outline-warning"
-                                                            onClick={() => handleShowEditModal(user)}
-                                                            style={{ flex: 1 }}
-                                                        >
-                                                            تعديل
-                                                        </Button>
-                                                    </div>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            <tr>
+                                                <td colSpan={6} className="text-center text-muted py-4">
+                                                    <i className="fas fa-users fa-2x mb-3 d-block"></i>
+                                                    {users.length === 0 ? 'لا يوجد مستخدمين' : 'لم يتم العثور على مستخدمين'}
                                                 </td>
                                             </tr>
-                                        ))
-                                    ) : (
-                                        <tr>
-                                            <td colSpan={6} className="text-center text-muted py-4">
-                                                <i className="fas fa-users fa-2x mb-3 d-block"></i>
-                                                لا يوجد مستخدمين
-                                            </td>
-                                        </tr>
-                                    )}
-                                </tbody>
-                            </Table>
-                        )}
-                    </Card.Body>
-                </Card>
+                                        )}
+                                    </tbody>
+                                </Table>
+                            )}
+                        </Card.Body>
+                    </Card>
+                </div>
 
+                {/* تصميم البطاقات للهواتف */}
+                <div className="d-block d-md-none">
+                    <Card style={{ backgroundColor: "#252a41", border: "none", borderRadius: "15px" }}>
+                        <Card.Header style={{ backgroundColor: "#2f3450", border: "none", padding: "15px" }}>
+                            <h5 className="mb-0" style={{ color: "#ffffff" }}>قائمة المستخدمين</h5>
+                        </Card.Header>
+                        <Card.Body className="p-0">
+                            {loading ? (
+                                <div className="text-center py-5">
+                                    <Spinner animation="border" variant="light" />
+                                </div>
+                            ) : filteredUsers.length > 0 ? (
+                                filteredUsers.map((user, index) => (
+                                    <div
+                                        key={user._id}
+                                        className="border-bottom border-gray-600 p-3 hover-bg"
+                                        style={{
+                                            backgroundColor: hoveredRow === user._id ? "#2f3450" : "transparent",
+                                            transition: "background-color 0.3s"
+                                        }}
+                                        onMouseEnter={() => setHoveredRow(user._id)}
+                                        onMouseLeave={() => setHoveredRow(null)}
+                                    >
+                                        <div className="d-flex justify-content-between align-items-start mb-2">
+                                            <div className="d-flex align-items-center">
+                                                <div
+                                                    className="rounded-circle d-flex align-items-center justify-content-center me-3"
+                                                    style={{
+                                                        width: "45px",
+                                                        height: "45px",
+                                                        backgroundColor: "#4a90e2",
+                                                        color: "white",
+                                                        fontSize: "16px",
+                                                        fontWeight: "bold"
+                                                    }}
+                                                >
+                                                    {getInitials(user.name)}
+                                                </div>
+                                                <div>
+                                                    <div className="fw-bold text-white">{user.name}</div>
+                                                    <div className="text-muted small">{user.job}</div>
+                                                </div>
+                                            </div>
+                                            <Badge bg={getStatusBadge(user.status)}>
+                                                {user.status === "active" ? "نشط" : user.status === "banned" ? "محظور" : "غير نشط"}
+                                            </Badge>
+                                        </div>
+
+                                        <div className="mb-3">
+                                            <div className="text-muted small">البريد الإلكتروني</div>
+                                            <div className="text-white">{user.email}</div>
+                                        </div>
+
+                                        <div className="d-flex gap-2">
+                                            <Button
+                                                size="sm"
+                                                variant="outline-info"
+                                                onClick={() => handleView(user)}
+                                                className="flex-fill"
+                                            >
+                                                <i className="fas fa-eye me-1"></i>
+                                                عرض
+                                            </Button>
+                                            <Button
+                                                size="sm"
+                                                variant="outline-warning"
+                                                onClick={() => handleShowEditModal(user)}
+                                                className="flex-fill"
+                                            >
+                                                <i className="fas fa-edit me-1"></i>
+                                                تعديل
+                                            </Button>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="text-center text-muted py-4">
+                                    <i className="fas fa-users fa-2x mb-3 d-block"></i>
+                                    {users.length === 0 ? 'لا يوجد مستخدمين' : 'لم يتم العثور على مستخدمين'}
+                                </div>
+                            )}
+                        </Card.Body>
+                    </Card>
+                </div>
+
+                {/* باقي المودالات بدون تغيير */}
                 {/* مودال عرض المستخدم */}
                 <Modal show={showModal} onHide={handleCloseModal} centered style={{ direction: "rtl" }}>
                     <Modal.Header closeButton style={{ backgroundColor: "#2f3450", color: "white" }}>

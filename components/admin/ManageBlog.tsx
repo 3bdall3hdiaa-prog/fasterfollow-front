@@ -33,6 +33,7 @@ const ManageBlog: React.FC = () => {
     });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [searchTerm, setSearchTerm] = useState('');
 
     // جلب المقالات من الـ API
     useEffect(() => {
@@ -166,6 +167,14 @@ const ManageBlog: React.FC = () => {
             : 'bg-yellow-900 text-yellow-300 border border-yellow-700';
     };
 
+    // فلترة المقالات حسب البحث
+    const filteredPosts = posts.filter(post =>
+        post.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        post.author?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        post.extract?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        post.status?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
     if (loading) {
         return (
             <div className="flex justify-center items-center h-64">
@@ -189,18 +198,37 @@ const ManageBlog: React.FC = () => {
     }
 
     return (
-        <div>
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold text-white">إدارة المدونة</h1>
+        <div className="p-4">
+            <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                <h1 className="text-2xl md:text-3xl font-bold text-white text-center md:text-right">
+                    إدارة المدونة
+                </h1>
                 <button
                     onClick={() => handleOpenModal(null)}
-                    className="bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-6 rounded-lg transition duration-200"
+                    className="bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-6 rounded-lg transition duration-200 w-full md:w-auto"
                 >
                     مقال جديد
                 </button>
             </div>
 
-            <div className="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
+            {/* حقل البحث */}
+            <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 mb-6">
+                <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
+                    <input
+                        type="text"
+                        placeholder="ابحث بالعنوان، الكاتب، المقتطف، أو الحالة..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="bg-gray-700 border border-gray-600 rounded-md p-3 text-white w-full md:w-1/2 text-sm md:text-base"
+                    />
+                    <div className="text-gray-400 text-sm md:text-base">
+                        إجمالي المقالات: {posts.length} | المعروض: {filteredPosts.length}
+                    </div>
+                </div>
+            </div>
+
+            {/* ✅ جدول المقالات - للشاشات الكبيرة */}
+            <div className="hidden md:block bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
                 <table className="w-full text-sm text-right text-gray-300">
                     <thead className="text-xs text-gray-400 uppercase bg-gray-700/50">
                         <tr>
@@ -212,7 +240,7 @@ const ManageBlog: React.FC = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {posts.map(post => (
+                        {filteredPosts.map(post => (
                             <tr key={post._id} className="border-b border-gray-700 hover:bg-gray-700/50 transition duration-150">
                                 <td className="px-6 py-4">
                                     <div className="text-white font-semibold">{post.title}</div>
@@ -232,7 +260,7 @@ const ManageBlog: React.FC = () => {
                                     </span>
                                 </td>
                                 <td className="px-6 py-4">
-                                    <div className="flex justify-end space-x-2 space-x-reverse">
+                                    <div className="flex justify-end gap-2">
                                         <button
                                             onClick={() => handleOpenModal(post)}
                                             className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm transition duration-200 flex items-center"
@@ -258,9 +286,11 @@ const ManageBlog: React.FC = () => {
                     </tbody>
                 </table>
 
-                {posts.length === 0 && (
+                {filteredPosts.length === 0 && (
                     <div className="p-12 text-center">
-                        <div className="text-gray-400 text-lg mb-4">لا توجد مقالات حالياً</div>
+                        <div className="text-gray-400 text-lg mb-4">
+                            {posts.length === 0 ? 'لا توجد مقالات حالياً' : 'لم يتم العثور على مقالات تطابق البحث'}
+                        </div>
                         <button
                             onClick={() => handleOpenModal(null)}
                             className="bg-primary-600 hover:bg-primary-700 text-white py-2 px-6 rounded-lg"
@@ -271,15 +301,90 @@ const ManageBlog: React.FC = () => {
                 )}
             </div>
 
+            {/* ✅ تصميم البطاقات للهواتف */}
+            <div className="block md:hidden">
+                <div className="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
+                    {filteredPosts.length === 0 ? (
+                        <div className="p-8 text-center">
+                            <div className="text-gray-400 text-lg mb-4">
+                                {posts.length === 0 ? 'لا توجد مقالات حالياً' : 'لم يتم العثور على مقالات تطابق البحث'}
+                            </div>
+                            <button
+                                onClick={() => handleOpenModal(null)}
+                                className="bg-primary-600 hover:bg-primary-700 text-white py-3 px-6 rounded-lg w-full"
+                            >
+                                إنشاء أول مقال
+                            </button>
+                        </div>
+                    ) : (
+                        filteredPosts.map(post => (
+                            <div key={post._id} className="border-b border-gray-700 p-4 hover:bg-gray-700/50 transition-colors">
+                                {/* رأس البطاقة */}
+                                <div className="flex justify-between items-start mb-3">
+                                    <div className="flex-1">
+                                        <div className="font-semibold text-white text-lg mb-2">{post.title}</div>
+                                        <div className="flex items-center gap-3">
+                                            <span className={`px-2 py-1 text-xs rounded-full ${getStatusClass(post.status)}`}>
+                                                {getStatusText(post.status)}
+                                            </span>
+                                            <span className="text-gray-400 text-sm">{post.author || 'Admin'}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* معلومات المقال */}
+                                <div className="space-y-2 mb-4">
+                                    {post.extract && (
+                                        <div>
+                                            <div className="text-gray-400 text-xs mb-1">المقتطف</div>
+                                            <div className="text-white text-sm line-clamp-2">
+                                                {post.extract}
+                                            </div>
+                                        </div>
+                                    )}
+                                    <div>
+                                        <div className="text-gray-400 text-xs mb-1">الرابط</div>
+                                        <div className="text-gray-300 text-sm">{post.link}</div>
+                                    </div>
+                                </div>
+
+                                {/* أزرار الإجراءات */}
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => handleOpenModal(post)}
+                                        className="bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg flex items-center gap-1 flex-1 justify-center text-sm"
+                                    >
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+                                        تعديل
+                                    </button>
+                                    <button
+                                        onClick={() => post._id && handleDelete(post._id)}
+                                        className="bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg flex items-center gap-1 flex-1 justify-center text-sm"
+                                    >
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                        حذف
+                                    </button>
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
+            </div>
+
+            {/* نافذة الإضافة/التعديل */}
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4" onClick={handleCloseModal}>
                     <div className="bg-gray-800 text-white rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden" onClick={e => e.stopPropagation()}>
-                        <form onSubmit={handleSubmit} className="p-6">
+                        <form onSubmit={handleSubmit} className="p-4 md:p-6">
                             <h3 className="text-xl font-bold mb-6">{editingPost ? 'تعديل مقال' : 'إضافة مقال جديد'}</h3>
 
                             <div className="max-h-[60vh] overflow-y-auto pr-2 space-y-4">
                                 {/* الحقول الأساسية */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 gap-4">
                                     <div>
                                         <label className="block text-sm font-medium mb-2">العنوان *</label>
                                         <input
@@ -287,7 +392,7 @@ const ManageBlog: React.FC = () => {
                                             value={formData.title}
                                             onChange={handleChange}
                                             placeholder="عنوان المقال"
-                                            className="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 focus:border-primary-500 focus:outline-none"
+                                            className="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 focus:border-primary-500 focus:outline-none text-sm md:text-base"
                                             required
                                         />
                                     </div>
@@ -298,7 +403,7 @@ const ManageBlog: React.FC = () => {
                                             value={formData.link}
                                             onChange={handleChange}
                                             placeholder="رابط المقال (e.g., my-awesome-post)"
-                                            className="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 focus:border-primary-500 focus:outline-none"
+                                            className="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 focus:border-primary-500 focus:outline-none text-sm md:text-base"
                                             required
                                         />
                                     </div>
@@ -312,7 +417,7 @@ const ManageBlog: React.FC = () => {
                                         onChange={handleChange}
                                         placeholder="مقتطف مختصر عن المقال"
                                         rows={3}
-                                        className="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 focus:border-primary-500 focus:outline-none"
+                                        className="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 focus:border-primary-500 focus:outline-none text-sm md:text-base"
                                     />
                                 </div>
 
@@ -323,8 +428,8 @@ const ManageBlog: React.FC = () => {
                                         value={formData.content}
                                         onChange={handleChange}
                                         placeholder="المحتوى الكامل للمقال (HTML مسموح)"
-                                        rows={8}
-                                        className="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 focus:border-primary-500 focus:outline-none font-mono"
+                                        rows={6}
+                                        className="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 focus:border-primary-500 focus:outline-none font-mono text-sm md:text-base"
                                         required
                                     />
                                 </div>
@@ -337,7 +442,7 @@ const ManageBlog: React.FC = () => {
                                             value={formData.urlimage}
                                             onChange={handleChange}
                                             placeholder="رابط صورة المقال"
-                                            className="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 focus:border-primary-500 focus:outline-none"
+                                            className="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 focus:border-primary-500 focus:outline-none text-sm md:text-base"
                                         />
                                     </div>
                                     <div>
@@ -346,7 +451,7 @@ const ManageBlog: React.FC = () => {
                                             name="status"
                                             value={formData.status}
                                             onChange={handleChange}
-                                            className="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 focus:border-primary-500 focus:outline-none"
+                                            className="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 focus:border-primary-500 focus:outline-none text-sm md:text-base"
                                         >
                                             <option value="Published">منشور</option>
                                             <option value="Draft">مسودة</option>
@@ -362,7 +467,7 @@ const ManageBlog: React.FC = () => {
                                             value={formData.author || 'Admin'}
                                             onChange={handleChange}
                                             placeholder="الكاتب"
-                                            className="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 focus:border-primary-500 focus:outline-none"
+                                            className="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 focus:border-primary-500 focus:outline-none text-sm md:text-base"
                                         />
                                     </div>
                                     <div>
@@ -371,7 +476,7 @@ const ManageBlog: React.FC = () => {
                                             name="role"
                                             value={formData.role}
                                             onChange={handleChange}
-                                            className="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 focus:border-primary-500 focus:outline-none"
+                                            className="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 focus:border-primary-500 focus:outline-none text-sm md:text-base"
                                             readOnly
                                         />
                                     </div>
@@ -388,7 +493,7 @@ const ManageBlog: React.FC = () => {
                                         value={formData.Metatitle}
                                         onChange={handleChange}
                                         placeholder="عنوان Meta"
-                                        className="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 focus:border-primary-500 focus:outline-none"
+                                        className="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 focus:border-primary-500 focus:outline-none text-sm md:text-base"
                                     />
                                 </div>
 
@@ -400,7 +505,7 @@ const ManageBlog: React.FC = () => {
                                         onChange={handleChange}
                                         placeholder="وصف Meta"
                                         rows={3}
-                                        className="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 focus:border-primary-500 focus:outline-none"
+                                        className="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 focus:border-primary-500 focus:outline-none text-sm md:text-base"
                                     />
                                 </div>
                             </div>
@@ -409,13 +514,13 @@ const ManageBlog: React.FC = () => {
                                 <button
                                     type="button"
                                     onClick={handleCloseModal}
-                                    className="bg-gray-600 hover:bg-gray-500 text-white py-3 px-8 rounded-lg transition duration-200"
+                                    className="bg-gray-600 hover:bg-gray-500 text-white py-3 px-6 rounded-lg transition duration-200 text-sm md:text-base flex-1 md:flex-none"
                                 >
                                     إلغاء
                                 </button>
                                 <button
                                     type="submit"
-                                    className="bg-primary-600 hover:bg-primary-700 text-white py-3 px-8 rounded-lg transition duration-200"
+                                    className="bg-primary-600 hover:bg-primary-700 text-white py-3 px-6 rounded-lg transition duration-200 text-sm md:text-base flex-1 md:flex-none"
                                 >
                                     {editingPost ? 'تحديث المقال' : 'إنشاء المقال'}
                                 </button>
