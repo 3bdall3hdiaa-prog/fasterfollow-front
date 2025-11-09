@@ -185,11 +185,11 @@ const OrdersHistory = () => {
     // دالة لعرض حالة الطلب بشكل آمن
     const renderStatus = (status: OrderStatus) => {
         const statusTexts: Record<string, string> = {
-            'pending': 'قيد الانتظار',
-            'completed': 'مكتمل',
-            'cancelled': 'ملغي',
-            'failed': 'فاشل',
-            'In Progress': 'قيد التنفيذ'
+            'pending': 'pending',
+            'completed': 'completed',
+            'cancelled': 'cancelled',
+            'failed': 'failed',
+            'In Progress': 'In Progress'
         };
 
         const statusClass = statusClasses[status] || 'bg-gray-700 text-gray-300';

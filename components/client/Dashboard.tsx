@@ -103,11 +103,15 @@ const Dashboard: React.FC<DashboardProps> = ({ setActiveView }) => {
 
             console.log('البيانات المستلمة:', ordersData);
             setOrderlength(ordersData.length);
-
+            const getdata = localStorage.getItem('user')
+            const username = JSON.parse(getdata || '{}').username
             // فلترة الطلبات المكتملة فقط
-            const completed = ordersData.filter((order: Order) =>
-                order && order.status === 'Completed' || order.status === 'completed'
-            );
+            const completed = ordersData.filter((order: any) => {
+                return (
+
+                    order && order.status === 'Completed' && order.username === username || order.status === 'completed' && order.username === username
+                )
+            })
             setCompletedOrders(completed);
 
         } catch (error) {

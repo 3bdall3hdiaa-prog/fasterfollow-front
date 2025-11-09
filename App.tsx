@@ -231,6 +231,7 @@ const App: React.FC = () => {
             // Transform the API data to match the ServicePackage type
             const formattedServices: ServicePackage[] = data.map((service: any) => ({
                 id: service._id || service.id?.toString() || Math.random().toString(),
+                title: service.title || 'Untitled',
                 name: service.title || 'Unnamed Service',
                 description: service.description || 'No description available',
                 price: service.price || 0,

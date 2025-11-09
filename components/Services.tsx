@@ -34,6 +34,7 @@ const Services: React.FC<ServicesProps> = ({ services, platforms, content }) => 
         }
     }
 
+
     return (
         <section id="services" className="py-20 bg-gray-900">
             <div className="container mx-auto px-6">
@@ -61,18 +62,22 @@ const Services: React.FC<ServicesProps> = ({ services, platforms, content }) => 
 
                 {/* Services Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    {filteredServices.map(service => (
-                        <div key={service.id} className="bg-gray-800 rounded-lg overflow-hidden border border-gray-700 flex flex-col text-center transition-all duration-300 hover:border-primary-500 hover:shadow-2xl hover:shadow-primary-900/50 transform hover:-translate-y-2">
-                            {service.imageUrl && <img src={service.imageUrl} alt={service.title} className="w-full h-40 object-cover" />}
-                            <div className="p-6 flex flex-col flex-grow">
-                                <p className="text-gray-400 mb-4 flex-grow text-sm">{service.title}</p>
-                                <p className="text-3xl font-bold text-primary-400 mb-6">{formatPrice(service.price)}<span className="text-sm text-gray-400"> / 1000</span></p>
-                                <button onClick={z} className="mt-auto bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-6 rounded-lg transition-colors w-full">
-                                    اطلب الآن
-                                </button>
+                    {filteredServices.map(service => {
+                        console.log("Service title:", service.title);
+
+                        return (
+                            <div key={service.id} className="bg-gray-800 rounded-lg overflow-hidden border border-gray-700 flex flex-col text-center transition-all duration-300 hover:border-primary-500 hover:shadow-2xl hover:shadow-primary-900/50 transform hover:-translate-y-2">
+                                {service.imageUrl && <img src={service.imageUrl} alt={service.title} className="w-full h-40 object-cover" />}
+                                <div className="p-6 flex flex-col flex-grow">
+                                    <p className="text-gray-400 mb-4 flex-grow text-sm">{service.title}</p>
+                                    <p className="text-3xl font-bold text-primary-400 mb-6">{formatPrice(service.price)}<span className="text-sm text-gray-400"> / 1000</span></p>
+                                    <button onClick={z} className="mt-auto bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-6 rounded-lg transition-colors w-full">
+                                        اطلب الآن
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        )
+                    })}
                 </div>
             </div>
 
