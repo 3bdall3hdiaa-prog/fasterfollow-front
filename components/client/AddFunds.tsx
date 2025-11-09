@@ -20,7 +20,7 @@ const AddFunds: React.FC = () => {
     const [couponMessage, setCouponMessage] = useState('');
     const [paymentMethods, setPaymentMethods] = useState([
         { id: 'paypal', name: 'PayPal', icon: '🅿️', paymentUrl: "", description: "" },
-        { id: 'bank', name: ' دفع عبر (فيزا-ماستركارد-ابل باي) ', icon: '🏦', description: "" }
+
     ]);
     const [selectedMethodDescription, setSelectedMethodDescription] = useState('');
 
@@ -47,7 +47,7 @@ const AddFunds: React.FC = () => {
                 // دمج الطرق الافتراضية مع الطرق من API
                 const defaultMethods = [
                     { id: 'paypal', name: 'PayPal', icon: '🅿️', description: 'الدفع عبر PayPal بشكل آمن' },
-                    { id: 'bank', name: ' دفع عبر (فيزا-ماستركارد-ابل باي) ', icon: '🏦', description: 'الدفع بالبطاقات الائتمانية وبطاقات الخصم' }
+
                 ];
 
                 const allMethods = [...defaultMethods, ...formattedMethods];

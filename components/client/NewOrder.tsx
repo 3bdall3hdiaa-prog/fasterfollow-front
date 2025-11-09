@@ -235,7 +235,7 @@ const NewOrder: React.FC<NewOrderProps> = ({ services }) => {
                             <option value="" disabled>-- اختر خدمة --</option>
                             {filteredServices.map(service => (
                                 <option key={service.id} value={service.id}>
-                                    {service.title} - {service.price}$/1000
+                                    {service.title} - {formatPrice(service.price)}/1000
                                 </option>
                             ))}
                         </select>
@@ -288,9 +288,9 @@ const NewOrder: React.FC<NewOrderProps> = ({ services }) => {
                 <div className="mt-8 border-t border-gray-700 pt-6 flex flex-col sm:flex-row justify-between items-center">
                     <div className="mb-4 sm:mb-0">
                         <span className="text-gray-400">التكلفة الإجمالية:</span>
-                        <span className="text-2xl font-bold text-primary-400 mr-2">${formatPrice(totalCost.toFixed(2))}</span>
+                        <span className="text-2xl font-bold text-primary-400 mr-2">{formatPrice(totalCost.toFixed(2))}</span>
                         <div className="text-sm text-gray-400 mt-1">
-                            الرصيد المتبقي بعد الشراء: ${(walletBalance - totalCost).toFixed(2)}
+                            الرصيد المتبقي بعد الشراء: {formatPrice((walletBalance - totalCost))}
                         </div>
                     </div>
                     <button

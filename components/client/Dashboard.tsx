@@ -175,7 +175,7 @@ const Dashboard: React.FC<DashboardProps> = ({ setActiveView }) => {
                 <QuickActionButton onClick={() => setActiveView('new-order')} icon="➕" text="طلب جديد" />
                 <QuickActionButton onClick={() => setActiveView('add-funds')} icon="💰" text="شحن الرصيد" />
                 <QuickActionButton onClick={() => setActiveView('support')} icon="💬" text="الدعم الفني" />
-                <QuickActionButton onClick={() => setActiveView('services-list')} icon="📋" text="طلباتي" />
+                <QuickActionButton onClick={() => setActiveView('orders-history')} icon="📋" text="طلباتي" />
             </div>
             {/* بطاقات الإحصائيات */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
