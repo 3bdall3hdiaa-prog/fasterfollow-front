@@ -290,6 +290,7 @@ const OrdersManagement = () => {
         };
         return icons[category] || "fas fa-link";
     };
+<<<<<<< HEAD
 
     // فلترة الطلبات حسب البحث
     const filteredOrders = orders.filter(order =>
@@ -311,6 +312,11 @@ const OrdersManagement = () => {
         return () => clearInterval(interval);
     }, [orders]);
 
+=======
+ setInterval(() => {
+        handleUpdateAllStatuses();
+    }, 30000);
+>>>>>>> 9ead8787eac2de529dba78932b533fe73f73d8d8
     return (
         <div
             style={{
