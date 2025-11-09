@@ -13,7 +13,7 @@ const NewOrder: React.FC<NewOrderProps> = ({ services }) => {
     const [selectedPlatform, setSelectedPlatform] = useState<string>('');
     const [selectedServiceId, setSelectedServiceId] = useState<string>('');
     const [link, setLink] = useState('');
-    const [quantity, setQuantity] = useState(1000);
+    const [quantity, setQuantity] = useState(0);
     const [totalCost, setTotalCost] = useState<any>(0);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
@@ -235,7 +235,7 @@ const NewOrder: React.FC<NewOrderProps> = ({ services }) => {
                             <option value="" disabled>-- اختر خدمة --</option>
                             {filteredServices.map(service => (
                                 <option key={service.id} value={service.id}>
-                                    {service.platform} | {service.title}
+                                    {service.title} - {service.price}$/1000
                                 </option>
                             ))}
                         </select>

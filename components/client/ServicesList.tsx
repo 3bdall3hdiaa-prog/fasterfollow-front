@@ -126,10 +126,7 @@ const ServicesList: React.FC = () => {
                                     </div>
 
                                     <div className="grid grid-cols-2 gap-3 text-sm mb-2">
-                                        <div className="text-gray-400">
-                                            <div className="text-xs mb-1">المزود</div>
-                                            <div className="text-white">{service.provider}</div>
-                                        </div>
+
                                         <div className="text-gray-400">
                                             <div className="text-xs mb-1">المنصة</div>
                                             <div className="text-white">{service.platform}</div>
@@ -163,7 +160,7 @@ const ServicesList: React.FC = () => {
                                     <thead className="text-xs text-gray-400 uppercase bg-gray-700/50">
                                         <tr>
                                             <th className="px-4 py-3">رقم الخدمة</th>
-                                            <th className="px-4 py-3">المزود</th>
+
                                             <th className="px-4 py-3">المنصة</th>
                                             <th className="px-4 py-3">الخدمة</th>
                                             <th className="px-4 py-3">سعرنا</th>
@@ -176,7 +173,7 @@ const ServicesList: React.FC = () => {
                                         {filteredServices.map(service => (
                                             <tr key={service._id} className="border-b border-gray-700 hover:bg-gray-700/50 transition-colors">
                                                 <td className="px-4 py-4 font-mono text-xs">{service.providerServiceId}</td>
-                                                <td className="px-4 py-4">{service.provider}</td>
+
                                                 <td className="px-4 py-4">{service.platform}</td>
                                                 <td className="px-4 py-4 text-white">
                                                     <div>

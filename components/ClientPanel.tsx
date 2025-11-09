@@ -40,8 +40,7 @@ const ClientPanel: React.FC<ClientPanelProps> = ({ services, initialView = 'dash
                 return <ServicesList />;
             case 'profile':
                 return <Profile />;
-            case 'affiliate':
-                return <Affiliate />;
+
             default:
                 return <Dashboard setActiveView={setActiveView} />;
         }

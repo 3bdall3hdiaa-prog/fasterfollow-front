@@ -22,43 +22,22 @@ const OrdersHistory = () => {
     const [statusFilter, setStatusFilter] = useState<OrderStatus | 'all'>('all');
     const [currentUsername, setCurrentUsername] = useState<string>('');
 
-    // دالة لتحويل status إلى النوع الصحيح
-    // const normalizeStatus = (status: string): OrderStatus => {
-    //     const statusMap: any = {
-    //         'pending': 'pending',
-    //         'Pending': 'pending',
-    //         'in progress': 'In Progress',
-    //         'In progress': 'In Progress',
-    //         'In Progress': 'In Progress',
-    //         'completed': 'completed',
-    //         'cancelled': 'cancelled',
-    //         'failed': 'failed'
-    //     };
-
-    //     return statusMap[status] || 'pending';
-    // };
-
     // دالة لاستخراج username من التوكن
-   const getUsernameFromToken = (): string => {
+    const getUsernameFromToken = (): string => {
         try {
-            // نحاول نجيب بيانات المستخدم من localStorage أو sessionStorage
             const userData = localStorage.getItem('user') || sessionStorage.getItem('user');
             if (!userData) {
                 console.warn('No user data found');
                 return '';
             }
 
-            // نحولها من string إلى object
             const user = JSON.parse(userData);
-
-            // نرجع اليوزر نيم لو موجود
             return user.username || user.name || '';
         } catch (error) {
             console.error('Error parsing user data:', error);
             return '';
         }
     };
-
 
     // جلب البيانات من السيرفر
     useEffect(() => {
@@ -97,7 +76,6 @@ const OrdersHistory = () => {
                     .map((order: any, index: number) => {
                         console.log('Processing order:', order);
 
-                        // استخدام البيانات الحقيقية من API مع تحويل status
                         return {
                             id: order._id || `ORD${Date.now()}_${index}`,
                             order_number: order.order_number || `ORD${order._id?.substring(0, 8)}` || `ORDER_${index}`,
@@ -112,13 +90,18 @@ const OrdersHistory = () => {
                             link: order.link || '',
                             quantity: order.quantity || 0,
                             price: order.totalCost || 0,
-                            status: order.status, // تحويل status هنا
+                            status: order.status,
                             createdAt: order.createdAt || new Date().toISOString()
                         };
                     });
 
-                console.log('Transformed orders:', ordersData);
-                setOrders(ordersData);
+                // ترتيب الطلبات من الأحدث إلى الأقدم
+                const sortedOrders = ordersData.sort((a: any, b: any) =>
+                    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+                );
+
+                console.log('Transformed and sorted orders:', sortedOrders);
+                setOrders(sortedOrders);
 
             } catch (err: any) {
                 console.error('خطأ في جلب الطلبات:', err);
@@ -132,11 +115,11 @@ const OrdersHistory = () => {
         fetchOrders();
     }, []);
 
-    // تصفية الطلبات بشكل آمن
+    // تصفية الطلبات بشكل آمن مع الحفاظ على الترتيب
     const filteredOrders = useMemo(() => {
         if (!orders || !Array.isArray(orders)) return [];
 
-        return orders
+        const filtered = orders
             .filter((order: Order) => {
                 if (!order) return false;
                 return statusFilter === 'all' || order.status === statusFilter;
@@ -145,6 +128,11 @@ const OrdersHistory = () => {
                 const orderNumber = order.order_number?.toString() || '';
                 return orderNumber.toLowerCase().includes(searchTerm.toLowerCase());
             });
+
+        // الحفاظ على الترتيب من الأحدث إلى الأقدم بعد التصفية
+        return filtered.sort((a: any, b: any) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
     }, [orders, searchTerm, statusFilter]);
 
     // دالة لتنسيق التاريخ بشكل آمن
@@ -237,28 +225,31 @@ const OrdersHistory = () => {
     }
 
     return (
-        <div>
-            <h1 className="text-3xl font-bold text-white mb-6">سجل الطلبات</h1>
+        <div className="p-4">
+            <h1 className="text-2xl md:text-3xl font-bold text-white mb-6 text-center md:text-right">
+                سجل الطلبات
+            </h1>
 
             {currentUsername && (
-                <div className="bg-blue-900/50 border border-blue-700 text-blue-300 p-3 rounded-lg mb-4">
+                <div className="bg-blue-900/50 border border-blue-700 text-blue-300 p-3 rounded-lg mb-4 text-center md:text-right">
                     <span className="font-medium">المستخدم الحالي:</span> {currentUsername}
                 </div>
             )}
 
+            {/* حقل البحث والتصفية */}
             <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 mb-6">
                 <div className="flex flex-col md:flex-row gap-4">
                     <input
                         type="text"
-                        placeholder="ابحث برقم الطلب فقط..."
+                        placeholder="ابحث برقم الطلب..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="bg-gray-700 border border-gray-600 rounded-md p-2 text-white w-full"
+                        className="bg-gray-700 border border-gray-600 rounded-md p-3 text-white w-full text-sm md:text-base"
                     />
                     <select
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value as OrderStatus | 'all')}
-                        className="bg-gray-700 border border-gray-600 rounded-md p-2 text-white w-full md:w-48"
+                        className="bg-gray-700 border border-gray-600 rounded-md p-3 text-white w-full md:w-48 text-sm md:text-base"
                     >
                         <option value="all">كل الحالات</option>
                         {allStatuses.map(s => (
@@ -273,16 +264,24 @@ const OrdersHistory = () => {
                     </select>
                 </div>
 
-                <div className="mt-4 flex flex-wrap gap-4 text-sm text-gray-400">
-                    <span>إجمالي الطلبات: {orderStats.total}</span>
+                <div className="mt-4 flex flex-wrap gap-3 text-sm text-gray-400 justify-center md:justify-start">
+                    <span>الإجمالي: {orderStats.total}</span>
                     <span>المعروض: {filteredOrders.length}</span>
                     <span>قيد الانتظار: {orderStats.pending}</span>
                     <span>مكتمل: {orderStats.completed}</span>
                     <span>قيد التنفيذ: {orderStats.inProgress}</span>
                 </div>
+
+                {/* إشعار ترتيب الطلبات */}
+                <div className="mt-3 text-center md:text-right">
+                    <div className="text-green-400 text-sm">
+                        الطلبات مرتبة من الأحدث إلى الأقدم
+                    </div>
+                </div>
             </div>
 
-            <div className="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
+            {/* ✅ جدول الطلبات - للشاشات الكبيرة */}
+            <div className="hidden md:block bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
                 {filteredOrders.length === 0 ? (
                     <div className="text-center py-8 text-gray-400">
                         {orders.length === 0 ? 'لا توجد طلبات حالياً' : 'لم يتم العثور على طلبات تطابق البحث'}
@@ -319,11 +318,11 @@ const OrdersHistory = () => {
                                         <td className="px-4 py-4">
                                             {(order.quantity || 0).toLocaleString()}
                                         </td>
-                                        <td className="px-4 py-4">
+                                        <td className="px-4 py-4 text-green-400 font-semibold">
                                             ${(order.price || 0).toFixed(3)}
                                         </td>
                                         <td className="px-4 py-4">
-                                            {order.status}
+                                            {renderStatus(order.status)}
                                         </td>
                                     </tr>
                                 ))}
@@ -331,6 +330,76 @@ const OrdersHistory = () => {
                         </table>
                     </div>
                 )}
+            </div>
+
+            {/* ✅ تصميم البطاقات للهواتف */}
+            <div className="block md:hidden">
+                <div className="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
+                    {filteredOrders.length === 0 ? (
+                        <div className="text-center py-8 text-gray-400">
+                            {orders.length === 0 ? 'لا توجد طلبات حالياً' : 'لم يتم العثور على طلبات تطابق البحث'}
+                        </div>
+                    ) : (
+                        filteredOrders.map((order) => (
+                            <div key={order.id} className="border-b border-gray-700 p-4 hover:bg-gray-700/50 transition-colors">
+                                {/* رأس البطاقة */}
+                                <div className="flex justify-between items-start mb-3">
+                                    <div>
+                                        <div className="font-bold text-white text-lg mb-1">
+                                            #{order.order_number || 'N/A'}
+                                        </div>
+                                        <div className="text-gray-400 text-sm">
+                                            {formatDate(order.createdAt)}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        {renderStatus(order.status)}
+                                    </div>
+                                </div>
+
+                                {/* معلومات الطلب */}
+                                <div className="space-y-3 mb-4">
+                                    <div>
+                                        <div className="text-gray-400 text-xs mb-1">الخدمة</div>
+                                        <div className="text-white font-semibold">
+                                            {order.service?.title || 'خدمة غير معروفة'}
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <div className="text-gray-400 text-xs mb-1">الرابط</div>
+                                        <div className="text-blue-400 text-sm break-all">
+                                            {order.link || 'لا يوجد رابط'}
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <div className="text-gray-400 text-xs mb-1">الكمية</div>
+                                            <div className="text-white font-semibold">
+                                                {(order.quantity || 0).toLocaleString()}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div className="text-gray-400 text-xs mb-1">السعر</div>
+                                            <div className="text-green-400 font-bold text-lg">
+                                                ${(order.price || 0).toFixed(3)}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* معلومات إضافية */}
+                                <div className="bg-gray-700/50 rounded-lg p-3">
+                                    <div className="text-gray-400 text-xs mb-1">رقم الطلب الكامل</div>
+                                    <div className="text-white font-mono text-sm break-all">
+                                        {order.id}
+                                    </div>
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
             </div>
         </div>
     );

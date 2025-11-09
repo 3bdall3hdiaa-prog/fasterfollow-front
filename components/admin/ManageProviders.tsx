@@ -328,7 +328,7 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
                                 <th className="px-4 py-3">الاسم</th>
                                 <th className="px-4 py-3">نقطة النهاية (API)</th>
                                 <th className="px-4 py-3">API_KEY</th>
-                                <th className="px-4 py-3">الرصيد</th>
+
                                 <th className="px-4 py-3">الحالة</th>
                                 <th className="px-4 py-3">الإجراءات</th>
                             </tr>
@@ -341,20 +341,7 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
                                     <td className="px-4 py-4 font-mono text-xs">
                                         {provider.apiKey ? `${provider.apiKey.substring(0, 20)}...` : 'N/A'}
                                     </td>
-                                    <td className="px-4 py-4">
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-green-400 font-semibold">
-                                                ${provider.balance?.toFixed(2) || '0.00'}
-                                            </span>
-                                            <button
-                                                onClick={() => handleSync(provider.id)}
-                                                disabled={syncingProviderId === provider.id || loading}
-                                                className="text-blue-400 hover:text-blue-300 text-sm bg-blue-900/30 hover:bg-blue-900/50 px-2 py-1 rounded text-xs"
-                                            >
-                                                {syncingProviderId === provider.id ? 'جاري المزامنة...' : 'مزامنة'}
-                                            </button>
-                                        </div>
-                                    </td>
+
                                     <td className="px-4 py-4"><StatusBadge status={provider.status} /></td>
                                     <td className="px-4 py-4">
                                         <div className="flex justify-end gap-3">
