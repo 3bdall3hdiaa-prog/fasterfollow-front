@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Table, Button, Container, Spinner, Modal, Card, Badge, Form, Alert, Toast } from "react-bootstrap";
 import axios from "axios";
-
 const OrdersManagement = () => {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -12,7 +11,7 @@ const OrdersManagement = () => {
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState("");
     const [searchTerm, setSearchTerm] = useState("");
-
+    const workerPath = './orderStatusWorker.js';
     // تعديل الطلب
     const [showEditModal, setShowEditModal] = useState(false);
     const [editingOrder, setEditingOrder] = useState({
@@ -301,15 +300,15 @@ const OrdersManagement = () => {
     );
 
     // التحديث التلقائي كل 30 ثانية
-    useEffect(() => {
-        const interval = setInterval(() => {
-            if (orders.length > 0) {
-                handleUpdateAllStatuses();
-            }
-        }, 30000);
+    // useEffect(() => {
+    //     const interval = setInterval(() => {
+    //         if (orders.length > 0) {
+    //             handleUpdateAllStatuses();
+    //         }
+    //     }, 20000);
 
-        return () => clearInterval(interval);
-    }, [orders]);
+    //     return () => clearInterval(interval);
+    // }, [orders]);
 
     return (
         <div
