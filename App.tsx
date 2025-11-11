@@ -19,6 +19,7 @@ import Banners from './components/Banners';
 import { useUser } from './contexts/UserContext';
 import { useSEO } from './hooks/useSEO';
 import { Page, BlogPost as BlogPostType, ServicePackage, Provider, Banner, SiteSettings, Platform } from './types';
+import axios from 'axios';
 
 // MOCK DATA - Placed here to avoid creating new files
 const mockServices: ServicePackage[] = [
@@ -69,9 +70,31 @@ const App: React.FC = () => {
     const [posts, setPosts] = useState<BlogPostType[]>(mockBlogPosts);
     const [providers, setProviders] = useState<Provider[]>(mockProviders);
     const [banners, setBanners] = useState<Banner[]>([]); // Empty array initially
-    const [platforms, setPlatforms] = useState<Platform[]>(mockPlatforms);
+    const [platforms, setPlatforms] = useState<Platform[]>();
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchPlatforms = async () => {
+            try {
+                const storedProviders = await axios.get(`${import.meta.env.VITE_API_URL}/manageplatforms`);
+                // const data = {
+                //     _id: storedProviders.data._id,
+                //     id: storedProviders.data.id,
+                //     name: storedProviders.data.name,
+                //     iconUrl: storedProviders.data.iconUrl
+                // };
+                // console.log(data);
+
+                setPlatforms(storedProviders.data);
+            } catch (error) {
+                console.error('Error fetching platforms:', error);
+            }
+        };
+
+        fetchPlatforms();
+    }, []);
+
 
     // Function to fetch site settings from endpoint
     const fetchSiteSettingsFromEndpoint = async () => {

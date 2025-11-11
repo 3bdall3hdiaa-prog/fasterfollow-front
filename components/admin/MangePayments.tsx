@@ -25,8 +25,9 @@ const ManagePayments: React.FC = () => {
 
     // دالة لتحويل البيانات من API إلى الشكل المطلوب
     const transformPaymentData = (data: any[]): PaymentMethod[] => {
+        console.log('Raw data from API:', data);
         return data.map(payment => ({
-            _id: payment._id,
+            _id: payment._id || payment.id,
             id: payment.id,
             name: payment.name,
             icon: payment.icon,

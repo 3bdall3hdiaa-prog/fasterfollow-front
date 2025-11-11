@@ -165,6 +165,7 @@ export interface Banner {
 }
 
 export interface Platform {
+    _id?: string;
     id: string;
     name: string;
     iconUrl: string;
