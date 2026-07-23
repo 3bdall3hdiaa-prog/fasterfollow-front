@@ -114,6 +114,7 @@ const ManageCoupons: React.FC = () => {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
                     },
                     body: JSON.stringify(couponData)
                 });
@@ -142,6 +143,7 @@ const ManageCoupons: React.FC = () => {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
                     },
                     body: JSON.stringify(couponData)
                 });
@@ -183,7 +185,11 @@ const ManageCoupons: React.FC = () => {
         setLoading(true);
         try {
             const response = await fetch(`${API_BASE}/managecopons/${couponId}`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
             });
 
             if (!response.ok) {
@@ -210,6 +216,7 @@ const ManageCoupons: React.FC = () => {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
                 },
                 body: JSON.stringify({ status: newStatus })
             });

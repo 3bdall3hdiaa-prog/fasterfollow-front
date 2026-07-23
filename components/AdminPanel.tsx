@@ -28,9 +28,9 @@ interface AdminPanelProps {
     banners: Banner[];
     setBanners: React.Dispatch<React.SetStateAction<Banner[]>>;
     settings: SiteSettings;
-    setSettings: React.Dispatch<React.SetStateAction<SiteSettings>>;
-    platforms: Platform[];
-    setPlatforms: React.Dispatch<React.SetStateAction<Platform[]>>;
+    setSettings: any;
+    platforms: any;
+    setPlatforms: any;
 }
 
 const AdminPanel: React.FC<AdminPanelProps> = (props) => {
@@ -51,7 +51,7 @@ const AdminPanel: React.FC<AdminPanelProps> = (props) => {
             case 'support': return <SupportTickets />;
             case 'announcements': return <Announcements />;
             case 'pages': return <ManagePages pages={props.pages} setPages={props.setPages} />;
-            case 'blog': return <ManageBlog posts={props.posts} setPosts={props.setPosts} />;
+            case 'blog': return <ManageBlog />;
             case 'banners': return <ManageBanners banners={props.banners} setBanners={props.setBanners} />;
             case 'platforms': return <ManagePlatforms platforms={props.platforms} setPlatforms={props.setPlatforms} />;
             case 'settings': return <SiteSettingsComponent settings={props.settings} setSettings={props.setSettings} />;

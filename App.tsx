@@ -108,24 +108,34 @@ const App: React.FC = () => {
 
             const data = await response.json();
 
-            // Transform the API data to match the SiteSettings type
+            // ✅ التحقق من شكل البيانات قبل استخدامها
+            const settingsData = Array.isArray(data) ? data[0] : data;
+
+            // ✅ لو البيانات مش موجودة أو مش بالشكل المطلوب، استخدم القيم الافتراضية
+            if (!settingsData || typeof settingsData !== 'object') {
+                console.warn('Invalid settings data format, using defaults');
+                setSiteSettings(getDefaultSettings());
+                return;
+            }
+
+            // ✅ استخدم optional chaining عشان تتفادى الخطأ
             const formattedSiteSettings: SiteSettings = {
-                siteName: data[0].siteName || '',
-                logoUrl: data[0].logoUrl || 'https://i.imgur.com/3Z4Qj4a.png',
-                faviconUrl: data[0].faviconUrl || '/favicon.ico',
-                primaryColor: data[0].primaryColor || '#6366f1',
-                seoTitle: data[0].seoTitle || 'فاستر فولو - أفضل خدمات دعم حسابات التواصل الاجتماعي',
-                seoDescription: data[0].seoDescription || 'زيادة متابعين، لايكات، ومشاهدات لجميع المنصات. أسعار تنافسية وجودة عالية.',
-                announcement: data.announcement || {
-                    text: data[0].announcement.text || '🎉 خصم 15% على جميع خدمات انستغرام لفترة محدودة!',
-                    isEnabled: data[0].announcement.isEnabled || true,
+                siteName: settingsData?.siteName || 'فاستر فولو',
+                logoUrl: settingsData?.logoUrl || 'https://i.imgur.com/3Z4Qj4a.png',
+                faviconUrl: settingsData?.faviconUrl || '/favicon.ico',
+                primaryColor: settingsData?.primaryColor || '#6366f1',
+                seoTitle: settingsData?.seoTitle || 'فاستر فولو - أفضل خدمات دعم حسابات التواصل الاجتماعي',
+                seoDescription: settingsData?.seoDescription || 'زيادة متابعين، لايكات، ومشاهدات لجميع المنصات. أسعار تنافسية وجودة عالية.',
+                announcement: {
+                    text: settingsData?.announcement?.text || '🎉 خصم 15% على جميع خدمات انستغرام لفترة محدودة!',
+                    isEnabled: settingsData?.announcement?.isEnabled ?? true,
                 },
-                homepageContent: data.homepageContent || {
+                homepageContent: {
                     hero: {
-                        title: data[0].homepageContent.hero.title || 'عزز حضورك الرقمي مع',
-                        subtitle: data[0].homepageContent.hero.subtitle || 'نقدم لك أفضل خدمات الدعم لشبكات التواصل الاجتماعي لزيادة متابعينك وتفاعلك بأسعار تنافسية وجودة عالية.',
-                        cta1: data[0].homepageContent.hero.cta1 || 'اكتشف خدماتنا',
-                        cta2: data[0].homepageContent.hero.cta2 || 'كيف نعمل؟'
+                        title: settingsData?.homepageContent?.hero?.title || 'عزز حضورك الرقمي مع',
+                        subtitle: settingsData?.homepageContent?.hero?.subtitle || 'نقدم لك أفضل خدمات الدعم لشبكات التواصل الاجتماعي لزيادة متابعينك وتفاعلك بأسعار تنافسية وجودة عالية.',
+                        cta1: settingsData?.homepageContent?.hero?.cta1 || 'اكتشف خدماتنا',
+                        cta2: settingsData?.homepageContent?.hero?.cta2 || 'كيف نعمل؟'
                     },
                     features: {
                         title: 'لماذا تختارنا؟',
@@ -137,8 +147,8 @@ const App: React.FC = () => {
                         ]
                     },
                     services: {
-                        title: data[0].homepageContent.services.title || 'خدماتنا المميزة',
-                        subtitle: data[0].homepageContent.services.subtitle || 'اختر الباقة التي تناسب احتياجاتك وابدأ في تنمية حسابك اليوم.'
+                        title: settingsData?.homepageContent?.services?.title || 'خدماتنا المميزة',
+                        subtitle: settingsData?.homepageContent?.services?.subtitle || 'اختر الباقة التي تناسب احتياجاتك وابدأ في تنمية حسابك اليوم.'
                     },
                     howItWorks: {
                         title: 'كيف يعمل الموقع؟',
@@ -161,54 +171,57 @@ const App: React.FC = () => {
             console.error('Error fetching site settings:', error);
             setError('فشل في تحميل إعدادات الموقع. يرجى المحاولة مرة أخرى.');
             // Use default settings if fetch fails
-            setSiteSettings({
-                siteName: 'فاستر فولو',
-                logoUrl: 'https://i.imgur.com/3Z4Qj4a.png',
-                faviconUrl: '/favicon.ico',
-                primaryColor: '#6366f1',
-                seoTitle: 'فاستر فولو - أفضل خدمات دعم حسابات التواصل الاجتماعي',
-                seoDescription: 'زيادة متابعين، لايكات، ومشاهدات لجميع المنصات. أسعار تنافسية وجودة عالية.',
-                announcement: {
-                    text: '🎉 خصم 15% على جميع خدمات انستغرام لفترة محدودة!',
-                    isEnabled: true,
-                },
-                homepageContent: {
-                    hero: {
-                        title: 'عزز حضورك الرقمي مع',
-                        subtitle: 'نقدم لك أفضل خدمات الدعم لشبكات التواصل الاجتماعي لزيادة متابعينك وتفاعلك بأسعار تنافسية وجودة عالية.',
-                        cta1: 'اكتشف خدماتنا',
-                        cta2: 'كيف نعمل؟'
-                    },
-                    features: {
-                        title: 'لماذا تختارنا؟',
-                        items: [
-                            { icon: '⚡️', title: 'تنفيذ فوري', description: 'تبدأ طلباتك في التنفيذ فور إتمام عملية الدفع مباشرة لضمان سرعة الخدمة.' },
-                            { icon: '🛡️', title: 'جودة عالية وضمان', description: 'نقدم متابعين وحسابات عالية الجودة مع ضمان تعويض النصف في بعض الخدمات.' },
-                            { icon: '💵', title: 'أسعار تنافسية', description: 'نوفر لك أفضل الأسعار في السوق لتتمكن من تحقيق أهدافك بأقل تكلفة ممكنة.' },
-                            { icon: '🎧', title: 'دعم فني 24/7', description: 'فريق دعم فني متخصص جاهز للإجابة على استفساراتك وحل مشاكلك في أي وقت.' }
-                        ]
-                    },
-                    services: {
-                        title: 'خدماتنا المميزة',
-                        subtitle: 'اختر الباقة التي تناسب احتياجاتك وابدأ في تنمية حسابك اليوم.'
-                    },
-                    howItWorks: {
-                        title: 'كيف يعمل الموقع؟',
-                        subtitle: 'ثلاث خطوات بسيطة تفصلك عن تحقيق أهدافك.',
-                        steps: [
-                            { title: 'اختر الخدمة', description: 'تصفح خدماتنا المتنوعة واختر الباقة التي تناسب أهدافك وميزانيتك.' },
-                            { title: 'أدخل معلوماتك', description: 'أضف رابط حسابك أو المنشور الذي تريد دعمه. لا نطلب كلمة المرور أبداً.' },
-                            { title: 'شاهد النتائج', description: 'استرخ وشاهد حسابك ينمو. تبدأ النتائج بالظهور في وقت قصير جداً.' }
-                        ]
-                    },
-                    testimonials: {
-                        title: 'آراء عملائنا',
-                        subtitle: 'ماذا يقول عملاؤنا عن خدماتنا.'
-                    }
-                }
-            });
+            setSiteSettings(getDefaultSettings());
         }
     };
+
+    // ✅ دالة مساعدة للقيم الافتراضية
+    const getDefaultSettings = (): SiteSettings => ({
+        siteName: 'فاستر فولو',
+        logoUrl: 'https://i.imgur.com/3Z4Qj4a.png',
+        faviconUrl: '/favicon.ico',
+        primaryColor: '#6366f1',
+        seoTitle: 'فاستر فولو - أفضل خدمات دعم حسابات التواصل الاجتماعي',
+        seoDescription: 'زيادة متابعين، لايكات، ومشاهدات لجميع المنصات. أسعار تنافسية وجودة عالية.',
+        announcement: {
+            text: '🎉 خصم 15% على جميع خدمات انستغرام لفترة محدودة!',
+            isEnabled: true,
+        },
+        homepageContent: {
+            hero: {
+                title: 'عزز حضورك الرقمي مع',
+                subtitle: 'نقدم لك أفضل خدمات الدعم لشبكات التواصل الاجتماعي لزيادة متابعينك وتفاعلك بأسعار تنافسية وجودة عالية.',
+                cta1: 'اكتشف خدماتنا',
+                cta2: 'كيف نعمل؟'
+            },
+            features: {
+                title: 'لماذا تختارنا؟',
+                items: [
+                    { icon: '⚡️', title: 'تنفيذ فوري', description: 'تبدأ طلباتك في التنفيذ فور إتمام عملية الدفع مباشرة لضمان سرعة الخدمة.' },
+                    { icon: '🛡️', title: 'جودة عالية وضمان', description: 'نقدم متابعين وحسابات عالية الجودة مع ضمان تعويض النقص في بعض الخدمات.' },
+                    { icon: '💵', title: 'أسعار تنافسية', description: 'نوفر لك أفضل الأسعار في السوق لتتمكن من تحقيق أهدافك بأقل تكلفة ممكنة.' },
+                    { icon: '🎧', title: 'دعم فني 24/7', description: 'فريق دعم فني متخصص جاهز للإجابة على استفساراتك وحل مشاكلك في أي وقت.' }
+                ]
+            },
+            services: {
+                title: 'خدماتنا المميزة',
+                subtitle: 'اختر الباقة التي تناسب احتياجاتك وابدأ في تنمية حسابك اليوم.'
+            },
+            howItWorks: {
+                title: 'كيف يعمل الموقع؟',
+                subtitle: 'ثلاث خطوات بسيطة تفصلك عن تحقيق أهدافك.',
+                steps: [
+                    { title: 'اختر الخدمة', description: 'تصفح خدماتنا المتنوعة واختر الباقة التي تناسب أهدافك وميزانيتك.' },
+                    { title: 'أدخل معلوماتك', description: 'أضف رابط حسابك أو المنشور الذي تريد دعمه. لا نطلب كلمة المرور أبداً.' },
+                    { title: 'شاهد النتائج', description: 'استرخ وشاهد حسابك ينمو. تبدأ النتائج بالظهور في وقت قصير جداً.' }
+                ]
+            },
+            testimonials: {
+                title: 'آراء عملائنا',
+                subtitle: 'ماذا يقول عملاؤنا عن خدماتنا.'
+            }
+        }
+    });
 
     // Function to fetch pages from endpoint
     const fetchPagesFromEndpoint = async () => {

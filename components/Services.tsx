@@ -6,7 +6,7 @@ import AuthModal from './AuthModal'; // ✅ استيراد نافذة تسجيل
 
 interface ServicesProps {
     services: ServicePackage[];
-    platforms: Platform[];
+    platforms: any;
     content: SiteSettings['homepageContent']['services'];
 }
 
@@ -45,7 +45,7 @@ const Services: React.FC<ServicesProps> = ({ services, platforms, content }) => 
 
                 {/* Platform Tabs */}
                 <div className="flex justify-center items-center gap-2 md:gap-4 mb-10 flex-wrap">
-                    {platforms.map(platform => (
+                    {platforms.map((platform: any) => (
                         <button
                             key={platform.id}
                             onClick={() => setActivePlatform(platform.name)}

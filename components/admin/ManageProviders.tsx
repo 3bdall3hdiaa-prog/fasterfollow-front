@@ -130,6 +130,7 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
                     },
                     body: JSON.stringify(updateData),
                 });
@@ -167,6 +168,7 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
                     },
                     body: JSON.stringify(formData),
                 });
@@ -215,6 +217,9 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
 
                 const response = await fetch(`${import.meta.env.VITE_API_URL}/manage-providers/${providerId}`, {
                     method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
                 });
 
                 console.log('Delete response status:', response.status);
@@ -243,6 +248,10 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
 
             const response = await fetch(`${import.meta.env.VITE_API_URL}/manage-providers/${providerId}/sync`, {
                 method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
             });
 
             console.log('Sync response status:', response.status);

@@ -36,7 +36,6 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, setActiveView, isSidebarO
         { view: 'providers', label: 'إدارة المزودين', icon: '🔌' },
         { view: 'payments', label: 'إدارة طرق الدفع ', icon: '💳' },
         { view: 'support', label: 'الدعم الفني', icon: '💬' },
-        { view: 'announcements', label: 'الإعلانات', icon: '📢' },
         { view: 'pages', label: 'إدارة الصفحات', icon: '📄' },
         { view: 'blog', label: 'إدارة المدونة', icon: '✍️' },
         { view: 'banners', label: 'إدارة البنرات', icon: '🖼️' },

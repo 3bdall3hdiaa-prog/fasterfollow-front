@@ -8,7 +8,7 @@ import Notifications from './client/Notifications';
 
 interface HeaderProps {
     siteName: string;
-    logoUrl: string;
+    logoUrl: any;
     pages: Page[];
 }
 

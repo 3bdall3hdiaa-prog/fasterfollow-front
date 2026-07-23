@@ -148,7 +148,12 @@ const UsersManagement = () => {
 
     const handleAddUser = async () => {
         try {
-            const res = await axios.post(`${import.meta.env.VITE_API_URL}/signup`, newUser);
+            const token = localStorage.getItem("token");
+            const res = await axios.post(`${import.meta.env.VITE_API_URL}/signup`, newUser, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
             alert("تم إضافة المستخدم بنجاح ✅");
 
             setUsers([...users, {
@@ -176,6 +181,10 @@ const UsersManagement = () => {
                 role: editingUser.role,
                 email: editingUser.email,
                 status: editingUser.status
+            }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                }
             });
 
             // تحديث البيانات في الـ state
@@ -203,7 +212,13 @@ const UsersManagement = () => {
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const res = await axios.get(`${import.meta.env.VITE_API_URL}/getallusers`);
+
+                const res = await axios.get(`${import.meta.env.VITE_API_URL}/getallusers`, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`  // 🔥 لازم Bearer + مسافة
+                    }
+                });
+
                 const formattedUsers = res.data.map(user => ({
                     _id: user._id || user.id,
                     name: user.username || "بدون اسم",
@@ -222,32 +237,32 @@ const UsersManagement = () => {
         fetchUsers();
     }, []);
 
-    const handleDelete = async (id) => {
-        if (window.confirm("هل أنت متأكد من حذف هذا المستخدم؟")) {
-            try {
-                await axios.delete(`${import.meta.env.VITE_API_URL}/deleteuser/${id}`);
-                setUsers(users.filter((u) => u._id !== id));
-            } catch (err) {
-                console.error("Delete error:", err);
-            }
-        }
-    };
+    // const handleDelete = async (id) => {
+    //     if (window.confirm("هل أنت متأكد من حذف هذا المستخدم؟")) {
+    //         try {
+    //             await axios.delete(`${import.meta.env.VITE_API_URL}/deleteuser/${id}`);
+    //             setUsers(users.filter((u) => u._id !== id));
+    //         } catch (err) {
+    //             console.error("Delete error:", err);
+    //         }
+    //     }
+    // };
 
-    const handleBlock = async (id) => {
-        if (window.confirm("هل تريد حظر هذا المستخدم؟")) {
-            try {
-                await axios.put(`${import.meta.env.VITE_API_URL}/blockuser/${id}`);
-                setUsers(users.map(user =>
-                    user._id === id
-                        ? { ...user, status: user.status === "active" ? "inactive" : "active" }
-                        : user
-                ));
-                alert("تم تغيير حالة المستخدم بنجاح");
-            } catch (err) {
-                console.error("Block error:", err);
-            }
-        }
-    };
+    // const handleBlock = async (id) => {
+    //     if (window.confirm("هل تريد حظر هذا المستخدم؟")) {
+    //         try {
+    //             await axios.put(`${import.meta.env.VITE_API_URL}/blockuser/${id}`);
+    //             setUsers(users.map(user =>
+    //                 user._id === id
+    //                     ? { ...user, status: user.status === "active" ? "inactive" : "active" }
+    //                     : user
+    //             ));
+    //             alert("تم تغيير حالة المستخدم بنجاح");
+    //         } catch (err) {
+    //             console.error("Block error:", err);
+    //         }
+    //     }
+    // };
 
     const getStatusBadge = (status) => {
         if (status === "active") return "success";
