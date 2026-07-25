@@ -9,6 +9,7 @@ import Support from './client/Support';
 import ServicesList from './client/ServicesList';
 import Profile from './client/Profile';
 import Affiliate from './client/Affiliate';
+import { useThemeStore } from '@/store/theme.store';
 
 interface ClientPanelProps {
     services: ServicePackage[];
@@ -18,6 +19,7 @@ interface ClientPanelProps {
 const ClientPanel: React.FC<ClientPanelProps> = ({ services, initialView = 'dashboard' }) => {
     const [activeView, setActiveView] = useState(initialView);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const { isDark } = useThemeStore();
 
     React.useEffect(() => {
         setActiveView(initialView);
@@ -47,7 +49,10 @@ const ClientPanel: React.FC<ClientPanelProps> = ({ services, initialView = 'dash
     };
 
     return (
-        <div className="pt-20 bg-gray-900 min-h-screen text-gray-300">
+        <div className={`pt-20 min-h-screen transition-colors duration-300 ${isDark
+                ? 'bg-gray-900 text-gray-300'
+                : 'bg-gradient-to-b from-[#faf8f2] to-white text-gray-800'
+            }`}>
             <div className="flex">
                 <Sidebar activeView={activeView} setActiveView={setActiveView} isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
                 <main className="flex-1 transition-all duration-300 md:mr-64">
@@ -55,7 +60,10 @@ const ClientPanel: React.FC<ClientPanelProps> = ({ services, initialView = 'dash
                         {/* زر القائمة الثابت */}
                         <button
                             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                            className="fixed md:hidden z-50 bottom-6 right-6 p-4 rounded-full bg-primary-600 hover:bg-primary-700 text-white shadow-lg transition-all duration-300 hover:scale-110"
+                            className={`fixed md:hidden z-50 bottom-6 right-6 p-4 rounded-full text-white shadow-lg transition-all duration-300 hover:scale-110 ${isDark
+                                    ? 'bg-primary-600 hover:bg-primary-700'
+                                    : 'bg-[#c9a84c] hover:bg-[#b8973a]'
+                                }`}
                         >
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path>

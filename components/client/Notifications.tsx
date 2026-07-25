@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Notification } from '../../types';
+import { useThemeStore } from '@/store/theme.store';
 
 // بيانات وهمية للإشعارات (كاحتياطي)
 const mockNotifications: Notification[] = [
@@ -13,6 +14,7 @@ const Notifications: React.FC = () => {
     const [notifications, setNotifications] = useState<any>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const { isDark } = useThemeStore();
 
     const unreadCount = notifications.filter(n => !n.isRead).length;
 
@@ -80,21 +82,13 @@ const Notifications: React.FC = () => {
         }
     };
 
-    // تحديث نوع Notification ليشمل userName
-    // أضف هذا في ملف types.ts
-    /*
-    export interface Notification {
-        id: number;
-        text: string;
-        isRead: boolean;
-        createdAt: string;
-        userName?: string; // إضافة هذا الحقل
-    }
-    */
-
     return (
         <div className="relative">
-            <button onClick={handleToggle} className="relative text-gray-300 hover:text-white">
+            <button
+                onClick={handleToggle}
+                className={`relative transition-colors duration-300 ${isDark ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-[#c9a84c]'
+                    }`}
+            >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                 </svg>
@@ -106,12 +100,19 @@ const Notifications: React.FC = () => {
             </button>
 
             {isOpen && (
-                <div className="absolute top-full mt-2 left-0 w-80 bg-gray-800 rounded-lg shadow-lg border border-gray-700 z-10">
-                    <div className="p-3 font-bold border-b border-gray-700 flex justify-between items-center">
-                        <span>الإشعارات</span>
+                <div className={`absolute top-full mt-2 left-0 w-80 rounded-lg shadow-lg border z-10 transition-colors duration-300 ${isDark
+                    ? 'bg-gray-800 border-gray-700'
+                    : 'bg-white border-[#dfd7bb] shadow-xl'
+                    }`}>
+                    <div className={`p-3 font-bold border-b flex justify-between items-center transition-colors duration-300 ${isDark ? 'border-gray-700' : 'border-[#dfd7bb]'
+                        }`}>
+                        <span className={isDark ? 'text-white' : 'text-gray-800'}>
+                            الإشعارات
+                        </span>
                         <button
                             onClick={fetchNotifications}
-                            className="text-xs text-gray-400 hover:text-white"
+                            className={`text-xs transition-colors duration-300 ${isDark ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-[#c9a84c]'
+                                }`}
                             disabled={loading}
                         >
                             {loading ? 'جاري التحديث...' : 'تحديث'}
@@ -120,7 +121,8 @@ const Notifications: React.FC = () => {
 
                     <div className="max-h-96 overflow-y-auto">
                         {loading && (
-                            <div className="p-3 text-center text-gray-400">
+                            <div className={`p-3 text-center transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-gray-500'
+                                }`}>
                                 جاري تحميل الإشعارات...
                             </div>
                         )}
@@ -132,20 +134,29 @@ const Notifications: React.FC = () => {
                         )}
 
                         {!loading && notifications.length === 0 && (
-                            <div className="p-3 text-center text-gray-400">
+                            <div className={`p-3 text-center transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-gray-500'
+                                }`}>
                                 لا توجد إشعارات
                             </div>
                         )}
 
                         {notifications.map(notification => (
                             <div
-                                key={notification.id}
-                                onClick={() => handleMarkAsRead(notification._id)}
-                                className={`p-3 border-b border-gray-700 last:border-0 hover:bg-gray-700 cursor-pointer ${!notification.isRead ? 'bg-primary-900/30' : ''
+                                key={notification.id || notification._id}
+                                onClick={() => handleMarkAsRead(notification._id || notification.id)}
+                                className={`p-3 border-b last:border-0 cursor-pointer transition-colors duration-300 ${isDark
+                                    ? `border-gray-700 hover:bg-gray-700 ${!notification.isRead ? 'bg-primary-900/30' : ''}`
+                                    : `border-[#dfd7bb] hover:bg-gray-50 ${!notification.isRead ? 'bg-amber-50' : ''}`
                                     }`}
                             >
-                                <p className="text-sm text-gray-200">{notification.text}</p>
-                                <p className="text-xs text-gray-400 mt-1">{notification.createdAt}</p>
+                                <p className={`text-sm transition-colors duration-300 ${isDark ? 'text-gray-200' : 'text-gray-700'
+                                    }`}>
+                                    {notification.text}
+                                </p>
+                                <p className={`text-xs mt-1 transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-gray-400'
+                                    }`}>
+                                    {notification.createdAt}
+                                </p>
                             </div>
                         ))}
                     </div>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { SiteSettings } from '../../types';
+import { useThemeStore } from '@/store/theme.store';
 
 interface SiteSettingsProps {
     settings: SiteSettings;
@@ -7,10 +8,36 @@ interface SiteSettingsProps {
 }
 
 const SiteSettingsComponent: React.FC<SiteSettingsProps> = ({ settings, setSettings }) => {
+    const { isDark } = useThemeStore();
     const [formData, setFormData] = useState(settings);
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+
+    // دوال مساعدة للألوان
+    const getTextColor = () => {
+        return isDark ? '#ffffff' : '#1e2235';
+    };
+
+    const getMutedTextColor = () => {
+        return isDark ? '#8a8fa8' : '#6c757d';
+    };
+
+    const getCardBackground = () => {
+        return isDark ? '#252a41' : '#ffffff';
+    };
+
+    const getInputBackground = () => {
+        return isDark ? '#1e2235' : '#ffffff';
+    };
+
+    const getInputTextColor = () => {
+        return isDark ? '#ffffff' : '#1e2235';
+    };
+
+    const getBorderColor = () => {
+        return isDark ? '#374151' : '#dfd7bb';
+    };
 
     useEffect(() => {
         setFormData(settings);
@@ -71,7 +98,6 @@ const SiteSettingsComponent: React.FC<SiteSettingsProps> = ({ settings, setSetti
             const result = await response.json();
             console.log('✅ تم حفظ الإعدادات بنجاح:', result);
 
-            // تحديث الـ state بالبيانات الجديدة
             setSettings(formData);
             setSuccessMessage('تم حفظ الإعدادات بنجاح!');
 
@@ -89,7 +115,7 @@ const SiteSettingsComponent: React.FC<SiteSettingsProps> = ({ settings, setSetti
 
     const FormInput = ({ label, name, value, onChange, type = "text", placeholder = "" }) => (
         <div>
-            <label className="block text-sm font-medium mb-1">{label}</label>
+            <label className="block text-sm font-medium mb-1" style={{ color: getMutedTextColor() }}>{label}</label>
             <input
                 type={type}
                 name={name}
@@ -97,41 +123,62 @@ const SiteSettingsComponent: React.FC<SiteSettingsProps> = ({ settings, setSetti
                 onChange={onChange}
                 placeholder={placeholder}
                 disabled={isLoading}
-                className="w-full bg-gray-700 rounded-md p-2 border border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                className={`w-full rounded-md p-2 border disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 ${isDark
+                        ? 'bg-gray-700 border-gray-600 text-white'
+                        : 'bg-gray-50 border-[#dfd7bb] text-gray-800'
+                    }`}
             />
         </div>
     );
 
     return (
-        <div>
-            <h1 className="text-3xl font-bold text-white mb-6">إعدادات الموقع</h1>
+        <div className="p-4" style={{
+            backgroundColor: isDark ? '#1e2235' : '#f8f6f0',
+            minHeight: "100vh",
+            transition: "all 0.3s ease"
+        }}>
+            <h1 className="text-2xl md:text-3xl font-bold mb-6 text-center md:text-right" style={{ color: getTextColor() }}>
+                إعدادات الموقع
+            </h1>
 
             {/* عرض رسائل التنبيه */}
             {successMessage && (
-                <div className="bg-green-500/20 border border-green-700 text-green-300 px-4 py-3 rounded-lg mb-6">
+                <div className={`px-4 py-3 rounded-lg mb-6 ${isDark
+                        ? 'bg-green-500/20 border border-green-700 text-green-300'
+                        : 'bg-green-50 border border-green-200 text-green-700'
+                    }`}>
                     ✅ {successMessage}
                 </div>
             )}
 
             {errorMessage && (
-                <div className="bg-red-500/20 border border-red-700 text-red-300 px-4 py-3 rounded-lg mb-6">
+                <div className={`px-4 py-3 rounded-lg mb-6 ${isDark
+                        ? 'bg-red-500/20 border border-red-700 text-red-300'
+                        : 'bg-red-50 border border-red-200 text-red-700'
+                    }`}>
                     ❌ {errorMessage}
                 </div>
             )}
 
-            <form onSubmit={handleSubmit} className="bg-gray-800 border border-gray-700 rounded-lg p-6 space-y-6 max-w-4xl mx-auto relative">
+            <form onSubmit={handleSubmit} className={`rounded-lg p-6 space-y-6 max-w-4xl mx-auto relative transition-all duration-300 ${isDark
+                    ? 'bg-gray-800 border border-gray-700'
+                    : 'bg-white border border-[#dfd7bb] shadow-md'
+                }`}>
 
                 {isLoading && (
-                    <div className="absolute inset-0 bg-gray-900/50 flex items-center justify-center rounded-lg z-10">
-                        <div className="bg-gray-800 border border-gray-700 rounded-lg p-6">
+                    <div className={`absolute inset-0 flex items-center justify-center rounded-lg z-10 ${isDark ? 'bg-gray-900/50' : 'bg-white/70'
+                        }`}>
+                        <div className={`rounded-lg p-6 ${isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-[#dfd7bb] shadow-lg'
+                            }`}>
                             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto mb-2"></div>
-                            <p className="text-white">جاري حفظ الإعدادات...</p>
+                            <p style={{ color: getTextColor() }}>جاري حفظ الإعدادات...</p>
                         </div>
                     </div>
                 )}
 
-                <div className="border-b border-gray-700 pb-6">
-                    <h2 className="text-xl font-semibold text-white mb-4">الإعدادات العامة</h2>
+                <div className={`pb-6 ${isDark ? 'border-b border-gray-700' : 'border-b border-[#dfd7bb]'
+                    }`}>
+                    <h2 className="text-xl font-semibold mb-4" style={{ color: getTextColor() }}>الإعدادات العامة</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <FormInput
                             label="اسم الموقع"
@@ -148,14 +195,17 @@ const SiteSettingsComponent: React.FC<SiteSettingsProps> = ({ settings, setSetti
                             placeholder="https://example.com/logo.png"
                         />
                         <div>
-                            <label className="block text-sm font-medium mb-1">اللون الأساسي</label>
+                            <label className="block text-sm font-medium mb-1" style={{ color: getMutedTextColor() }}>اللون الأساسي</label>
                             <input
                                 type="color"
                                 name="primaryColor"
                                 value={formData.primaryColor}
                                 onChange={handleChange}
                                 disabled={isLoading}
-                                className="w-full h-10 p-1 bg-gray-700 rounded-md border border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className={`w-full h-10 p-1 rounded-md border disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 ${isDark
+                                        ? 'bg-gray-700 border-gray-600'
+                                        : 'bg-gray-50 border-[#dfd7bb]'
+                                    }`}
                             />
                         </div>
                         <FormInput
@@ -168,10 +218,13 @@ const SiteSettingsComponent: React.FC<SiteSettingsProps> = ({ settings, setSetti
                     </div>
                 </div>
 
-                <div className="border-b border-gray-700 pb-6">
-                    <h2 className="text-xl font-semibold text-white mb-4">محتوى الصفحة الرئيسية</h2>
+                <div className={`pb-6 ${isDark ? 'border-b border-gray-700' : 'border-b border-[#dfd7bb]'
+                    }`}>
+                    <h2 className="text-xl font-semibold mb-4" style={{ color: getTextColor() }}>محتوى الصفحة الرئيسية</h2>
                     <div className="space-y-4">
-                        <h3 className="font-semibold text-primary-400">قسم Hero</h3>
+                        <h3 className="font-semibold" style={{ color: isDark ? '#60a5fa' : '#c9a84c' }}>
+                            قسم Hero
+                        </h3>
                         <FormInput
                             label="العنوان الرئيسي"
                             name="hero.title"
@@ -200,7 +253,9 @@ const SiteSettingsComponent: React.FC<SiteSettingsProps> = ({ settings, setSetti
                             onChange={handleContentChange}
                             placeholder="كيف نعمل؟"
                         />
-                        <h3 className="font-semibold text-primary-400 mt-4">قسم الخدمات</h3>
+                        <h3 className="font-semibold mt-4" style={{ color: isDark ? '#60a5fa' : '#c9a84c' }}>
+                            قسم الخدمات
+                        </h3>
                         <FormInput
                             label="عنوان قسم الخدمات"
                             name="services.title"
@@ -218,8 +273,9 @@ const SiteSettingsComponent: React.FC<SiteSettingsProps> = ({ settings, setSetti
                     </div>
                 </div>
 
-                <div className="border-b border-gray-700 pb-6">
-                    <h2 className="text-xl font-semibold text-white mb-4">إعدادات SEO</h2>
+                <div className={`pb-6 ${isDark ? 'border-b border-gray-700' : 'border-b border-[#dfd7bb]'
+                    }`}>
+                    <h2 className="text-xl font-semibold mb-4" style={{ color: getTextColor() }}>إعدادات SEO</h2>
                     <FormInput
                         label="عنوان الصفحة الرئيسية (SEO)"
                         name="seoTitle"
@@ -228,7 +284,7 @@ const SiteSettingsComponent: React.FC<SiteSettingsProps> = ({ settings, setSetti
                         placeholder="عنوان SEO للموقع"
                     />
                     <div className="mt-4">
-                        <label className="block text-sm font-medium mb-1">وصف الموقع (SEO)</label>
+                        <label className="block text-sm font-medium mb-1" style={{ color: getMutedTextColor() }}>وصف الموقع (SEO)</label>
                         <textarea
                             name="seoDescription"
                             value={formData.seoDescription}
@@ -236,13 +292,17 @@ const SiteSettingsComponent: React.FC<SiteSettingsProps> = ({ settings, setSetti
                             placeholder="وصف SEO للموقع"
                             rows={3}
                             disabled={isLoading}
-                            className="w-full bg-gray-700 rounded-md p-2 border border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className={`w-full rounded-md p-2 border disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 ${isDark
+                                    ? 'bg-gray-700 border-gray-600 text-white'
+                                    : 'bg-gray-50 border-[#dfd7bb] text-gray-800'
+                                }`}
                         />
                     </div>
                 </div>
 
-                <div>
-                    <h2 className="text-xl font-semibold text-white mb-4">شريط الإعلانات</h2>
+                <div className={`pb-6 ${isDark ? 'border-b border-gray-700' : 'border-b border-[#dfd7bb]'
+                    }`}>
+                    <h2 className="text-xl font-semibold mb-4" style={{ color: getTextColor() }}>شريط الإعلانات</h2>
                     <FormInput
                         label="نص الإعلان"
                         name="announcement.text"
@@ -251,25 +311,30 @@ const SiteSettingsComponent: React.FC<SiteSettingsProps> = ({ settings, setSetti
                         placeholder="🎉 إعلان خاص!"
                     />
                     <div className="mt-4">
-                        <label className="flex items-center space-x-2 space-x-reverse">
+                        <label className="flex items-center space-x-2 space-x-reverse" style={{ color: getTextColor() }}>
                             <input
                                 type="checkbox"
                                 name="announcement.isEnabled"
                                 checked={formData.announcement.isEnabled}
                                 onChange={handleChange}
                                 disabled={isLoading}
-                                className="form-checkbox disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="form-checkbox rounded disabled:opacity-50 disabled:cursor-not-allowed"
                             />
                             <span className={isLoading ? 'opacity-50' : ''}>تفعيل شريط الإعلانات</span>
                         </label>
                     </div>
                 </div>
 
-                <div className="pt-6 border-t border-gray-700">
+                <div className="pt-6 border-t" style={{
+                    borderColor: isDark ? '#374151' : '#dfd7bb'
+                }}>
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className="bg-primary-600 hover:bg-primary-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-bold py-2 px-6 rounded-lg transition-colors duration-200"
+                        className={`font-bold py-2 px-6 rounded-lg transition-all duration-300 ${isDark
+                                ? 'bg-primary-600 hover:bg-primary-700 disabled:bg-gray-600 text-white'
+                                : 'bg-[#c9a84c] hover:bg-[#b8973a] disabled:bg-gray-400 text-white shadow-md hover:shadow-lg disabled:shadow-none'
+                            }`}
                     >
                         {isLoading ? 'جاري الحفظ...' : 'حفظ الإعدادات'}
                     </button>

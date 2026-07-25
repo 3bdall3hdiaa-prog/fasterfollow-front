@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useUser } from '../../contexts/UserContext';
 import StatCard from './StatCard';
 import { Order, OrderStatus } from '../../types';
+import { useThemeStore } from '@/store/theme.store';
 
 const statusClasses: any = {
     'Pending': 'bg-yellow-900 text-yellow-300',
@@ -10,6 +11,29 @@ const statusClasses: any = {
     'completed': 'bg-green-900 text-green-300',
     'Cancelled': 'bg-gray-700 text-gray-300',
     'Failed': 'bg-red-900 text-red-300',
+};
+
+// تحديث statusClasses للوضع الفاتح
+const getStatusClasses = (isDark: boolean) => {
+    if (isDark) {
+        return {
+            'Pending': 'bg-yellow-900 text-yellow-300',
+            'In Progress': 'bg-blue-900 text-blue-300',
+            'Completed': 'bg-green-900 text-green-300',
+            'completed': 'bg-green-900 text-green-300',
+            'Cancelled': 'bg-gray-700 text-gray-300',
+            'Failed': 'bg-red-900 text-red-300',
+        };
+    } else {
+        return {
+            'Pending': 'bg-yellow-100 text-yellow-700',
+            'In Progress': 'bg-blue-100 text-blue-700',
+            'Completed': 'bg-green-100 text-green-700',
+            'completed': 'bg-green-100 text-green-700',
+            'Cancelled': 'bg-gray-200 text-gray-600',
+            'Failed': 'bg-red-100 text-red-700',
+        };
+    }
 };
 
 interface DashboardProps {
@@ -26,11 +50,25 @@ interface PayPalTransaction {
 
 const Dashboard: React.FC<DashboardProps> = ({ setActiveView }) => {
     const { user } = useUser();
+    const { isDark } = useThemeStore();
     const [completedOrders, setCompletedOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
     const [orderlength, setOrderlength] = useState(0);
     const [error, setError] = useState<string | null>(null);
     const [walletBalance, setWalletBalance] = useState<number>(0);
+
+    // دوال مساعدة للألوان
+    const getTextColor = () => {
+        return isDark ? '#ffffff' : '#1e2235';
+    };
+
+    const getMutedTextColor = () => {
+        return isDark ? '#8a8fa8' : '#6c757d';
+    };
+
+    const getCardBackground = () => {
+        return isDark ? '#252a41' : '#ffffff';
+    };
 
     useEffect(() => {
         if (user) {
@@ -39,7 +77,6 @@ const Dashboard: React.FC<DashboardProps> = ({ setActiveView }) => {
         }
     }, [user]);
 
-    // useEffect منفصل علشان يتنفذ لما walletBalance تتغير
     useEffect(() => {
         if (user && walletBalance > 0) {
             balance_users();
@@ -61,14 +98,12 @@ const Dashboard: React.FC<DashboardProps> = ({ setActiveView }) => {
                 return;
             }
 
-            // 🔸 فلترة العمليات الخاصة بالمستخدم الحالي والمكتملة فقط
             const userPayments = payments.filter(
                 (p: any) => p.userName === user?.username
             );
 
             console.log('عمليات المستخدم المفلترة:', userPayments);
 
-            // 🔸 جمع كل قيم الـ amount
             const totalBalance = userPayments.reduce(
                 (sum: number, p: any) => sum + parseFloat(p.amount || 0),
                 0
@@ -87,8 +122,11 @@ const Dashboard: React.FC<DashboardProps> = ({ setActiveView }) => {
             setLoading(true);
             setError(null);
 
-            // جلب الطلبات من الاند بوينت
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/new-order`);
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/new-order`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                },
+            });
 
             if (!response.ok) {
                 throw new Error(`خطأ في السيرفر: ${response.status}`);
@@ -96,7 +134,6 @@ const Dashboard: React.FC<DashboardProps> = ({ setActiveView }) => {
 
             const ordersData = await response.json();
 
-            // تأكد إن البيانات موجودة وليست undefined
             if (!ordersData || !Array.isArray(ordersData)) {
                 throw new Error('البيانات غير صالحة');
             }
@@ -105,10 +142,8 @@ const Dashboard: React.FC<DashboardProps> = ({ setActiveView }) => {
             setOrderlength(ordersData.length);
             const getdata = localStorage.getItem('user')
             const username = JSON.parse(getdata || '{}').username
-            // فلترة الطلبات المكتملة فقط
             const completed = ordersData.filter((order: any) => {
                 return (
-
                     order && order.status === 'Completed' && order.username === username || order.status === 'completed' && order.username === username
                 )
             })
@@ -144,15 +179,14 @@ const Dashboard: React.FC<DashboardProps> = ({ setActiveView }) => {
         }
     }
 
-    // أضف console.log علشان تشوف القيمة
     console.log('قيمة walletBalance الحالية:', walletBalance);
 
     if (!user) {
-        return <div className="text-white">جاري التحميل...</div>;
+        return <div style={{ color: getTextColor() }}>جاري التحميل...</div>;
     }
 
     if (loading) {
-        return <div className="text-white">جاري تحميل البيانات...</div>;
+        return <div style={{ color: getTextColor() }}>جاري تحميل البيانات...</div>;
     }
 
     if (error) {
@@ -161,7 +195,10 @@ const Dashboard: React.FC<DashboardProps> = ({ setActiveView }) => {
                 <p>{error}</p>
                 <button
                     onClick={fetchCompletedOrders}
-                    className="mt-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+                    className={`mt-4 px-4 py-2 rounded transition-colors ${isDark
+                        ? 'bg-blue-500 hover:bg-blue-600 text-white'
+                        : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white'
+                        }`}
                 >
                     إعادة المحاولة
                 </button>
@@ -169,18 +206,45 @@ const Dashboard: React.FC<DashboardProps> = ({ setActiveView }) => {
         );
     }
 
+    const statusClassesMap = getStatusClasses(isDark);
+
     return (
         <div>
-            <h1 className="text-3xl font-bold text-white mb-2">مرحباً بعودتك، {user.username}!</h1>
-            <p className="text-gray-400 mb-8">إليك نظرة سريعة على حسابك.</p>
+            <h1 className="text-3xl font-bold mb-2" style={{ color: getTextColor() }}>
+                مرحباً بعودتك، {user.username}!
+            </h1>
+            <p className="mb-8" style={{ color: getMutedTextColor() }}>
+                إليك نظرة سريعة على حسابك.
+            </p>
 
             {/* إجراءات سريعة */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                <QuickActionButton onClick={() => setActiveView('new-order')} icon="➕" text="طلب جديد" />
-                <QuickActionButton onClick={() => setActiveView('add-funds')} icon="💰" text="شحن الرصيد" />
-                <QuickActionButton onClick={() => setActiveView('support')} icon="💬" text="الدعم الفني" />
-                <QuickActionButton onClick={() => setActiveView('orders-history')} icon="📋" text="طلباتي" />
+                <QuickActionButton
+                    onClick={() => setActiveView('new-order')}
+                    icon="➕"
+                    text="طلب جديد"
+                    isDark={isDark}
+                />
+                <QuickActionButton
+                    onClick={() => setActiveView('add-funds')}
+                    icon="💰"
+                    text="شحن الرصيد"
+                    isDark={isDark}
+                />
+                <QuickActionButton
+                    onClick={() => setActiveView('support')}
+                    icon="💬"
+                    text="الدعم الفني"
+                    isDark={isDark}
+                />
+                <QuickActionButton
+                    onClick={() => setActiveView('orders-history')}
+                    icon="📋"
+                    text="طلباتي"
+                    isDark={isDark}
+                />
             </div>
+
             {/* بطاقات الإحصائيات */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <StatCard
@@ -193,13 +257,19 @@ const Dashboard: React.FC<DashboardProps> = ({ setActiveView }) => {
                 <StatCard title="تذاكر الدعم" value="1" icon="tickets" />
             </div>
 
-
             {/* الطلبات الأخيرة */}
-            <div className="bg-gray-800 border border-gray-700 rounded-lg">
-                <h2 className="text-xl font-semibold text-white p-4 border-b border-gray-700">آخر الطلبات</h2>
+            <div className={`rounded-lg transition-all duration-300 ${isDark
+                ? 'bg-gray-800 border border-gray-700'
+                : 'bg-white border border-[#dfd7bb] shadow-md'
+                }`}>
+                <h2 className={`text-xl font-semibold p-4 border-b transition-colors duration-300 ${isDark ? 'text-white border-gray-700' : 'text-gray-800 border-[#dfd7bb]'
+                    }`}>
+                    آخر الطلبات
+                </h2>
                 <div className="overflow-x-auto">
-                    <table className="w-full text-sm text-right text-gray-300">
-                        <thead className="text-xs text-gray-400 uppercase bg-gray-700/50">
+                    <table className="w-full text-sm text-right" style={{ color: getTextColor() }}>
+                        <thead className={`text-xs uppercase ${isDark ? 'text-gray-400 bg-gray-700/50' : 'text-gray-500 bg-gray-50'
+                            }`}>
                             <tr>
                                 <th className="px-4 py-3">رقم الطلب</th>
                                 <th className="px-4 py-3">الخدمة</th>
@@ -208,14 +278,20 @@ const Dashboard: React.FC<DashboardProps> = ({ setActiveView }) => {
                         </thead>
                         <tbody>
                             {completedOrders.length > 0 ? (
-                                completedOrders.slice(0, 3).map(order => (
-                                    <tr key={order.id} className="border-b border-gray-700 last:border-b-0 hover:bg-gray-700/50">
-                                        <td className="px-4 py-4 font-mono">{order.order_number || 'N/A'}</td>
-                                        <td className="px-4 py-4 text-white">
+                                completedOrders.slice(0, 3).map((order: any) => (
+                                    <tr key={order.id} className={`border-b last:border-b-0 transition-colors ${isDark
+                                        ? 'border-gray-700 hover:bg-gray-700/50'
+                                        : 'border-[#dfd7bb] hover:bg-gray-50'
+                                        }`}>
+                                        <td className="px-4 py-4 font-mono" style={{ color: getMutedTextColor() }}>
+                                            {order.order_number || 'N/A'}
+                                        </td>
+                                        <td className="px-4 py-4" style={{ color: getTextColor() }}>
                                             {order.serviceTitle || 'اسم الخدمة غير متوفر'}
                                         </td>
                                         <td className="px-4 py-4">
-                                            <span className={`px-2 py-1 rounded-full text-xs ${statusClasses[order.status] || 'bg-gray-700 text-gray-300'}`}>
+                                            <span className={`px-2 py-1 rounded-full text-xs ${order.status || (isDark ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-600')
+                                                }`}>
                                                 {order.status || 'غير معروف'}
                                             </span>
                                         </td>
@@ -223,7 +299,7 @@ const Dashboard: React.FC<DashboardProps> = ({ setActiveView }) => {
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan={3} className="px-4 py-8 text-center text-gray-400">
+                                    <td colSpan={3} className="px-4 py-8 text-center" style={{ color: getMutedTextColor() }}>
                                         لا توجد طلبات مكتملة
                                     </td>
                                 </tr>
@@ -231,8 +307,13 @@ const Dashboard: React.FC<DashboardProps> = ({ setActiveView }) => {
                         </tbody>
                     </table>
                 </div>
-                <div className="p-4 border-t border-gray-700 text-center">
-                    <button onClick={() => setActiveView('orders-history')} className="text-sm font-semibold text-primary-400 hover:text-primary-300">
+                <div className={`p-4 border-t text-center transition-colors duration-300 ${isDark ? 'border-gray-700' : 'border-[#dfd7bb]'
+                    }`}>
+                    <button
+                        onClick={() => setActiveView('orders-history')}
+                        className={`text-sm font-semibold transition-colors ${isDark ? 'text-primary-400 hover:text-primary-300' : 'text-[#c9a84c] hover:text-[#b8973a]'
+                            }`}
+                    >
                         عرض كل الطلبات
                     </button>
                 </div>
@@ -241,10 +322,17 @@ const Dashboard: React.FC<DashboardProps> = ({ setActiveView }) => {
     );
 };
 
-const QuickActionButton: React.FC<{ onClick: () => void, icon: string, text: string }> = ({ onClick, icon, text }) => (
-    <button onClick={onClick} className="bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-primary-500 rounded-lg p-4 flex flex-col items-center justify-center transition-colors">
+const QuickActionButton: React.FC<{ onClick: () => void, icon: string, text: string, isDark: boolean }> = ({ onClick, icon, text, isDark }) => (
+    <button
+        onClick={onClick}
+        className={`rounded-lg p-4 flex flex-col items-center justify-center transition-all duration-300 ${isDark
+            ? 'bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-primary-500'
+            : 'bg-white hover:bg-gray-50 border border-[#dfd7bb] hover:border-[#c9a84c] shadow-sm hover:shadow-md'
+            }`}
+    >
         <span className="text-3xl mb-2">{icon}</span>
-        <span className="text-sm font-semibold text-white">{text}</span>
+        <span className={`text-sm font-semibold transition-colors duration-300 ${isDark ? 'text-white' : 'text-gray-800'
+            }`}>{text}</span>
     </button>
 );
 

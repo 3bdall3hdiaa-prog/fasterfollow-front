@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Provider } from '../../types';
+import { useThemeStore } from '@/store/theme.store';
 
 interface ManageProvidersProps {
     providers: Provider[];
@@ -7,14 +8,16 @@ interface ManageProvidersProps {
 }
 
 const StatusBadge: React.FC<{ status: 'Active' | 'Inactive' }> = ({ status }) => {
+    const { isDark } = useThemeStore();
     const statusClasses = {
-        Active: 'bg-green-900 text-green-300',
-        Inactive: 'bg-gray-700 text-gray-300',
+        Active: isDark ? 'bg-green-900 text-green-300' : 'bg-green-100 text-green-700',
+        Inactive: isDark ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-600',
     };
     return <span className={`px-2 py-1 text-xs rounded-full ${statusClasses[status]}`}>{status}</span>;
 };
 
 const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProviders }) => {
+    const { isDark } = useThemeStore();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingProvider, setEditingProvider] = useState<Provider | null>(null);
     const [syncingProviderId, setSyncingProviderId] = useState<string | null>(null);
@@ -27,10 +30,35 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
         status: 'Active' as 'Active' | 'Inactive',
     });
 
+    // دوال مساعدة للألوان
+    const getTextColor = () => {
+        return isDark ? '#ffffff' : '#1e2235';
+    };
+
+    const getMutedTextColor = () => {
+        return isDark ? '#8a8fa8' : '#6c757d';
+    };
+
+    const getCardBackground = () => {
+        return isDark ? '#252a41' : '#ffffff';
+    };
+
+    const getInputBackground = () => {
+        return isDark ? '#1e2235' : '#ffffff';
+    };
+
+    const getInputTextColor = () => {
+        return isDark ? '#ffffff' : '#1e2235';
+    };
+
+    const getBorderColor = () => {
+        return isDark ? '#374151' : '#dfd7bb';
+    };
+
     // دالة لتحويل البيانات من _id إلى id
     const transformProviderData = (data: any[]): Provider[] => {
         return data.map(provider => ({
-            id: provider._id, // استخدام _id كـ id
+            id: provider._id,
             name: provider.name,
             apiEndpoint: provider.apiEndpoint,
             apiKey: provider.apiKey,
@@ -47,17 +75,16 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
     const fetchProviders = async () => {
         try {
             setLoading(true);
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/manage-providers`);
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/manage-providers`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
             if (!response.ok) {
                 throw new Error('فشل في جلب البيانات');
             }
             const data = await response.json();
-            console.log('Raw data from API:', data);
-
-            // تحويل البيانات من _id إلى id
             const transformedData = transformProviderData(data);
-            console.log('Transformed data:', transformedData);
-
             setProviders(transformedData);
         } catch (error) {
             console.error('Error fetching providers:', error);
@@ -69,14 +96,11 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
 
     const handleOpenModal = (provider: Provider | null) => {
         if (provider) {
-            console.log('Opening modal for provider:', provider);
-            console.log('Provider ID:', provider.id);
-
             setEditingProvider(provider);
             setFormData({
                 name: provider.name,
                 apiEndpoint: provider.apiEndpoint,
-                apiKey: '', // Don't show existing API key for security
+                apiKey: '',
                 status: provider.status,
             });
         } else {
@@ -103,28 +127,20 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
             setLoading(true);
 
             if (editingProvider) {
-                // التحقق من وجود ID صالح
                 if (!editingProvider.id) {
                     alert('خطأ: معرف المزود غير صالح');
                     return;
                 }
 
-                console.log('Editing provider ID:', editingProvider.id);
-                console.log('Editing provider:', editingProvider);
-
-                // تعديل مزود موجود
                 const updateData: any = {
                     name: formData.name,
                     apiEndpoint: formData.apiEndpoint,
                     status: formData.status,
                 };
 
-                // إضافة apiKey فقط إذا تم إدخال قيمة جديدة
                 if (formData.apiKey.trim() !== '') {
                     updateData.apiKey = formData.apiKey;
                 }
-
-                console.log('Sending update data:', updateData);
 
                 const response = await fetch(`${import.meta.env.VITE_API_URL}/manage-providers/${editingProvider.id}`, {
                     method: 'PUT',
@@ -135,18 +151,12 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
                     body: JSON.stringify(updateData),
                 });
 
-                console.log('Response status:', response.status);
-
                 if (!response.ok) {
                     const errorText = await response.text();
-                    console.error('Server response:', errorText);
                     throw new Error(`فشل في تعديل المزود: ${response.status} ${response.statusText}`);
                 }
 
                 const updatedProviderData = await response.json();
-                console.log('Raw updated provider:', updatedProviderData);
-
-                // تحويل البيانات المستلمة
                 const updatedProvider = {
                     id: updatedProviderData._id || updatedProviderData.id,
                     name: updatedProviderData.name,
@@ -156,14 +166,9 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
                     balance: updatedProviderData.balance || 0
                 };
 
-                console.log('Transformed updated provider:', updatedProvider);
-
                 setProviders(providers.map(p => p.id === editingProvider.id ? updatedProvider : p));
                 alert('تم تعديل المزود بنجاح');
             } else {
-                // إضافة مزود جديد
-                console.log('Sending new provider data:', formData);
-
                 const response = await fetch(`${import.meta.env.VITE_API_URL}/manage-providers`, {
                     method: 'POST',
                     headers: {
@@ -173,18 +178,12 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
                     body: JSON.stringify(formData),
                 });
 
-                console.log('Response status:', response.status);
-
                 if (!response.ok) {
                     const errorText = await response.text();
-                    console.error('Server response:', errorText);
                     throw new Error(`فشل في إضافة المزود: ${response.status} ${response.statusText}`);
                 }
 
                 const newProviderData = await response.json();
-                console.log('Raw new provider:', newProviderData);
-
-                // تحويل البيانات المستلمة
                 const newProvider = {
                     id: newProviderData._id || newProviderData.id,
                     name: newProviderData.name,
@@ -193,8 +192,6 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
                     status: newProviderData.status,
                     balance: newProviderData.balance || 0
                 };
-
-                console.log('Transformed new provider:', newProvider);
 
                 setProviders([...providers, newProvider]);
                 alert('تم إضافة المزود بنجاح');
@@ -213,8 +210,6 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
         if (window.confirm('هل أنت متأكد من رغبتك في حذف هذا المزود؟ سيؤثر هذا على الخدمات المرتبطة به.')) {
             try {
                 setLoading(true);
-                console.log('Deleting provider ID:', providerId);
-
                 const response = await fetch(`${import.meta.env.VITE_API_URL}/manage-providers/${providerId}`, {
                     method: 'DELETE',
                     headers: {
@@ -222,11 +217,8 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
                     }
                 });
 
-                console.log('Delete response status:', response.status);
-
                 if (!response.ok) {
                     const errorText = await response.text();
-                    console.error('Server response:', errorText);
                     throw new Error(`فشل في حذف المزود: ${response.status} ${response.statusText}`);
                 }
 
@@ -244,8 +236,6 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
     const handleSync = async (providerId: string) => {
         setSyncingProviderId(providerId);
         try {
-            console.log('Syncing provider ID:', providerId);
-
             const response = await fetch(`${import.meta.env.VITE_API_URL}/manage-providers/${providerId}/sync`, {
                 method: 'POST',
                 headers: {
@@ -254,16 +244,12 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
                 }
             });
 
-            console.log('Sync response status:', response.status);
-
             if (!response.ok) {
                 const errorData = await response.json().catch(() => null);
                 throw new Error(errorData?.message || `فشل في مزامنة الرصيد: ${response.status}`);
             }
 
             const result = await response.json();
-            console.log('Sync result:', result);
-
             if (result.success && result.balance !== undefined) {
                 setProviders(prevProviders =>
                     prevProviders.map(p =>
@@ -292,20 +278,27 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
     if (loading && providers.length === 0) {
         return (
             <div className="flex justify-center items-center h-64">
-                <div className="text-white">جاري تحميل البيانات...</div>
+                <div style={{ color: getTextColor() }}>جاري تحميل البيانات...</div>
             </div>
         );
     }
 
     return (
-        <div className="p-4">
+        <div className="p-4" style={{
+            backgroundColor: isDark ? '#1e2235' : '#f8f6f0',
+            minHeight: "100vh",
+            transition: "all 0.3s ease"
+        }}>
             <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-                <h1 className="text-2xl md:text-3xl font-bold text-white text-center md:text-right">
+                <h1 className="text-2xl md:text-3xl font-bold text-center md:text-right" style={{ color: getTextColor() }}>
                     إدارة المزودين
                 </h1>
                 <button
                     onClick={() => handleOpenModal(null)}
-                    className="bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-6 rounded-lg w-full md:w-auto"
+                    className={`font-bold py-3 px-6 rounded-lg w-full md:w-auto transition-all duration-300 ${isDark
+                            ? 'bg-primary-600 hover:bg-primary-700 text-white'
+                            : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
+                        }`}
                     disabled={loading}
                 >
                     إضافة مزود جديد
@@ -313,50 +306,64 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
             </div>
 
             {/* حقل البحث */}
-            <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 mb-6">
+            <div className={`rounded-lg p-4 mb-6 transition-all duration-300 ${isDark
+                    ? 'bg-gray-800 border border-gray-700'
+                    : 'bg-white border border-[#dfd7bb] shadow-md'
+                }`}>
                 <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
                     <input
                         type="text"
                         placeholder="ابحث باسم المزود، رابط الـ API، أو الحالة..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="bg-gray-700 border border-gray-600 rounded-md p-3 text-white w-full md:w-1/2 text-sm md:text-base"
+                        className={`rounded-md p-3 w-full md:w-1/2 text-sm md:text-base transition-all duration-300 ${isDark
+                                ? 'bg-gray-700 border border-gray-600 text-white'
+                                : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
+                            }`}
                     />
-                    <div className="text-gray-400 text-sm md:text-base">
+                    <div className="text-sm md:text-base" style={{ color: getMutedTextColor() }}>
                         إجمالي المزودين: {providers.length} | المعروض: {filteredProviders.length}
                     </div>
                 </div>
             </div>
 
             {/* ✅ جدول عرض المزودين - للشاشات الكبيرة */}
-            <div className="hidden md:block bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
+            <div className={`hidden md:block rounded-lg overflow-hidden transition-all duration-300 ${isDark
+                    ? 'bg-gray-800 border border-gray-700'
+                    : 'bg-white border border-[#dfd7bb] shadow-md'
+                }`}>
                 <div className="overflow-x-auto">
-                    <table className="w-full text-sm text-right text-gray-300">
-                        <thead className="text-xs text-gray-400 uppercase bg-gray-700/50">
+                    <table className="w-full text-sm text-right" style={{ color: getTextColor() }}>
+                        <thead className={`text-xs uppercase ${isDark ? 'text-gray-400 bg-gray-700/50' : 'text-gray-500 bg-gray-50'
+                            }`}>
                             <tr>
                                 <th className="px-4 py-3">الاسم</th>
                                 <th className="px-4 py-3">نقطة النهاية (API)</th>
                                 <th className="px-4 py-3">API_KEY</th>
-
                                 <th className="px-4 py-3">الحالة</th>
                                 <th className="px-4 py-3">الإجراءات</th>
                             </tr>
                         </thead>
                         <tbody>
                             {filteredProviders.map(provider => (
-                                <tr key={provider.id} className="border-b border-gray-700 hover:bg-gray-700/50">
-                                    <td className="px-4 py-4 text-white font-medium">{provider.name}</td>
-                                    <td className="px-4 py-4 font-mono text-xs">{provider.apiEndpoint}</td>
-                                    <td className="px-4 py-4 font-mono text-xs">
+                                <tr key={provider.id} className={`border-b transition-colors ${isDark
+                                        ? 'border-gray-700 hover:bg-gray-700/50'
+                                        : 'border-[#dfd7bb] hover:bg-gray-50'
+                                    }`}>
+                                    <td className="px-4 py-4 font-medium" style={{ color: getTextColor() }}>{provider.name}</td>
+                                    <td className="px-4 py-4 font-mono text-xs" style={{ color: getMutedTextColor() }}>{provider.apiEndpoint}</td>
+                                    <td className="px-4 py-4 font-mono text-xs" style={{ color: getMutedTextColor() }}>
                                         {provider.apiKey ? `${provider.apiKey.substring(0, 20)}...` : 'N/A'}
                                     </td>
-
                                     <td className="px-4 py-4"><StatusBadge status={provider.status} /></td>
                                     <td className="px-4 py-4">
-                                        <div className="flex justify-end gap-3">
+                                        <div className="flex justify-end gap-3 flex-wrap">
                                             <button
                                                 onClick={() => handleOpenModal(provider)}
-                                                className="bg-yellow-600 hover:bg-yellow-700 text-white p-2 rounded flex items-center gap-1 text-xs"
+                                                className={`p-2 rounded flex items-center gap-1 text-xs transition-colors ${isDark
+                                                        ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
+                                                        : 'bg-yellow-500 hover:bg-yellow-600 text-white'
+                                                    }`}
                                                 disabled={loading}
                                             >
                                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -366,7 +373,10 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
                                             </button>
                                             <button
                                                 onClick={() => handleDelete(provider.id)}
-                                                className="bg-red-600 hover:bg-red-700 text-white p-2 rounded flex items-center gap-1 text-xs"
+                                                className={`p-2 rounded flex items-center gap-1 text-xs transition-colors ${isDark
+                                                        ? 'bg-red-600 hover:bg-red-700 text-white'
+                                                        : 'bg-red-500 hover:bg-red-600 text-white'
+                                                    }`}
                                                 disabled={loading}
                                             >
                                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -385,19 +395,25 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
 
             {/* ✅ تصميم البطاقات للهواتف */}
             <div className="block md:hidden">
-                <div className="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
+                <div className={`rounded-lg overflow-hidden transition-all duration-300 ${isDark
+                        ? 'bg-gray-800 border border-gray-700'
+                        : 'bg-white border border-[#dfd7bb] shadow-md'
+                    }`}>
                     {filteredProviders.length === 0 ? (
-                        <div className="text-center py-8 text-gray-400">
+                        <div className="text-center py-8" style={{ color: getMutedTextColor() }}>
                             {providers.length === 0 ? 'لا توجد مزودين حالياً' : 'لم يتم العثور على مزودين تطابق البحث'}
                         </div>
                     ) : (
                         filteredProviders.map(provider => (
-                            <div key={provider.id} className="border-b border-gray-700 p-4 hover:bg-gray-700/50 transition-colors">
+                            <div key={provider.id} className={`border-b p-4 transition-colors ${isDark
+                                    ? 'border-gray-700 hover:bg-gray-700/50'
+                                    : 'border-[#dfd7bb] hover:bg-gray-50'
+                                }`}>
                                 {/* رأس البطاقة */}
                                 <div className="flex justify-between items-start mb-3">
                                     <div>
-                                        <div className="font-semibold text-white text-lg">{provider.name}</div>
-                                        <div className="text-gray-400 text-sm mt-1">
+                                        <div className="font-semibold text-lg" style={{ color: getTextColor() }}>{provider.name}</div>
+                                        <div className="text-sm mt-1">
                                             <StatusBadge status={provider.status} />
                                         </div>
                                     </div>
@@ -408,7 +424,10 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
                                         <button
                                             onClick={() => handleSync(provider.id)}
                                             disabled={syncingProviderId === provider.id || loading}
-                                            className="text-blue-400 hover:text-blue-300 text-xs bg-blue-900/30 hover:bg-blue-900/50 px-2 py-1 rounded mt-1"
+                                            className={`text-xs px-2 py-1 rounded mt-1 transition-colors ${isDark
+                                                    ? 'text-blue-400 hover:text-blue-300 bg-blue-900/30 hover:bg-blue-900/50'
+                                                    : 'text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100'
+                                                }`}
                                         >
                                             {syncingProviderId === provider.id ? 'جاري المزامنة...' : 'مزامنة الرصيد'}
                                         </button>
@@ -418,14 +437,14 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
                                 {/* معلومات المزود */}
                                 <div className="space-y-2 mb-4">
                                     <div>
-                                        <div className="text-gray-400 text-xs mb-1">رابط الـ API</div>
-                                        <div className="text-white font-mono text-sm break-all">
+                                        <div className="text-xs mb-1" style={{ color: getMutedTextColor() }}>رابط الـ API</div>
+                                        <div className="font-mono text-sm break-all" style={{ color: getTextColor() }}>
                                             {provider.apiEndpoint}
                                         </div>
                                     </div>
                                     <div>
-                                        <div className="text-gray-400 text-xs mb-1">مفتاح الـ API</div>
-                                        <div className="text-white font-mono text-sm">
+                                        <div className="text-xs mb-1" style={{ color: getMutedTextColor() }}>مفتاح الـ API</div>
+                                        <div className="font-mono text-sm" style={{ color: getTextColor() }}>
                                             {provider.apiKey ? `${provider.apiKey.substring(0, 25)}...` : 'غير محدد'}
                                         </div>
                                     </div>
@@ -435,7 +454,10 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
                                 <div className="flex gap-2">
                                     <button
                                         onClick={() => handleOpenModal(provider)}
-                                        className="bg-yellow-600 hover:bg-yellow-700 text-white p-2 rounded flex items-center gap-1 flex-1 justify-center text-sm"
+                                        className={`p-2 rounded flex items-center gap-1 flex-1 justify-center text-sm transition-colors ${isDark
+                                                ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
+                                                : 'bg-yellow-500 hover:bg-yellow-600 text-white'
+                                            }`}
                                         disabled={loading}
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -445,7 +467,10 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
                                     </button>
                                     <button
                                         onClick={() => handleDelete(provider.id)}
-                                        className="bg-red-600 hover:bg-red-700 text-white p-2 rounded flex items-center gap-1 flex-1 justify-center text-sm"
+                                        className={`p-2 rounded flex items-center gap-1 flex-1 justify-center text-sm transition-colors ${isDark
+                                                ? 'bg-red-600 hover:bg-red-700 text-white'
+                                                : 'bg-red-500 hover:bg-red-600 text-white'
+                                            }`}
                                         disabled={loading}
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -462,13 +487,16 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
 
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4" onClick={handleCloseModal}>
-                    <div className="bg-gray-800 text-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
+                    <div className={`rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-hidden transition-all duration-300 ${isDark ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'
+                        }`} onClick={(e) => e.stopPropagation()}>
                         <form onSubmit={handleSubmit}>
                             <div className="p-4 md:p-6">
-                                <h3 className="text-xl font-bold mb-6">{editingProvider ? 'تعديل مزود' : 'إضافة مزود جديد'}</h3>
+                                <h3 className="text-xl font-bold mb-6" style={{ color: getTextColor() }}>
+                                    {editingProvider ? 'تعديل مزود' : 'إضافة مزود جديد'}
+                                </h3>
                                 <div className="space-y-4">
                                     <div>
-                                        <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-1">اسم المزود</label>
+                                        <label htmlFor="name" className="block text-sm font-medium mb-1" style={{ color: getMutedTextColor() }}>اسم المزود</label>
                                         <input
                                             type="text"
                                             name="name"
@@ -476,12 +504,15 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
                                             value={formData.name}
                                             onChange={handleChange}
                                             required
-                                            className="w-full bg-gray-700 rounded-md p-3 border border-gray-600 text-sm md:text-base"
+                                            className={`w-full rounded-md p-3 text-sm md:text-base transition-all duration-300 ${isDark
+                                                    ? 'bg-gray-700 border border-gray-600 text-white'
+                                                    : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
+                                                }`}
                                             disabled={loading}
                                         />
                                     </div>
                                     <div>
-                                        <label htmlFor="apiEndpoint" className="block text-sm font-medium text-gray-300 mb-1">نقطة النهاية (API)</label>
+                                        <label htmlFor="apiEndpoint" className="block text-sm font-medium mb-1" style={{ color: getMutedTextColor() }}>نقطة النهاية (API)</label>
                                         <input
                                             type="url"
                                             name="apiEndpoint"
@@ -489,13 +520,16 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
                                             value={formData.apiEndpoint}
                                             onChange={handleChange}
                                             required
-                                            className="w-full bg-gray-700 rounded-md p-3 border border-gray-600 text-sm md:text-base"
+                                            className={`w-full rounded-md p-3 text-sm md:text-base transition-all duration-300 ${isDark
+                                                    ? 'bg-gray-700 border border-gray-600 text-white'
+                                                    : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
+                                                }`}
                                             placeholder="https://provider.com/api"
                                             disabled={loading}
                                         />
                                     </div>
                                     <div>
-                                        <label htmlFor="apiKey" className="block text-sm font-medium text-gray-300 mb-1">مفتاح الـ API</label>
+                                        <label htmlFor="apiKey" className="block text-sm font-medium mb-1" style={{ color: getMutedTextColor() }}>مفتاح الـ API</label>
                                         <input
                                             type="text"
                                             name="apiKey"
@@ -504,21 +538,27 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
                                             onChange={handleChange}
                                             required={!editingProvider}
                                             placeholder={editingProvider ? 'اتركه فارغاً لعدم التغيير' : ''}
-                                            className="w-full bg-gray-700 rounded-md p-3 border border-gray-600 text-sm md:text-base"
+                                            className={`w-full rounded-md p-3 text-sm md:text-base transition-all duration-300 ${isDark
+                                                    ? 'bg-gray-700 border border-gray-600 text-white'
+                                                    : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
+                                                }`}
                                             disabled={loading}
                                         />
                                         {editingProvider && (
-                                            <p className="text-xs text-gray-400 mt-1">اترك الحقل فارغاً للحفاظ على المفتاح الحالي</p>
+                                            <p className="text-xs mt-1" style={{ color: getMutedTextColor() }}>اترك الحقل فارغاً للحفاظ على المفتاح الحالي</p>
                                         )}
                                     </div>
                                     <div>
-                                        <label htmlFor="status" className="block text-sm font-medium text-gray-300 mb-1">الحالة</label>
+                                        <label htmlFor="status" className="block text-sm font-medium mb-1" style={{ color: getMutedTextColor() }}>الحالة</label>
                                         <select
                                             name="status"
                                             id="status"
                                             value={formData.status}
                                             onChange={handleChange}
-                                            className="w-full bg-gray-700 rounded-md p-3 border border-gray-600 text-sm md:text-base"
+                                            className={`w-full rounded-md p-3 text-sm md:text-base transition-all duration-300 ${isDark
+                                                    ? 'bg-gray-700 border border-gray-600 text-white'
+                                                    : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
+                                                }`}
                                             disabled={loading}
                                         >
                                             <option value="Active">نشط</option>
@@ -527,18 +567,25 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
                                     </div>
                                 </div>
                             </div>
-                            <div className="bg-gray-700/50 px-4 md:px-6 py-3 flex justify-end gap-3 rounded-b-2xl">
+                            <div className={`px-4 md:px-6 py-3 flex justify-end gap-3 rounded-b-2xl ${isDark ? 'bg-gray-700/50' : 'bg-gray-50'
+                                }`}>
                                 <button
                                     type="button"
                                     onClick={handleCloseModal}
-                                    className="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg text-sm md:text-base"
+                                    className={`font-bold py-2 px-4 rounded-lg text-sm md:text-base transition-colors ${isDark
+                                            ? 'bg-gray-600 hover:bg-gray-500 text-white'
+                                            : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
+                                        }`}
                                     disabled={loading}
                                 >
                                     إلغاء
                                 </button>
                                 <button
                                     type="submit"
-                                    className="bg-primary-600 hover:bg-primary-700 text-white font-bold py-2 px-4 rounded-lg text-sm md:text-base"
+                                    className={`font-bold py-2 px-4 rounded-lg text-sm md:text-base transition-all duration-300 ${isDark
+                                            ? 'bg-primary-600 hover:bg-primary-700 text-white'
+                                            : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
+                                        }`}
                                     disabled={loading}
                                 >
                                     {loading ? 'جاري الحفظ...' : 'حفظ'}

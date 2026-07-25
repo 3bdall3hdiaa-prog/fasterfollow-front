@@ -1,17 +1,55 @@
 import React, { useEffect, useState } from "react";
 import { Table, Button, Container, Spinner, Modal, Card, Badge, Form } from "react-bootstrap";
 import axios from "axios";
+import { useThemeStore } from "@/store/theme.store";
 
 const UsersManagement = () => {
-    const [users, setUsers] = useState([]);
+    const [users, setUsers] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-    const [selectedUser, setSelectedUser] = useState(null);
+    const [selectedUser, setSelectedUser] = useState<any>(null);
     const [showModal, setShowModal] = useState(false);
     const [hoveredRow, setHoveredRow] = useState(null);
     const [userBalance, setUserBalance] = useState(0);
     const [searchTerm, setSearchTerm] = useState("");
+    const { isDark } = useThemeStore();
+    // ... باقي الـ states
 
-    // إضافة مستخدم جديد
+    // دالة مساعدة للحصول على ألوان الخلفية حسب الوضع
+    const getBackgroundColor = () => {
+        return isDark ? '#1e2235' : '#f8f6f0';
+    };
+
+    const getCardBackground = () => {
+        return isDark ? '#252a41' : '#ffffff';
+    };
+
+    const getCardHeaderBackground = () => {
+        return isDark ? '#2f3450' : '#f0ede4';
+    };
+
+    const getTextColor = () => {
+        return isDark ? 'white' : 'black';
+    };
+
+    const getMutedTextColor = () => {
+        return isDark ? '#8a8fa8' : '#6c757d';
+    };
+
+    const getInputBackground = () => {
+        return isDark ? '#1e2235' : '#ffffff';
+    };
+
+    const getInputTextColor = () => {
+        return isDark ? '#ffffff' : '#1e2235';
+    };
+
+    const getModalBackground = () => {
+        return isDark ? '#2f3450' : '#ffffff';
+    };
+
+    const getModalBodyBackground = () => {
+        return isDark ? '#1e2235' : '#f8f6f0';
+    };    // إضافة مستخدم جديد
     const [showAddModal, setShowAddModal] = useState(false);
     const [newUser, setNewUser] = useState({
         username: "",
@@ -41,7 +79,7 @@ const UsersManagement = () => {
     const handleShowAddModal = () => setShowAddModal(true);
     const handleCloseAddModal = () => setShowAddModal(false);
 
-    const handleShowEditModal = (user) => {
+    const handleShowEditModal = (user: any) => {
         setEditingUser({
             _id: user._id,
             username: user.name,
@@ -80,7 +118,7 @@ const UsersManagement = () => {
         });
     };
 
-    const handleBalanceInputChange = (e) => {
+    const handleBalanceInputChange = (e: any) => {
         const { name, value } = e.target;
         setBalanceData({ ...balanceData, [name]: value });
     };
@@ -99,22 +137,22 @@ const UsersManagement = () => {
 
             alert("تم تحديث الرصيد بنجاح ✅");
             handleCloseBalanceModal();
-        } catch (err) {
+        } catch (err: any) {
             console.error("Balance update error:", err);
             alert(err.response.data.message || "حدث خطأ أثناء تحديث الرصيد");
         }
     };
 
     // دالة لجلب الرصيد من endpoint البايبال
-    const fetchUserBalance = async (userName) => {
+    const fetchUserBalance = async (userName: any) => {
         try {
             const response = await axios.get(`${import.meta.env.VITE_API_URL}/paypal`);
             const paypalData = response.data;
 
             // جمع الـ amount حيث userName يساوي الاسم المطلوب
             const totalBalance = paypalData
-                .filter(transaction => transaction.userName === userName)
-                .reduce((sum, transaction) => sum + (parseFloat(transaction.amount) || 0), 0);
+                .filter((transaction: any) => transaction.userName === userName)
+                .reduce((sum: number, transaction: any) => sum + (parseFloat(transaction.amount) || 0), 0);
 
             setUserBalance(totalBalance);
         } catch (err) {
@@ -123,7 +161,7 @@ const UsersManagement = () => {
         }
     };
 
-    const handleView = async (user) => {
+    const handleView = async (user: any) => {
         setSelectedUser(user);
         setShowModal(true);
         // جلب الرصيد عند فتح نافذة العرض
@@ -136,12 +174,12 @@ const UsersManagement = () => {
         setUserBalance(0); // إعادة تعيين الرصيد عند الإغلاق
     };
 
-    const handleInputChange = (e) => {
+    const handleInputChange = (e: any) => {
         const { name, value } = e.target;
         setNewUser({ ...newUser, [name]: value });
     };
 
-    const handleEditInputChange = (e) => {
+    const handleEditInputChange = (e: any) => {
         const { name, value } = e.target;
         setEditingUser({ ...editingUser, [name]: value });
     };
@@ -188,7 +226,7 @@ const UsersManagement = () => {
             });
 
             // تحديث البيانات في الـ state
-            setUsers(users.map(user =>
+            setUsers(users.map((user: any) =>
                 user._id === editingUser._id
                     ? {
                         ...user,
@@ -214,12 +252,9 @@ const UsersManagement = () => {
             try {
 
                 const res = await axios.get(`${import.meta.env.VITE_API_URL}/getallusers`, {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem("token")}`  // 🔥 لازم Bearer + مسافة
-                    }
                 });
 
-                const formattedUsers = res.data.map(user => ({
+                const formattedUsers = res.data.map((user: any) => ({
                     _id: user._id || user.id,
                     name: user.username || "بدون اسم",
                     job: user.role || "غير محدد",
@@ -264,19 +299,19 @@ const UsersManagement = () => {
     //     }
     // };
 
-    const getStatusBadge = (status) => {
+    const getStatusBadge = (status: string) => {
         if (status === "active") return "success";
         if (status === "banned") return "danger";
         return "secondary";
     };
 
-    const getRowStyle = (userId) => ({
+    const getRowStyle = (userId: string) => ({
         backgroundColor: hoveredRow === userId ? "#2f3450" : "transparent",
         borderBottom: "1px solid #2f3450",
         transition: "background-color 0.3s"
     });
 
-    const getInitials = (name) => {
+    const getInitials = (name: string) => {
         if (!name || name === "بدون اسم") return "م";
         const names = name.split(' ');
         const firstInitial = names[0]?.[0] || "م";
@@ -294,17 +329,18 @@ const UsersManagement = () => {
     return (
         <div
             style={{
-                backgroundColor: "#1e2235",
+                backgroundColor: getBackgroundColor(),
                 minHeight: "100vh",
                 padding: "20px",
-                color: "#fff",
+                color: getTextColor(),
+                transition: "all 0.3s ease"
             }}
         >
             <Container fluid>
                 {/* العنوان الرئيسي */}
                 <div className="d-flex justify-content-between align-items-center mb-4">
-                    <h2 className="fw-bold mb-0" style={{ color: "#ffffff" }}>إدارة المستخدمين</h2>
-                    <div className="d-flex gap-2">
+                    <h2 className="fw-bold mb-0" style={{ color: getTextColor() }}>إدارة المستخدمين</h2>
+                    <div className="d-flex gap-2 flex-wrap">
                         <Button
                             variant="primary"
                             onClick={handleShowBalanceModal}
@@ -321,7 +357,7 @@ const UsersManagement = () => {
                             variant="primary"
                             onClick={handleShowAddModal}
                             style={{
-                                backgroundColor: "#4a90e2",
+                                backgroundColor: isDark ? "#4a90e2" : "#c9a84c",
                                 border: "none",
                                 borderRadius: "8px",
                                 padding: "10px 20px"
@@ -333,7 +369,12 @@ const UsersManagement = () => {
                 </div>
 
                 {/* حقل البحث */}
-                <Card className="mb-4" style={{ backgroundColor: "#252a41", border: "none", borderRadius: "15px" }}>
+                <Card className="mb-4" style={{
+                    backgroundColor: getCardBackground(),
+                    border: isDark ? "none" : "1px solid #dfd7bb",
+                    borderRadius: "15px",
+                    transition: "all 0.3s ease"
+                }}>
                     <Card.Body>
                         <div className="row align-items-center">
                             <div className="col-md-6">
@@ -344,9 +385,9 @@ const UsersManagement = () => {
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
                                         style={{
-                                            backgroundColor: "#f8f8f9ff",
-                                            border: "1px solid #4a90e2",
-                                            color: "white",
+                                            backgroundColor: getInputBackground(),
+                                            border: isDark ? "1px solid #4a90e2" : "1px solid #c9a84c",
+                                            color: getInputTextColor(),
                                             borderRadius: "8px",
                                             padding: "12px"
                                         }}
@@ -354,7 +395,7 @@ const UsersManagement = () => {
                                 </Form.Group>
                             </div>
                             <div className="col-md-6 text-md-end text-center mt-2 mt-md-0">
-                                <span className="text-muted">
+                                <span style={{ color: getMutedTextColor() }}>
                                     إجمالي المستخدمين: {users.length} | المعروض: {filteredUsers.length}
                                 </span>
                             </div>
@@ -368,11 +409,12 @@ const UsersManagement = () => {
                         <Card
                             className="h-100"
                             style={{
-                                backgroundColor: "#4a90e2",
+                                backgroundColor: isDark ? "#4a90e2" : "#c9a84c",
                                 border: "none",
                                 borderRadius: "15px",
-                                boxShadow: "0 4px 12px rgba(74, 144, 226, 0.3)",
+                                boxShadow: isDark ? "0 4px 12px rgba(74, 144, 226, 0.3)" : "0 4px 12px rgba(201, 168, 76, 0.3)",
                                 minHeight: "120px",
+                                transition: "all 0.3s ease"
                             }}
                         >
                             <Card.Body className="text-white d-flex flex-column justify-content-center align-items-center">
@@ -391,11 +433,12 @@ const UsersManagement = () => {
                         <Card
                             className="h-100"
                             style={{
-                                backgroundColor: "#2ecc71",
+                                backgroundColor: isDark ? "#2ecc71" : "#27ae60",
                                 border: "none",
                                 borderRadius: "15px",
-                                boxShadow: "0 4px 12px rgba(46, 204, 113, 0.3)",
+                                boxShadow: isDark ? "0 4px 12px rgba(46, 204, 113, 0.3)" : "0 4px 12px rgba(39, 174, 96, 0.3)",
                                 minHeight: "120px",
+                                transition: "all 0.3s ease"
                             }}
                         >
                             <Card.Body className="text-white d-flex flex-column justify-content-center align-items-center">
@@ -414,11 +457,12 @@ const UsersManagement = () => {
                         <Card
                             className="h-100"
                             style={{
-                                backgroundColor: "#e74c3c",
+                                backgroundColor: isDark ? "#e74c3c" : "#c0392b",
                                 border: "none",
                                 borderRadius: "15px",
-                                boxShadow: "0 4px 12px rgba(231, 76, 60, 0.3)",
+                                boxShadow: isDark ? "0 4px 12px rgba(231, 76, 60, 0.3)" : "0 4px 12px rgba(192, 57, 43, 0.3)",
                                 minHeight: "120px",
+                                transition: "all 0.3s ease"
                             }}
                         >
                             <Card.Body className="text-white d-flex flex-column justify-content-center align-items-center">
@@ -437,11 +481,12 @@ const UsersManagement = () => {
                         <Card
                             className="h-100"
                             style={{
-                                backgroundColor: "#8e44ad",
+                                backgroundColor: isDark ? "#8e44ad" : "#6c3483",
                                 border: "none",
                                 borderRadius: "15px",
-                                boxShadow: "0 4px 12px rgba(142, 68, 173, 0.3)",
-                                minHeight: "120px"
+                                boxShadow: isDark ? "0 4px 12px rgba(142, 68, 173, 0.3)" : "0 4px 12px rgba(108, 52, 131, 0.3)",
+                                minHeight: "120px",
+                                transition: "all 0.3s ease"
                             }}
                         >
                             <Card.Body className="text-center text-white d-flex flex-column justify-content-center">
@@ -459,18 +504,27 @@ const UsersManagement = () => {
 
                 {/* جدول المستخدمين - للشاشات الكبيرة */}
                 <div className="d-none d-md-block">
-                    <Card style={{ backgroundColor: "#252a41", border: "none", borderRadius: "15px" }}>
-                        <Card.Header style={{ backgroundColor: "#2f3450", border: "none", padding: "20px" }}>
-                            <h5 className="mb-0" style={{ color: "#ffffff" }}>قائمة المستخدمين</h5>
+                    <Card style={{
+                        backgroundColor: getCardBackground(),
+                        border: isDark ? "none" : "1px solid #dfd7bb",
+                        borderRadius: "15px",
+                        transition: "all 0.3s ease"
+                    }}>
+                        <Card.Header style={{
+                            backgroundColor: getCardHeaderBackground(),
+                            border: "none",
+                            padding: "20px"
+                        }}>
+                            <h5 className="mb-0" style={{ color: isDark ? "white" : "black" }}>قائمة المستخدمين</h5>
                         </Card.Header>
                         <Card.Body className="p-0">
                             {loading ? (
                                 <div className="text-center py-5">
-                                    <Spinner animation="border" variant="light" />
+                                    <Spinner animation="border" variant={isDark ? "light" : "secondary"} />
                                 </div>
                             ) : (
-                                <Table responsive hover className="mb-0" style={{ color: "#ffffff" }}>
-                                    <thead style={{ backgroundColor: "#2f3450" }}>
+                                <Table responsive hover className="mb-0" style={{ color: getTextColor() }}>
+                                    <thead style={{ backgroundColor: getCardHeaderBackground() }}>
                                         <tr>
                                             <th>#</th>
                                             <th>الاسم</th>
@@ -482,68 +536,68 @@ const UsersManagement = () => {
                                     </thead>
                                     <tbody>
                                         {filteredUsers.length > 0 ? (
-                                            filteredUsers.map((user, index) => (
-                                                <tr
-                                                    key={user._id}
-                                                    style={getRowStyle(user._id)}
-                                                    onMouseEnter={() => setHoveredRow(user._id)}
-                                                    onMouseLeave={() => setHoveredRow(null)}
-                                                >
-                                                    <td>{index + 1}</td>
-                                                    <td>
-                                                        <div className="d-flex align-items-center">
-                                                            <div
-                                                                className="rounded-circle d-flex align-items-center justify-content-center me-3"
-                                                                style={{
-                                                                    width: "40px",
-                                                                    height: "40px",
-                                                                    backgroundColor: "#4a90e2",
-                                                                    color: "white",
-                                                                    fontSize: "14px",
-                                                                    fontWeight: "bold"
-                                                                }}
-                                                            >
-                                                                {getInitials(user.name)}
+                                            filteredUsers.map((user, index) => {
+                                                return (
+                                                    <tr
+                                                        key={user._id}
+                                                        style={getRowStyle(user._id)}
+                                                        onMouseEnter={() => setHoveredRow(user._id)}
+                                                        onMouseLeave={() => setHoveredRow(null)}
+                                                    >
+                                                        <td>{index + 1}</td>
+                                                        <td>
+                                                            <div className="d-flex align-items-center">
+                                                                <div
+                                                                    className="rounded-circle d-flex align-items-center justify-content-center me-3"
+                                                                    style={{
+                                                                        width: "40px",
+                                                                        height: "40px",
+                                                                        backgroundColor: isDark ? "#4a90e2" : "#c9a84c",
+                                                                        color: "white",
+                                                                        fontSize: "14px",
+                                                                        fontWeight: "bold"
+                                                                    }}
+                                                                >
+                                                                    {getInitials(user.name)}
+                                                                </div>
+                                                                <div>
+                                                                    <div className="fw-bold" style={{ color: "black", fontSize: "16px" }}>{user.name}</div>
+                                                                </div>
                                                             </div>
-                                                            <div>
-                                                                <div className="fw-bold" style={{ color: "#000000ff", fontSize: "16px" }}>{user.name}</div>
+                                                        </td>
+                                                        <td style={{ color: 'black' }}>{user.job}</td>
+                                                        <td style={{ color: "black" }}>{user.email}</td>
+                                                        <td>
+                                                            <Badge bg={getStatusBadge(user.status)}>
+                                                                {user.status === "active"
+                                                                    ? "نشط"
+                                                                    : user.status === "banned"
+                                                                        ? "محظور"
+                                                                        : "غير نشط"}
+                                                            </Badge>
+                                                        </td>
+                                                        <td>
+                                                            <div className="d-flex gap-2">
+                                                                <Button
+                                                                    size="sm"
+                                                                    variant="outline-info"
+                                                                    onClick={() => handleView(user)}
+                                                                >
+                                                                    عرض
+                                                                </Button>
+                                                                <Button
+                                                                    size="sm"
+                                                                    variant="outline-warning"
+                                                                    onClick={() => handleShowEditModal(user)}
+                                                                >
+                                                                    تعديل
+                                                                </Button>
                                                             </div>
-                                                        </div>
-                                                    </td>
-                                                    <td>{user.job}</td>
-                                                    <td>{user.email}</td>
-                                                    <td>
-                                                        <Badge bg={getStatusBadge(user.status)}>
-                                                            {user.status === "active"
-                                                                ? "نشط"
-                                                                : user.status === "banned"
-                                                                    ? "محظور"
-                                                                    : "غير نشط"}
-                                                        </Badge>
-                                                    </td>
-                                                    <td>
-                                                        <div className="d-flex gap-2">
-                                                            <Button
-                                                                size="sm"
-                                                                variant="outline-info"
-                                                                onClick={() => handleView(user)}
-                                                            >
-                                                                عرض
-                                                            </Button>
-                                                            <Button
-                                                                size="sm"
-                                                                variant="outline-warning"
-                                                                onClick={() => handleShowEditModal(user)}
-                                                            >
-                                                                تعديل
-                                                            </Button>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            ))
-                                        ) : (
+                                                        </td>
+                                                    </tr>)
+                                            })) : (
                                             <tr>
-                                                <td colSpan={6} className="text-center text-muted py-4">
+                                                <td colSpan={6} className="text-center py-4" style={{ color: getMutedTextColor() }}>
                                                     <i className="fas fa-users fa-2x mb-3 d-block"></i>
                                                     {users.length === 0 ? 'لا يوجد مستخدمين' : 'لم يتم العثور على مستخدمين'}
                                                 </td>
@@ -558,22 +612,32 @@ const UsersManagement = () => {
 
                 {/* تصميم البطاقات للهواتف */}
                 <div className="d-block d-md-none">
-                    <Card style={{ backgroundColor: "#252a41", border: "none", borderRadius: "15px" }}>
-                        <Card.Header style={{ backgroundColor: "#2f3450", border: "none", padding: "15px" }}>
-                            <h5 className="mb-0" style={{ color: "#ffffff" }}>قائمة المستخدمين</h5>
+                    <Card style={{
+                        backgroundColor: getCardBackground(),
+                        border: isDark ? "none" : "1px solid #dfd7bb",
+                        borderRadius: "15px",
+                        transition: "all 0.3s ease"
+                    }}>
+                        <Card.Header style={{
+                            backgroundColor: getCardHeaderBackground(),
+                            border: "none",
+                            padding: "15px"
+                        }}>
+                            <h5 className="mb-0" style={{ color: getTextColor() }}>قائمة المستخدمين</h5>
                         </Card.Header>
                         <Card.Body className="p-0">
                             {loading ? (
                                 <div className="text-center py-5">
-                                    <Spinner animation="border" variant="light" />
+                                    <Spinner animation="border" variant={isDark ? "light" : "secondary"} />
                                 </div>
                             ) : filteredUsers.length > 0 ? (
                                 filteredUsers.map((user, index) => (
                                     <div
                                         key={user._id}
-                                        className="border-bottom border-gray-600 p-3 hover-bg"
+                                        className="border-bottom p-3 hover-bg"
                                         style={{
-                                            backgroundColor: hoveredRow === user._id ? "#2f3450" : "transparent",
+                                            backgroundColor: hoveredRow === user._id ? (isDark ? "#2f3450" : "#f0ede4") : "transparent",
+                                            borderColor: isDark ? "#2f3450" : "#dfd7bb",
                                             transition: "background-color 0.3s"
                                         }}
                                         onMouseEnter={() => setHoveredRow(user._id)}
@@ -586,7 +650,7 @@ const UsersManagement = () => {
                                                     style={{
                                                         width: "45px",
                                                         height: "45px",
-                                                        backgroundColor: "#4a90e2",
+                                                        backgroundColor: isDark ? "#4a90e2" : "#c9a84c",
                                                         color: "white",
                                                         fontSize: "16px",
                                                         fontWeight: "bold"
@@ -595,8 +659,8 @@ const UsersManagement = () => {
                                                     {getInitials(user.name)}
                                                 </div>
                                                 <div>
-                                                    <div className="fw-bold text-white">{user.name}</div>
-                                                    <div className="text-muted small">{user.job}</div>
+                                                    <div className="fw-bold" style={{ color: getTextColor() }}>{user.name}</div>
+                                                    <div style={{ color: getMutedTextColor(), fontSize: "0.875rem" }}>{user.job}</div>
                                                 </div>
                                             </div>
                                             <Badge bg={getStatusBadge(user.status)}>
@@ -605,8 +669,8 @@ const UsersManagement = () => {
                                         </div>
 
                                         <div className="mb-3">
-                                            <div className="text-muted small">البريد الإلكتروني</div>
-                                            <div className="text-white">{user.email}</div>
+                                            <div style={{ color: getMutedTextColor(), fontSize: "0.875rem" }}>البريد الإلكتروني</div>
+                                            <div style={{ color: getTextColor() }}>{user.email}</div>
                                         </div>
 
                                         <div className="d-flex gap-2">
@@ -632,7 +696,7 @@ const UsersManagement = () => {
                                     </div>
                                 ))
                             ) : (
-                                <div className="text-center text-muted py-4">
+                                <div className="text-center py-4" style={{ color: getMutedTextColor() }}>
                                     <i className="fas fa-users fa-2x mb-3 d-block"></i>
                                     {users.length === 0 ? 'لا يوجد مستخدمين' : 'لم يتم العثور على مستخدمين'}
                                 </div>
@@ -641,13 +705,19 @@ const UsersManagement = () => {
                     </Card>
                 </div>
 
-                {/* باقي المودالات بدون تغيير */}
                 {/* مودال عرض المستخدم */}
                 <Modal show={showModal} onHide={handleCloseModal} centered style={{ direction: "rtl" }}>
-                    <Modal.Header closeButton style={{ backgroundColor: "#2f3450", color: "white" }}>
+                    <Modal.Header closeButton style={{
+                        backgroundColor: getCardHeaderBackground(),
+                        color: getTextColor(),
+                        borderBottom: isDark ? "1px solid #1e2235" : "1px solid #dfd7bb"
+                    }}>
                         <Modal.Title>تفاصيل المستخدم</Modal.Title>
                     </Modal.Header>
-                    <Modal.Body style={{ backgroundColor: "#96979dff", color: "white" }}>
+                    <Modal.Body style={{
+                        backgroundColor: getModalBodyBackground(),
+                        color: getTextColor()
+                    }}>
                         {selectedUser ? (
                             <div className="row">
                                 <div className="col-12 text-center mb-4">
@@ -656,7 +726,7 @@ const UsersManagement = () => {
                                         style={{
                                             width: "80px",
                                             height: "80px",
-                                            backgroundColor: "#4a90e2",
+                                            backgroundColor: isDark ? "#4a90e2" : "#c9a84c",
                                             color: "white",
                                             fontSize: "24px",
                                             fontWeight: "bold"
@@ -664,12 +734,12 @@ const UsersManagement = () => {
                                     >
                                         {getInitials(selectedUser.name)}
                                     </div>
-                                    <h4 style={{ color: "#ffffff" }}>{selectedUser.name}</h4>
-                                    <p className="text-muted">{selectedUser.email}</p>
+                                    <h4 style={{ color: getTextColor() }}>{selectedUser.name}</h4>
+                                    <p style={{ color: getMutedTextColor() }}>{selectedUser.email}</p>
                                 </div>
                                 <div className="col-6 mb-3">
                                     <strong>الوظيفة:</strong>
-                                    <p>{selectedUser.job}</p>
+                                    <p style={{ color: getTextColor() }}>{selectedUser.job}</p>
                                 </div>
                                 <div className="col-6 mb-3">
                                     <strong>الحالة:</strong>
@@ -685,7 +755,7 @@ const UsersManagement = () => {
                                 </div>
                                 <div className="col-6 mb-3">
                                     <strong>تاريخ الانضمام:</strong>
-                                    <p>{selectedUser.joinDate}</p>
+                                    <p style={{ color: getTextColor() }}>{selectedUser.joinDate}</p>
                                 </div>
                                 <div className="col-6 mb-3">
                                     <strong>الرصيد:</strong>
@@ -700,93 +770,100 @@ const UsersManagement = () => {
                             <p>جاري التحميل...</p>
                         )}
                     </Modal.Body>
-                    <Modal.Footer style={{ backgroundColor: "#252a41", border: "none" }}>
+                    <Modal.Footer style={{
+                        backgroundColor: getCardBackground(),
+                        border: "none",
+                        borderTop: isDark ? "1px solid #1e2235" : "1px solid #dfd7bb"
+                    }}>
                         <Button variant="secondary" onClick={handleCloseModal}>إغلاق</Button>
                     </Modal.Footer>
                 </Modal>
 
                 {/* مودال إضافة مستخدم */}
                 <Modal show={showAddModal} onHide={handleCloseAddModal} centered style={{ direction: "rtl" }}>
-                    <Modal.Header closeButton style={{ backgroundColor: "#2f3450", color: "white" }}>
+                    <Modal.Header closeButton style={{
+                        backgroundColor: getCardHeaderBackground(),
+                        color: getTextColor(),
+                        borderBottom: isDark ? "1px solid #1e2235" : "1px solid #dfd7bb"
+                    }}>
                         <Modal.Title>إضافة مستخدم جديد</Modal.Title>
                     </Modal.Header>
-                    <Modal.Body style={{ backgroundColor: "#96979dff", color: "white" }}>
+                    <Modal.Body style={{
+                        backgroundColor: getModalBodyBackground(),
+                        color: getTextColor()
+                    }}>
                         <div className="mb-3">
-                            <label className="form-label">الاسم</label>
-                            <input type="text" name="username" className="form-control" value={newUser.username} onChange={handleInputChange} />
-                        </div>
-                        <div className="mb-3">
-                            <label className="form-label">الوظيفة</label>
-                            <input type="text" name="role" className="form-control" value={newUser.role} onChange={handleInputChange} />
-                        </div>
-                        <div className="mb-3">
-                            <label className="form-label">البريد الإلكتروني</label>
-                            <input type="email" name="email" className="form-control" value={newUser.email} onChange={handleInputChange} />
-                        </div>
-                        <div className="mb-3">
-                            <label className="form-label">كلمة المرور</label>
-                            <input type="password" name="password" className="form-control" value={newUser.password} onChange={handleInputChange} />
-                        </div>
-                        <div className="mb-3">
-                            <label className="form-label">الحالة</label>
-                            <select name="status" className="form-select" value={newUser.status} onChange={handleInputChange}>
-                                <option value="active">نشط</option>
-                                <option value="inactive">غير نشط</option>
-                                <option value="banned">محظور</option>
-                            </select>
-                        </div>
-                    </Modal.Body>
-                    <Modal.Footer style={{ backgroundColor: "#252a41", border: "none" }}>
-                        <Button variant="secondary" onClick={handleCloseAddModal}>إلغاء</Button>
-                        <Button variant="primary" onClick={handleAddUser} style={{ backgroundColor: "#4a90e2", border: "none" }}>
-                            إضافة
-                        </Button>
-                    </Modal.Footer>
-                </Modal>
-
-                {/* مودال تعديل المستخدم */}
-                <Modal show={showEditModal} onHide={handleCloseEditModal} centered style={{ direction: "rtl" }}>
-                    <Modal.Header closeButton style={{ backgroundColor: "#2f3450", color: "white" }}>
-                        <Modal.Title>تعديل المستخدم</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body style={{ backgroundColor: "#96979dff", color: "white" }}>
-                        <div className="mb-3">
-                            <label className="form-label">الاسم</label>
+                            <label className="form-label" style={{ color: getTextColor() }}>الاسم</label>
                             <input
                                 type="text"
                                 name="username"
                                 className="form-control"
-                                value={editingUser.username}
-                                onChange={handleEditInputChange}
+                                value={newUser.username}
+                                onChange={handleInputChange}
+                                style={{
+                                    backgroundColor: getInputBackground(),
+                                    color: getInputTextColor(),
+                                    border: isDark ? "1px solid #4a90e2" : "1px solid #c9a84c"
+                                }}
                             />
                         </div>
                         <div className="mb-3">
-                            <label className="form-label">الوظيفة</label>
+                            <label className="form-label" style={{ color: getTextColor() }}>الوظيفة</label>
                             <input
                                 type="text"
                                 name="role"
                                 className="form-control"
-                                value={editingUser.role}
-                                onChange={handleEditInputChange}
+                                value={newUser.role}
+                                onChange={handleInputChange}
+                                style={{
+                                    backgroundColor: getInputBackground(),
+                                    color: getInputTextColor(),
+                                    border: isDark ? "1px solid #4a90e2" : "1px solid #c9a84c"
+                                }}
                             />
                         </div>
                         <div className="mb-3">
-                            <label className="form-label">البريد الإلكتروني</label>
+                            <label className="form-label" style={{ color: getTextColor() }}>البريد الإلكتروني</label>
                             <input
                                 type="email"
                                 name="email"
                                 className="form-control"
-                                value={editingUser.email}
-                                onChange={handleEditInputChange}
+                                value={newUser.email}
+                                onChange={handleInputChange}
+                                style={{
+                                    backgroundColor: getInputBackground(),
+                                    color: getInputTextColor(),
+                                    border: isDark ? "1px solid #4a90e2" : "1px solid #c9a84c"
+                                }}
                             />
                         </div>
                         <div className="mb-3">
-                            <label className="form-label">الحالة</label>
+                            <label className="form-label" style={{ color: getTextColor() }}>كلمة المرور</label>
+                            <input
+                                type="password"
+                                name="password"
+                                className="form-control"
+                                value={newUser.password}
+                                onChange={handleInputChange}
+                                style={{
+                                    backgroundColor: getInputBackground(),
+                                    color: getInputTextColor(),
+                                    border: isDark ? "1px solid #4a90e2" : "1px solid #c9a84c"
+                                }}
+                            />
+                        </div>
+                        <div className="mb-3">
+                            <label className="form-label" style={{ color: getTextColor() }}>الحالة</label>
                             <select
                                 name="status"
                                 className="form-select"
-                                value={editingUser.status}
-                                onChange={handleEditInputChange}
+                                value={newUser.status}
+                                onChange={handleInputChange}
+                                style={{
+                                    backgroundColor: getInputBackground(),
+                                    color: getInputTextColor(),
+                                    border: isDark ? "1px solid #4a90e2" : "1px solid #c9a84c"
+                                }}
                             >
                                 <option value="active">نشط</option>
                                 <option value="inactive">غير نشط</option>
@@ -794,12 +871,115 @@ const UsersManagement = () => {
                             </select>
                         </div>
                     </Modal.Body>
-                    <Modal.Footer style={{ backgroundColor: "#252a41", border: "none" }}>
+                    <Modal.Footer style={{
+                        backgroundColor: getCardBackground(),
+                        border: "none",
+                        borderTop: isDark ? "1px solid #1e2235" : "1px solid #dfd7bb"
+                    }}>
+                        <Button variant="secondary" onClick={handleCloseAddModal}>إلغاء</Button>
+                        <Button
+                            variant="primary"
+                            onClick={handleAddUser}
+                            style={{
+                                backgroundColor: isDark ? "#4a90e2" : "#c9a84c",
+                                border: "none"
+                            }}
+                        >
+                            إضافة
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
+
+                {/* مودال تعديل المستخدم */}
+                <Modal show={showEditModal} onHide={handleCloseEditModal} centered style={{ direction: "rtl" }}>
+                    <Modal.Header closeButton style={{
+                        backgroundColor: getCardHeaderBackground(),
+                        color: getTextColor(),
+                        borderBottom: isDark ? "1px solid #1e2235" : "1px solid #dfd7bb"
+                    }}>
+                        <Modal.Title>تعديل المستخدم</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body style={{
+                        backgroundColor: getModalBodyBackground(),
+                        color: getTextColor()
+                    }}>
+                        <div className="mb-3">
+                            <label className="form-label" style={{ color: getTextColor() }}>الاسم</label>
+                            <input
+                                type="text"
+                                name="username"
+                                className="form-control"
+                                value={editingUser.username}
+                                onChange={handleEditInputChange}
+                                style={{
+                                    backgroundColor: getInputBackground(),
+                                    color: getInputTextColor(),
+                                    border: isDark ? "1px solid #4a90e2" : "1px solid #c9a84c"
+                                }}
+                            />
+                        </div>
+                        <div className="mb-3">
+                            <label className="form-label" style={{ color: getTextColor() }}>الوظيفة</label>
+                            <input
+                                type="text"
+                                name="role"
+                                className="form-control"
+                                value={editingUser.role}
+                                onChange={handleEditInputChange}
+                                style={{
+                                    backgroundColor: getInputBackground(),
+                                    color: getInputTextColor(),
+                                    border: isDark ? "1px solid #4a90e2" : "1px solid #c9a84c"
+                                }}
+                            />
+                        </div>
+                        <div className="mb-3">
+                            <label className="form-label" style={{ color: getTextColor() }}>البريد الإلكتروني</label>
+                            <input
+                                type="email"
+                                name="email"
+                                className="form-control"
+                                value={editingUser.email}
+                                onChange={handleEditInputChange}
+                                style={{
+                                    backgroundColor: getInputBackground(),
+                                    color: getInputTextColor(),
+                                    border: isDark ? "1px solid #4a90e2" : "1px solid #c9a84c"
+                                }}
+                            />
+                        </div>
+                        <div className="mb-3">
+                            <label className="form-label" style={{ color: getTextColor() }}>الحالة</label>
+                            <select
+                                name="status"
+                                className="form-select"
+                                value={editingUser.status}
+                                onChange={handleEditInputChange}
+                                style={{
+                                    backgroundColor: getInputBackground(),
+                                    color: getInputTextColor(),
+                                    border: isDark ? "1px solid #4a90e2" : "1px solid #c9a84c"
+                                }}
+                            >
+                                <option value="active">نشط</option>
+                                <option value="inactive">غير نشط</option>
+                                <option value="banned">محظور</option>
+                            </select>
+                        </div>
+                    </Modal.Body>
+                    <Modal.Footer style={{
+                        backgroundColor: getCardBackground(),
+                        border: "none",
+                        borderTop: isDark ? "1px solid #1e2235" : "1px solid #dfd7bb"
+                    }}>
                         <Button variant="secondary" onClick={handleCloseEditModal}>إلغاء</Button>
                         <Button
                             variant="primary"
                             onClick={handleEditUser}
-                            style={{ backgroundColor: "#4a90e2", border: "none" }}
+                            style={{
+                                backgroundColor: isDark ? "#4a90e2" : "#c9a84c",
+                                border: "none"
+                            }}
                         >
                             حفظ التعديلات
                         </Button>
@@ -808,12 +988,19 @@ const UsersManagement = () => {
 
                 {/* مودال التحكم في الرصيد */}
                 <Modal show={showBalanceModal} onHide={handleCloseBalanceModal} centered style={{ direction: "rtl" }}>
-                    <Modal.Header closeButton style={{ backgroundColor: "#2f3450", color: "white" }}>
+                    <Modal.Header closeButton style={{
+                        backgroundColor: getCardHeaderBackground(),
+                        color: getTextColor(),
+                        borderBottom: isDark ? "1px solid #1e2235" : "1px solid #dfd7bb"
+                    }}>
                         <Modal.Title>التحكم في الرصيد</Modal.Title>
                     </Modal.Header>
-                    <Modal.Body style={{ backgroundColor: "#96979dff", color: "white" }}>
+                    <Modal.Body style={{
+                        backgroundColor: getModalBodyBackground(),
+                        color: getTextColor()
+                    }}>
                         <div className="mb-3">
-                            <label className="form-label">اسم المستخدم</label>
+                            <label className="form-label" style={{ color: getTextColor() }}>اسم المستخدم</label>
                             <input
                                 type="text"
                                 name="username"
@@ -821,10 +1008,15 @@ const UsersManagement = () => {
                                 value={balanceData.username}
                                 onChange={handleBalanceInputChange}
                                 placeholder="أدخل اسم المستخدم"
+                                style={{
+                                    backgroundColor: getInputBackground(),
+                                    color: getInputTextColor(),
+                                    border: isDark ? "1px solid #4a90e2" : "1px solid #c9a84c"
+                                }}
                             />
                         </div>
                         <div className="mb-3">
-                            <label className="form-label">الكمية</label>
+                            <label className="form-label" style={{ color: getTextColor() }}>الكمية</label>
                             <input
                                 type="number"
                                 name="amount"
@@ -832,10 +1024,19 @@ const UsersManagement = () => {
                                 value={balanceData.amount}
                                 onChange={handleBalanceInputChange}
                                 placeholder="أدخل الكمية"
+                                style={{
+                                    backgroundColor: getInputBackground(),
+                                    color: getInputTextColor(),
+                                    border: isDark ? "1px solid #4a90e2" : "1px solid #c9a84c"
+                                }}
                             />
                         </div>
                     </Modal.Body>
-                    <Modal.Footer style={{ backgroundColor: "#252a41", border: "none" }}>
+                    <Modal.Footer style={{
+                        backgroundColor: getCardBackground(),
+                        border: "none",
+                        borderTop: isDark ? "1px solid #1e2235" : "1px solid #dfd7bb"
+                    }}>
                         <Button variant="secondary" onClick={handleCloseBalanceModal}>إلغاء</Button>
                         <Button
                             variant="success"

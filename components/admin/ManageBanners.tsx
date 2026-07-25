@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Banner } from '../../types';
+import { useThemeStore } from '@/store/theme.store';
 
 interface ManageBannersProps {
     banners: Banner[];
@@ -7,12 +8,38 @@ interface ManageBannersProps {
 }
 
 const ManageBanners: React.FC<ManageBannersProps> = ({ banners, setBanners }) => {
+    const { isDark } = useThemeStore();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingBanner, setEditingBanner] = useState<Banner | null>(null);
     const [formData, setFormData] = useState<Partial<Banner>>({});
     const [loading, setLoading] = useState(false);
 
     const API_BASE = import.meta.env.VITE_API_URL;
+
+    // دوال مساعدة للألوان
+    const getTextColor = () => {
+        return isDark ? '#ffffff' : '#1e2235';
+    };
+
+    const getMutedTextColor = () => {
+        return isDark ? '#8a8fa8' : '#6c757d';
+    };
+
+    const getCardBackground = () => {
+        return isDark ? '#252a41' : '#ffffff';
+    };
+
+    const getInputBackground = () => {
+        return isDark ? '#1e2235' : '#ffffff';
+    };
+
+    const getInputTextColor = () => {
+        return isDark ? '#ffffff' : '#1e2235';
+    };
+
+    const getBorderColor = () => {
+        return isDark ? '#374151' : '#dfd7bb';
+    };
 
     // دالة لجلب كل البانرات
     const fetchBanners = async () => {
@@ -21,9 +48,8 @@ const ManageBanners: React.FC<ManageBannersProps> = ({ banners, setBanners }) =>
             if (!response.ok) throw new Error('فشل في جلب البيانات');
             const data = await response.json();
 
-            // تحويل البيانات لاستخدام _id كـ id
             const formattedBanners: Banner[] = data.map((banner: any) => ({
-                id: banner._id, // استخدام _id مباشرة من الداتابيز
+                id: banner._id,
                 title: banner.title || 'No Title',
                 subtitle: banner.subtitle || '',
                 ctaText: banner.ctaText || 'اطلب الآن',
@@ -47,6 +73,7 @@ const ManageBanners: React.FC<ManageBannersProps> = ({ banners, setBanners }) =>
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
                 },
                 body: JSON.stringify(bannerData),
             });
@@ -67,14 +94,12 @@ const ManageBanners: React.FC<ManageBannersProps> = ({ banners, setBanners }) =>
 
     // دالة لتعديل بانر موجود
     const updateBanner = async (bannerId: string, bannerData: Partial<Banner>) => {
-        // تحقق من أن bannerId موجود وصالح
         if (!bannerId || bannerId === 'undefined' || bannerId === 'null') {
             console.error('Invalid banner ID:', bannerId);
             alert('معرف البانر غير صالح');
             return false;
         }
 
-        // تحقق إذا كان الـ ID هو ObjectId صالح (24 حرف hex)
         const objectIdRegex = /^[0-9a-fA-F]{24}$/;
         if (!objectIdRegex.test(bannerId)) {
             console.error('Invalid ObjectId format:', bannerId);
@@ -84,13 +109,11 @@ const ManageBanners: React.FC<ManageBannersProps> = ({ banners, setBanners }) =>
 
         setLoading(true);
         try {
-            console.log('Sending update request for banner ID:', bannerId);
-            console.log('Update data:', bannerData);
-
             const response = await fetch(`${API_BASE}/managepanners/${bannerId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
                 },
                 body: JSON.stringify(bannerData),
             });
@@ -114,14 +137,12 @@ const ManageBanners: React.FC<ManageBannersProps> = ({ banners, setBanners }) =>
 
     // دالة لحذف بانر
     const deleteBanner = async (bannerId: string) => {
-        // تحقق من أن bannerId موجود وصالح
         if (!bannerId || bannerId === 'undefined' || bannerId === 'null') {
             console.error('Invalid banner ID:', bannerId);
             alert('معرف البانر غير صالح');
             return;
         }
 
-        // تحقق إذا كان الـ ID هو ObjectId صالح (24 حرف hex)
         const objectIdRegex = /^[0-9a-fA-F]{24}$/;
         if (!objectIdRegex.test(bannerId)) {
             console.error('Invalid ObjectId format:', bannerId);
@@ -133,10 +154,11 @@ const ManageBanners: React.FC<ManageBannersProps> = ({ banners, setBanners }) =>
 
         setLoading(true);
         try {
-            console.log('Sending delete request for banner ID:', bannerId);
-
             const response = await fetch(`${API_BASE}/managepanners/${bannerId}`, {
                 method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
             });
 
             if (!response.ok) throw new Error('فشل في حذف البانر');
@@ -152,7 +174,6 @@ const ManageBanners: React.FC<ManageBannersProps> = ({ banners, setBanners }) =>
     };
 
     const handleOpenModal = (banner: Banner | null) => {
-
         setEditingBanner(banner);
         setFormData(banner || {
             title: '',
@@ -184,7 +205,6 @@ const ManageBanners: React.FC<ManageBannersProps> = ({ banners, setBanners }) =>
 
         if (loading) return;
 
-        // إعداد البيانات للإرسال
         const bannerData = {
             title: formData.title || '',
             subtitle: formData.subtitle || '',
@@ -197,10 +217,8 @@ const ManageBanners: React.FC<ManageBannersProps> = ({ banners, setBanners }) =>
         let success = false;
 
         if (editingBanner && editingBanner.id) {
-            console.log('Updating banner with ID:', editingBanner.id);
             success = await updateBanner(editingBanner.id, bannerData);
         } else {
-            console.log('Adding new banner');
             success = await addBanner(bannerData);
         }
 
@@ -210,17 +228,25 @@ const ManageBanners: React.FC<ManageBannersProps> = ({ banners, setBanners }) =>
     };
 
     const handleDelete = (bannerId: string) => {
-        console.log('Deleting banner with ID:', bannerId);
         deleteBanner(bannerId);
     };
 
     return (
-        <div>
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold text-white">إدارة البانرات</h1>
+        <div className="p-4" style={{
+            backgroundColor: isDark ? '#1e2235' : '#f8f6f0',
+            minHeight: "100vh",
+            transition: "all 0.3s ease"
+        }}>
+            <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                <h1 className="text-2xl md:text-3xl font-bold text-center md:text-right" style={{ color: getTextColor() }}>
+                    إدارة البانرات
+                </h1>
                 <button
                     onClick={() => handleOpenModal(null)}
-                    className="bg-primary-600 hover:bg-primary-700 text-white font-bold py-2 px-4 rounded-lg"
+                    className={`font-bold py-2 px-4 rounded-lg transition-all duration-300 ${isDark
+                        ? 'bg-primary-600 hover:bg-primary-700 text-white'
+                        : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
+                        }`}
                     disabled={loading}
                 >
                     {loading ? 'جاري التحميل...' : 'إضافة بانر جديد'}
@@ -229,13 +255,17 @@ const ManageBanners: React.FC<ManageBannersProps> = ({ banners, setBanners }) =>
 
             {loading && (
                 <div className="text-center py-4">
-                    <div className="text-white">جاري التحميل...</div>
+                    <div style={{ color: getMutedTextColor() }}>جاري التحميل...</div>
                 </div>
             )}
 
-            <div className="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
-                <table className="w-full text-sm text-right text-gray-300">
-                    <thead className="text-xs text-gray-400 uppercase bg-gray-700/50">
+            <div className={`rounded-lg overflow-hidden transition-all duration-300 ${isDark
+                ? 'bg-gray-800 border border-gray-700'
+                : 'bg-white border border-[#dfd7bb] shadow-md'
+                }`}>
+                <table className="w-full text-sm text-right" style={{ color: getTextColor() }}>
+                    <thead className={`text-xs uppercase ${isDark ? 'text-gray-400 bg-gray-700/50' : 'text-gray-500 bg-gray-50'
+                        }`}>
                         <tr>
                             <th className="px-4 py-3">العنوان</th>
                             <th className="px-4 py-3">الحالة</th>
@@ -244,34 +274,43 @@ const ManageBanners: React.FC<ManageBannersProps> = ({ banners, setBanners }) =>
                     </thead>
                     <tbody>
                         {banners.map(banner => (
-                            <tr key={banner.id} className="border-b border-gray-700 hover:bg-gray-700/50">
-                                <td className="px-4 py-4 text-white">{banner.title}</td>
+                            <tr key={banner.id} className={`border-b transition-colors ${isDark
+                                ? 'border-gray-700 hover:bg-gray-700/50'
+                                : 'border-[#dfd7bb] hover:bg-gray-50'
+                                }`}>
+                                <td className="px-4 py-4" style={{ color: getTextColor() }}>{banner.title}</td>
                                 <td className="px-4 py-4">
-                                    <span className={`px-2 py-1 text-xs rounded-full ${banner.isActive ? 'bg-green-900 text-green-300' : 'bg-gray-600 text-gray-200'}`}>
+                                    <span className={`px-2 py-1 text-xs rounded-full ${banner.isActive
+                                        ? isDark ? 'bg-green-900 text-green-300' : 'bg-green-100 text-green-700'
+                                        : isDark ? 'bg-gray-600 text-gray-200' : 'bg-gray-200 text-gray-600'
+                                        }`}>
                                         {banner.isActive ? 'نشط' : 'غير نشط'}
                                     </span>
                                 </td>
-                                <td className="px-4 py-4 flex space-x-2 space-x-reverse">
-                                    <button
-                                        onClick={() => handleOpenModal(banner)}
-                                        className="text-primary-400 hover:text-primary-300"
-                                        disabled={loading}
-                                    >
-                                        تعديل
-                                    </button>
-                                    <button
-                                        onClick={() => handleDelete(banner.id)}
-                                        className="text-red-400 hover:text-red-300"
-                                        disabled={loading}
-                                    >
-                                        حذف
-                                    </button>
+                                <td className="px-4 py-4">
+                                    <div className="flex space-x-2 space-x-reverse">
+                                        <button
+                                            onClick={() => handleOpenModal(banner)}
+                                            className={`transition-colors ${isDark ? 'text-primary-400 hover:text-primary-300' : 'text-[#c9a84c] hover:text-[#b8973a]'
+                                                }`}
+                                            disabled={loading}
+                                        >
+                                            تعديل
+                                        </button>
+                                        <button
+                                            onClick={() => handleDelete(banner.id)}
+                                            className="text-red-400 hover:text-red-300 transition-colors"
+                                            disabled={loading}
+                                        >
+                                            حذف
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         ))}
                         {banners.length === 0 && !loading && (
                             <tr>
-                                <td colSpan={3} className="px-4 py-8 text-center text-gray-400">
+                                <td colSpan={3} className="px-4 py-8 text-center" style={{ color: getMutedTextColor() }}>
                                     لا توجد بانرات
                                 </td>
                             </tr>
@@ -281,10 +320,11 @@ const ManageBanners: React.FC<ManageBannersProps> = ({ banners, setBanners }) =>
             </div>
 
             {isModalOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4" onClick={handleCloseModal}>
-                    <div className="bg-gray-800 text-white rounded-2xl shadow-xl w-full max-w-lg" onClick={e => e.stopPropagation()}>
+                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={handleCloseModal}>
+                    <div className={`rounded-2xl shadow-xl w-full max-w-lg transition-all duration-300 ${isDark ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'
+                        }`} onClick={e => e.stopPropagation()}>
                         <form onSubmit={handleSubmit} className="p-6 space-y-4">
-                            <h3 className="text-xl font-bold">
+                            <h3 className="text-xl font-bold" style={{ color: getTextColor() }}>
                                 {editingBanner ? `تعديل بانر - ID: ${editingBanner.id}` : 'إضافة بانر'}
                             </h3>
 
@@ -293,7 +333,10 @@ const ManageBanners: React.FC<ManageBannersProps> = ({ banners, setBanners }) =>
                                 value={formData.title || ''}
                                 onChange={handleChange}
                                 placeholder="العنوان الرئيسي"
-                                className="w-full bg-gray-700 p-2 rounded border border-gray-600 focus:border-primary-500 focus:outline-none"
+                                className={`w-full p-2 rounded border focus:border-primary-500 focus:outline-none transition-all duration-300 ${isDark
+                                    ? 'bg-gray-700 border-gray-600 text-white'
+                                    : 'bg-gray-50 border-[#dfd7bb] text-gray-800'
+                                    }`}
                                 required
                                 disabled={loading}
                             />
@@ -303,7 +346,10 @@ const ManageBanners: React.FC<ManageBannersProps> = ({ banners, setBanners }) =>
                                 value={formData.subtitle || ''}
                                 onChange={handleChange}
                                 placeholder="العنوان الفرعي"
-                                className="w-full bg-gray-700 p-2 rounded border border-gray-600 focus:border-primary-500 focus:outline-none"
+                                className={`w-full p-2 rounded border focus:border-primary-500 focus:outline-none transition-all duration-300 ${isDark
+                                    ? 'bg-gray-700 border-gray-600 text-white'
+                                    : 'bg-gray-50 border-[#dfd7bb] text-gray-800'
+                                    }`}
                                 disabled={loading}
                             />
 
@@ -312,7 +358,10 @@ const ManageBanners: React.FC<ManageBannersProps> = ({ banners, setBanners }) =>
                                 value={formData.ctaText || ''}
                                 onChange={handleChange}
                                 placeholder="نص زر الحث على اتخاذ إجراء"
-                                className="w-full bg-gray-700 p-2 rounded border border-gray-600 focus:border-primary-500 focus:outline-none"
+                                className={`w-full p-2 rounded border focus:border-primary-500 focus:outline-none transition-all duration-300 ${isDark
+                                    ? 'bg-gray-700 border-gray-600 text-white'
+                                    : 'bg-gray-50 border-[#dfd7bb] text-gray-800'
+                                    }`}
                                 disabled={loading}
                             />
 
@@ -321,7 +370,10 @@ const ManageBanners: React.FC<ManageBannersProps> = ({ banners, setBanners }) =>
                                 value={formData.ctaLink || ''}
                                 onChange={handleChange}
                                 placeholder="رابط الزر (e.g., #services)"
-                                className="w-full bg-gray-700 p-2 rounded border border-gray-600 focus:border-primary-500 focus:outline-none"
+                                className={`w-full p-2 rounded border focus:border-primary-500 focus:outline-none transition-all duration-300 ${isDark
+                                    ? 'bg-gray-700 border-gray-600 text-white'
+                                    : 'bg-gray-50 border-[#dfd7bb] text-gray-800'
+                                    }`}
                                 disabled={loading}
                             />
 
@@ -330,12 +382,15 @@ const ManageBanners: React.FC<ManageBannersProps> = ({ banners, setBanners }) =>
                                 value={formData.imageUrl || ''}
                                 onChange={handleChange}
                                 placeholder="رابط صورة الخلفية"
-                                className="w-full bg-gray-700 p-2 rounded border border-gray-600 focus:border-primary-500 focus:outline-none"
+                                className={`w-full p-2 rounded border focus:border-primary-500 focus:outline-none transition-all duration-300 ${isDark
+                                    ? 'bg-gray-700 border-gray-600 text-white'
+                                    : 'bg-gray-50 border-[#dfd7bb] text-gray-800'
+                                    }`}
                                 required
                                 disabled={loading}
                             />
 
-                            <label className="flex items-center space-x-2 space-x-reverse pt-2">
+                            <label className="flex items-center space-x-2 space-x-reverse pt-2" style={{ color: getTextColor() }}>
                                 <input
                                     type="checkbox"
                                     name="isActive"
@@ -347,18 +402,26 @@ const ManageBanners: React.FC<ManageBannersProps> = ({ banners, setBanners }) =>
                                 <span>تفعيل البانر</span>
                             </label>
 
-                            <div className="flex justify-end gap-3 pt-4 border-t border-gray-700">
+                            <div className="flex justify-end gap-3 pt-4 border-t" style={{
+                                borderColor: isDark ? '#374151' : '#dfd7bb'
+                            }}>
                                 <button
                                     type="button"
                                     onClick={handleCloseModal}
-                                    className="bg-gray-600 hover:bg-gray-500 py-2 px-4 rounded transition-colors"
+                                    className={`py-2 px-4 rounded transition-colors ${isDark
+                                        ? 'bg-gray-600 hover:bg-gray-500 text-white'
+                                        : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
+                                        }`}
                                     disabled={loading}
                                 >
                                     إلغاء
                                 </button>
                                 <button
                                     type="submit"
-                                    className="bg-primary-600 hover:bg-primary-500 py-2 px-4 rounded transition-colors"
+                                    className={`py-2 px-4 rounded transition-all duration-300 ${isDark
+                                        ? 'bg-primary-600 hover:bg-primary-500 text-white'
+                                        : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
+                                        }`}
                                     disabled={loading}
                                 >
                                     {loading ? 'جاري الحفظ...' : 'حفظ'}

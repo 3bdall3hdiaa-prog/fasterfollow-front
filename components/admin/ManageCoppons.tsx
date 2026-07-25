@@ -1,3 +1,4 @@
+import { useThemeStore } from '@/store/theme.store';
 import React, { useState, useEffect } from 'react';
 
 interface Coupon {
@@ -27,7 +28,13 @@ const ManageCoupons: React.FC = () => {
     const fetchCoupons = async () => {
         setLoading(true);
         try {
-            const response = await fetch(`${API_BASE}/managecopons`);
+            const response = await fetch(`${API_BASE}/managecopons`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
 
             if (!response.ok) {
                 throw new Error(`Failed to fetch coupons: ${response.status}`);
@@ -264,15 +271,57 @@ const ManageCoupons: React.FC = () => {
         coupon.status?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+
+
+
+    const { isDark } = useThemeStore();
+    // ... باقي الـ states
+
+    // دوال مساعدة للألوان
+    const getTextColor = () => {
+        return isDark ? '#ffffff' : '#1e2235';
+    };
+
+    const getMutedTextColor = () => {
+        return isDark ? '#8a8fa8' : '#6c757d';
+    };
+
+    const getCardBackground = () => {
+        return isDark ? '#252a41' : '#ffffff';
+    };
+
+    const getCardHeaderBackground = () => {
+        return isDark ? '#2f3450' : '#f0ede4';
+    };
+
+    const getInputBackground = () => {
+        return isDark ? '#1e2235' : '#ffffff';
+    };
+
+    const getInputTextColor = () => {
+        return isDark ? '#ffffff' : '#1e2235';
+    };
+
+    const getBorderColor = () => {
+        return isDark ? '#374151' : '#dfd7bb';
+    };
+
     return (
-        <div className="p-4">
+        <div className="p-4" style={{
+            backgroundColor: isDark ? '#1e2235' : '#f8f6f0',
+            minHeight: "100vh",
+            transition: "all 0.3s ease"
+        }}>
             <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-                <h1 className="text-2xl md:text-3xl font-bold text-white text-center md:text-right">
+                <h1 className="text-2xl md:text-3xl font-bold text-center md:text-right" style={{ color: getTextColor() }}>
                     إدارة كوبونات الشحن
                 </h1>
                 <button
                     onClick={() => handleOpenModal()}
-                    className="bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-6 rounded-lg w-full md:w-auto"
+                    className={`font-bold py-3 px-6 rounded-lg w-full md:w-auto transition-all duration-300 ${isDark
+                        ? 'bg-primary-600 hover:bg-primary-700 text-white'
+                        : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
+                        }`}
                     disabled={loading}
                 >
                     {loading ? 'جاري التحميل...' : 'إضافة كوبون جديد'}
@@ -280,29 +329,39 @@ const ManageCoupons: React.FC = () => {
             </div>
 
             {/* حقل البحث */}
-            <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 mb-6">
+            <div className={`rounded-lg p-4 mb-6 transition-all duration-300 ${isDark
+                ? 'bg-gray-800 border border-gray-700'
+                : 'bg-white border border-[#dfd7bb] shadow-md'
+                }`}>
                 <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
                     <input
                         type="text"
                         placeholder="ابحث بكود الشحن، القيمة، أو الحالة..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="bg-gray-700 border border-gray-600 rounded-md p-3 text-white w-full md:w-1/2 text-sm md:text-base"
+                        className={`rounded-md p-3 w-full md:w-1/2 text-sm md:text-base transition-all duration-300 ${isDark
+                            ? 'bg-gray-700 border border-gray-600 text-white'
+                            : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
+                            }`}
                     />
-                    <div className="text-gray-400 text-sm md:text-base">
+                    <div className="text-sm md:text-base" style={{ color: getMutedTextColor() }}>
                         إجمالي الكوبونات: {coupons.length} | المعروض: {filteredCoupons.length}
                     </div>
                 </div>
             </div>
 
             {loading && coupons.length === 0 ? (
-                <div className="text-center text-gray-400 py-8">جاري تحميل الكوبونات...</div>
+                <div className="text-center py-8" style={{ color: getMutedTextColor() }}>جاري تحميل الكوبونات...</div>
             ) : (
                 <>
                     {/* ✅ جدول الكوبونات - للشاشات الكبيرة */}
-                    <div className="hidden md:block bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
-                        <table className="w-full text-sm text-right text-gray-300">
-                            <thead className="text-xs text-gray-400 uppercase bg-gray-700/50">
+                    <div className={`hidden md:block rounded-lg overflow-hidden transition-all duration-300 ${isDark
+                        ? 'bg-gray-800 border border-gray-700'
+                        : 'bg-white border border-[#dfd7bb] shadow-md'
+                        }`}>
+                        <table className="w-full text-sm text-right" style={{ color: getTextColor() }}>
+                            <thead className={`text-xs uppercase ${isDark ? 'text-gray-400 bg-gray-700/50' : 'text-gray-500 bg-gray-50'
+                                }`}>
                                 <tr>
                                     <th className="px-4 py-3">كود الشحن</th>
                                     <th className="px-4 py-3">قيمة الرصيد</th>
@@ -313,15 +372,18 @@ const ManageCoupons: React.FC = () => {
                             </thead>
                             <tbody>
                                 {filteredCoupons.map(coupon => (
-                                    <tr key={coupon.id} className="border-b border-gray-700 hover:bg-gray-700/50">
+                                    <tr key={coupon.id} className={`border-b transition-colors ${isDark
+                                        ? 'border-gray-700 hover:bg-gray-700/50'
+                                        : 'border-[#dfd7bb] hover:bg-gray-50'
+                                        }`}>
                                         <td className="px-4 py-4">
-                                            <div className="font-bold text-white text-lg">{coupon.code}</div>
+                                            <div className="font-bold text-lg" style={{ color: getTextColor() }}>{coupon.code}</div>
                                         </td>
                                         <td className="px-4 py-4">
                                             <div className="text-green-400 font-bold text-lg">${coupon.amount}</div>
                                         </td>
                                         <td className="px-4 py-4">
-                                            <div className="text-white">{formatDate(coupon.createdAt)}</div>
+                                            <div style={{ color: getTextColor() }}>{formatDate(coupon.createdAt)}</div>
                                         </td>
                                         <td className="px-4 py-4">
                                             <span className={`px-3 py-1 text-xs rounded-full ${getStatusClass(coupon.status)}`}>
@@ -329,10 +391,13 @@ const ManageCoupons: React.FC = () => {
                                             </span>
                                         </td>
                                         <td className="px-4 py-4">
-                                            <div className="flex justify-end gap-2">
+                                            <div className="flex justify-end gap-2 flex-wrap">
                                                 <button
                                                     onClick={() => handleOpenModal(coupon)}
-                                                    className="bg-yellow-600 hover:bg-yellow-700 text-white p-2 rounded flex items-center gap-1 text-xs"
+                                                    className={`p-2 rounded flex items-center gap-1 text-xs transition-colors ${isDark
+                                                        ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
+                                                        : 'bg-yellow-500 hover:bg-yellow-600 text-white'
+                                                        }`}
                                                     disabled={loading}
                                                 >
                                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -342,7 +407,10 @@ const ManageCoupons: React.FC = () => {
                                                 </button>
                                                 <button
                                                     onClick={() => toggleCouponStatus(coupon.id, coupon.status)}
-                                                    className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded flex items-center gap-1 text-xs"
+                                                    className={`p-2 rounded flex items-center gap-1 text-xs transition-colors ${isDark
+                                                        ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                                                        : 'bg-blue-500 hover:bg-blue-600 text-white'
+                                                        }`}
                                                     disabled={loading}
                                                 >
                                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -352,7 +420,10 @@ const ManageCoupons: React.FC = () => {
                                                 </button>
                                                 <button
                                                     onClick={() => handleDelete(coupon.id)}
-                                                    className="bg-red-600 hover:bg-red-700 text-white p-2 rounded flex items-center gap-1 text-xs"
+                                                    className={`p-2 rounded flex items-center gap-1 text-xs transition-colors ${isDark
+                                                        ? 'bg-red-600 hover:bg-red-700 text-white'
+                                                        : 'bg-red-500 hover:bg-red-600 text-white'
+                                                        }`}
                                                     disabled={loading}
                                                 >
                                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -368,7 +439,7 @@ const ManageCoupons: React.FC = () => {
                         </table>
 
                         {filteredCoupons.length === 0 && !loading && (
-                            <div className="text-center text-gray-400 py-8">
+                            <div className="text-center py-8" style={{ color: getMutedTextColor() }}>
                                 {coupons.length === 0 ? 'لا توجد كوبونات شحن' : 'لم يتم العثور على كوبونات تطابق البحث'}
                             </div>
                         )}
@@ -376,18 +447,24 @@ const ManageCoupons: React.FC = () => {
 
                     {/* ✅ تصميم البطاقات للهواتف */}
                     <div className="block md:hidden">
-                        <div className="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
+                        <div className={`rounded-lg overflow-hidden transition-all duration-300 ${isDark
+                            ? 'bg-gray-800 border border-gray-700'
+                            : 'bg-white border border-[#dfd7bb] shadow-md'
+                            }`}>
                             {filteredCoupons.length === 0 ? (
-                                <div className="text-center py-8 text-gray-400">
+                                <div className="text-center py-8" style={{ color: getMutedTextColor() }}>
                                     {coupons.length === 0 ? 'لا توجد كوبونات شحن حالياً' : 'لم يتم العثور على كوبونات تطابق البحث'}
                                 </div>
                             ) : (
                                 filteredCoupons.map(coupon => (
-                                    <div key={coupon.id} className="border-b border-gray-700 p-4 hover:bg-gray-700/50 transition-colors">
+                                    <div key={coupon.id} className={`border-b p-4 transition-colors ${isDark
+                                        ? 'border-gray-700 hover:bg-gray-700/50'
+                                        : 'border-[#dfd7bb] hover:bg-gray-50'
+                                        }`}>
                                         {/* رأس البطاقة */}
                                         <div className="flex justify-between items-start mb-3">
                                             <div>
-                                                <div className="font-bold text-white text-xl mb-1">{coupon.code}</div>
+                                                <div className="font-bold text-xl mb-1" style={{ color: getTextColor() }}>{coupon.code}</div>
                                                 <div className="text-green-400 font-bold text-lg">${coupon.amount}</div>
                                             </div>
                                             <span className={`px-2 py-1 text-xs rounded-full ${getStatusClass(coupon.status)}`}>
@@ -397,15 +474,18 @@ const ManageCoupons: React.FC = () => {
 
                                         {/* معلومات الكوبون */}
                                         <div className="mb-4">
-                                            <div className="text-gray-400 text-xs mb-1">تاريخ الإنشاء</div>
-                                            <div className="text-white text-sm">{formatDate(coupon.createdAt)}</div>
+                                            <div className="text-xs mb-1" style={{ color: getMutedTextColor() }}>تاريخ الإنشاء</div>
+                                            <div className="text-sm" style={{ color: getTextColor() }}>{formatDate(coupon.createdAt)}</div>
                                         </div>
 
                                         {/* أزرار الإجراءات */}
                                         <div className="flex gap-2">
                                             <button
                                                 onClick={() => handleOpenModal(coupon)}
-                                                className="bg-yellow-600 hover:bg-yellow-700 text-white p-2 rounded flex items-center gap-1 flex-1 justify-center text-sm"
+                                                className={`p-2 rounded flex items-center gap-1 flex-1 justify-center text-sm transition-colors ${isDark
+                                                    ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
+                                                    : 'bg-yellow-500 hover:bg-yellow-600 text-white'
+                                                    }`}
                                                 disabled={loading}
                                             >
                                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -415,7 +495,10 @@ const ManageCoupons: React.FC = () => {
                                             </button>
                                             <button
                                                 onClick={() => toggleCouponStatus(coupon.id, coupon.status)}
-                                                className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded flex items-center gap-1 flex-1 justify-center text-sm"
+                                                className={`p-2 rounded flex items-center gap-1 flex-1 justify-center text-sm transition-colors ${isDark
+                                                    ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                                                    : 'bg-blue-500 hover:bg-blue-600 text-white'
+                                                    }`}
                                                 disabled={loading}
                                             >
                                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -425,7 +508,10 @@ const ManageCoupons: React.FC = () => {
                                             </button>
                                             <button
                                                 onClick={() => handleDelete(coupon.id)}
-                                                className="bg-red-600 hover:bg-red-700 text-white p-2 rounded flex items-center gap-1 flex-1 justify-center text-sm"
+                                                className={`p-2 rounded flex items-center gap-1 flex-1 justify-center text-sm transition-colors ${isDark
+                                                    ? 'bg-red-600 hover:bg-red-700 text-white'
+                                                    : 'bg-red-500 hover:bg-red-600 text-white'
+                                                    }`}
                                                 disabled={loading}
                                             >
                                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -444,16 +530,17 @@ const ManageCoupons: React.FC = () => {
 
             {/* Modal لإضافة/تعديل الكوبون */}
             {isModalOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
-                    <div className="bg-gray-800 text-white rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-hidden">
+                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+                    <div className={`rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-hidden transition-all duration-300 ${isDark ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'
+                        }`}>
                         <form onSubmit={handleSubmit} className="p-4 md:p-6 space-y-4">
-                            <h3 className="text-xl font-bold">
+                            <h3 className="text-xl font-bold" style={{ color: getTextColor() }}>
                                 {editingCoupon ? 'تعديل كوبون الشحن' : 'إضافة كوبون شحن جديد'}
                             </h3>
 
                             <div className="space-y-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                                    <label className="block text-sm font-medium mb-2" style={{ color: getMutedTextColor() }}>
                                         كود الشحن *
                                     </label>
                                     <input
@@ -461,18 +548,21 @@ const ManageCoupons: React.FC = () => {
                                         name="code"
                                         value={formData.code}
                                         onChange={handleChange}
-                                        className="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-3 focus:ring-primary-500 focus:border-primary-500 text-sm md:text-base"
+                                        className={`w-full rounded-lg p-3 focus:ring-primary-500 focus:border-primary-500 text-sm md:text-base transition-all duration-300 ${isDark
+                                            ? 'bg-gray-700 border border-gray-600 text-white'
+                                            : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
+                                            }`}
                                         required
                                         placeholder="مثال: CHARGE25"
                                         disabled={loading}
                                     />
-                                    <div className="text-xs text-gray-400 mt-1">
+                                    <div className="text-xs mt-1" style={{ color: getMutedTextColor() }}>
                                         الكود الذي سيدخله المستخدم لشحن رصيده
                                     </div>
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                                    <label className="block text-sm font-medium mb-2" style={{ color: getMutedTextColor() }}>
                                         قيمة الرصيد (بالدولار) *
                                     </label>
                                     <input
@@ -480,27 +570,33 @@ const ManageCoupons: React.FC = () => {
                                         name="amount"
                                         value={formData.amount}
                                         onChange={handleChange}
-                                        className="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-3 focus:ring-primary-500 focus:border-primary-500 text-sm md:text-base"
+                                        className={`w-full rounded-lg p-3 focus:ring-primary-500 focus:border-primary-500 text-sm md:text-base transition-all duration-300 ${isDark
+                                            ? 'bg-gray-700 border border-gray-600 text-white'
+                                            : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
+                                            }`}
                                         required
                                         min="1"
                                         step="0.01"
                                         placeholder="0.00"
                                         disabled={loading}
                                     />
-                                    <div className="text-xs text-gray-400 mt-1">
+                                    <div className="text-xs mt-1" style={{ color: getMutedTextColor() }}>
                                         المبلغ الذي سيتم إضافته لرصيد المستخدم عند استخدام الكود
                                     </div>
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                                    <label className="block text-sm font-medium mb-2" style={{ color: getMutedTextColor() }}>
                                         الحالة *
                                     </label>
                                     <select
                                         name="status"
                                         value={formData.status}
                                         onChange={handleChange}
-                                        className="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-3 focus:ring-primary-500 focus:border-primary-500 text-sm md:text-base"
+                                        className={`w-full rounded-lg p-3 focus:ring-primary-500 focus:border-primary-500 text-sm md:text-base transition-all duration-300 ${isDark
+                                            ? 'bg-gray-700 border border-gray-600 text-white'
+                                            : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
+                                            }`}
                                         disabled={loading}
                                     >
                                         <option value="active">نشط</option>
@@ -509,18 +605,26 @@ const ManageCoupons: React.FC = () => {
                                 </div>
                             </div>
 
-                            <div className="flex justify-end gap-3 pt-4 border-t border-gray-700">
+                            <div className="flex justify-end gap-3 pt-4 border-t" style={{
+                                borderColor: isDark ? '#374151' : '#dfd7bb'
+                            }}>
                                 <button
                                     type="button"
                                     onClick={handleCloseModal}
-                                    className="bg-gray-600 hover:bg-gray-500 py-2 px-4 rounded transition-colors text-sm md:text-base flex-1 md:flex-none"
+                                    className={`py-2 px-4 rounded transition-colors text-sm md:text-base flex-1 md:flex-none ${isDark
+                                        ? 'bg-gray-600 hover:bg-gray-500 text-white'
+                                        : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
+                                        }`}
                                     disabled={loading}
                                 >
                                     إلغاء
                                 </button>
                                 <button
                                     type="submit"
-                                    className="bg-primary-600 hover:bg-primary-500 py-2 px-4 rounded transition-colors text-sm md:text-base flex-1 md:flex-none"
+                                    className={`py-2 px-4 rounded transition-all duration-300 text-sm md:text-base flex-1 md:flex-none ${isDark
+                                        ? 'bg-primary-600 hover:bg-primary-500 text-white'
+                                        : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
+                                        }`}
                                     disabled={loading}
                                 >
                                     {loading ? 'جاري الحفظ...' : (editingCoupon ? 'تحديث' : 'إضافة')}

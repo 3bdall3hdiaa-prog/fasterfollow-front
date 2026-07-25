@@ -20,6 +20,7 @@ import { useUser } from './contexts/UserContext';
 import { useSEO } from './hooks/useSEO';
 import { Page, BlogPost as BlogPostType, ServicePackage, Provider, Banner, SiteSettings, Platform } from './types';
 import axios from 'axios';
+import { useThemeStore } from './store/theme.store';
 
 // MOCK DATA - Placed here to avoid creating new files
 const mockServices: ServicePackage[] = [
@@ -62,6 +63,7 @@ const App: React.FC = () => {
     const { user } = useUser();
     const [appView, setAppView] = useState<AppView>({ view: 'home' });
     const prevUser = useRef(user);
+    const { isDark } = useThemeStore();
 
     // Mock data state
     const [siteSettings, setSiteSettings] = useState<SiteSettings | null>(null);
@@ -442,19 +444,22 @@ const App: React.FC = () => {
             default:
                 return (
                     <>
-                        <Hero
-                            siteName={siteSettings.siteName}
-                            content={siteSettings.homepageContent.hero}
-                        />
-                        <Banners banners={banners.filter(b => b.isActive)} />
-                        <Features content={siteSettings.homepageContent.features} />
-                        <Services
-                            services={services}
-                            platforms={platforms}
-                            content={siteSettings.homepageContent.services}
-                        />
-                        <HowItWorks content={siteSettings.homepageContent.howItWorks} />
-                        <Testimonials content={siteSettings.homepageContent.testimonials} />
+                        <div className={`${isDark ? "bg-gray-900" : "bg-gradient-to-t from-[#dfd7bb] to-white"}`}>
+
+                            <Hero
+                                siteName={siteSettings.siteName}
+                                content={siteSettings.homepageContent.hero}
+                            />
+                            <Banners banners={banners.filter(b => b.isActive)} />
+                            <Features content={siteSettings.homepageContent.features} />
+                            <Services
+                                services={services}
+                                platforms={platforms}
+                                content={siteSettings.homepageContent.services}
+                            />
+                            <HowItWorks content={siteSettings.homepageContent.howItWorks} />
+                            <Testimonials content={siteSettings.homepageContent.testimonials} />
+                        </div>
                     </>
                 );
         }
@@ -489,7 +494,7 @@ const App: React.FC = () => {
     }, [siteSettings?.primaryColor]);
 
     return (
-        <div className="bg-gray-900 text-white min-h-screen font-sans" dir="rtl">
+        <div className={`bg-gray-900 text-white min-h-screen font-sans" dir="rtl  ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
             <Header siteName={siteSettings?.siteName || 'فاستر فولو'} logoUrl={siteSettings?.logoUrl} pages={pages} />
             <main>{renderView()}</main>
             {(appView.view === 'home' || appView.view === 'blog' || appView.view === 'blogPost' || appView.view === 'page') && <Footer siteName={siteSettings?.siteName || 'فاستر فولو'} pages={pages} onNavigate={onNavigate} />}

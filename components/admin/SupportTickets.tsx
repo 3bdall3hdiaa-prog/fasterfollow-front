@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useThemeStore } from '@/store/theme.store';
 
 interface TicketMessage {
     sender: string;
@@ -17,10 +18,40 @@ interface SupportTicket {
 }
 
 const SupportTickets: React.FC = () => {
+    const { isDark } = useThemeStore();
     const [tickets, setTickets] = useState<SupportTicket[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedTicket, setSelectedTicket] = useState<SupportTicket | null>(null);
     const [replyText, setReplyText] = useState('');
+
+    // دوال مساعدة للألوان
+    const getTextColor = () => {
+        return isDark ? '#ffffff' : '#1e2235';
+    };
+
+    const getMutedTextColor = () => {
+        return isDark ? '#8a8fa8' : '#6c757d';
+    };
+
+    const getCardBackground = () => {
+        return isDark ? '#252a41' : '#ffffff';
+    };
+
+    const getCardHeaderBackground = () => {
+        return isDark ? '#2f3450' : '#f0ede4';
+    };
+
+    const getInputBackground = () => {
+        return isDark ? '#1e2235' : '#ffffff';
+    };
+
+    const getInputTextColor = () => {
+        return isDark ? '#ffffff' : '#1e2235';
+    };
+
+    const getBorderColor = () => {
+        return isDark ? '#374151' : '#dfd7bb';
+    };
 
     const fetchTickets = async () => {
         try {
@@ -52,9 +83,15 @@ const SupportTickets: React.FC = () => {
 
     const getStatusBadge = (status: string) => {
         const statusClasses = {
-            Open: 'bg-green-900 text-green-300 border border-green-700',
-            Answered: 'bg-blue-900 text-blue-300 border border-blue-700',
-            Closed: 'bg-gray-700 text-gray-300 border border-gray-600',
+            Open: isDark
+                ? 'bg-green-900 text-green-300 border border-green-700'
+                : 'bg-green-100 text-green-700 border border-green-200',
+            Answered: isDark
+                ? 'bg-blue-900 text-blue-300 border border-blue-700'
+                : 'bg-blue-100 text-blue-700 border border-blue-200',
+            Closed: isDark
+                ? 'bg-gray-700 text-gray-300 border border-gray-600'
+                : 'bg-gray-200 text-gray-600 border border-gray-300',
         };
         return (
             <span className={`px-3 py-1 text-sm rounded-full ${statusClasses[status as keyof typeof statusClasses]}`}>
@@ -94,41 +131,52 @@ const SupportTickets: React.FC = () => {
     if (loading)
         return (
             <div className="flex justify-center items-center h-64">
-                <div className="text-white">جاري تحميل التذاكر...</div>
+                <div style={{ color: getTextColor() }}>جاري تحميل التذاكر...</div>
             </div>
         );
 
     // ✅ عرض المحادثة عند اختيار تذكرة
     if (selectedTicket) {
         return (
-            <div className="p-4">
+            <div className="p-4" style={{
+                backgroundColor: isDark ? '#1e2235' : '#f8f6f0',
+                minHeight: "100vh",
+                transition: "all 0.3s ease"
+            }}>
                 <button
                     onClick={() => setSelectedTicket(null)}
-                    className="mb-4 bg-gray-600 hover:bg-gray-500 text-white py-2 px-4 rounded"
+                    className={`py-2 px-4 rounded transition-colors ${isDark
+                            ? 'bg-gray-600 hover:bg-gray-500 text-white'
+                            : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
+                        }`}
                 >
                     ← العودة إلى التذاكر
                 </button>
 
-                <div className="bg-gray-800 border border-gray-700 rounded-lg p-4">
-                    <h2 className="text-2xl text-white font-bold mb-2">{selectedTicket.title}</h2>
-                    <p className="text-gray-400 mb-4">{selectedTicket.description}</p>
+                <div className={`rounded-lg p-4 mt-4 transition-all duration-300 ${isDark
+                        ? 'bg-gray-800 border border-gray-700'
+                        : 'bg-white border border-[#dfd7bb] shadow-md'
+                    }`}>
+                    <h2 className="text-2xl font-bold mb-2" style={{ color: getTextColor() }}>{selectedTicket.title}</h2>
+                    <p className="mb-4" style={{ color: getMutedTextColor() }}>{selectedTicket.description}</p>
                     <div className="mb-4">{getStatusBadge(selectedTicket.status)}</div>
 
-                    <div className="h-96 overflow-y-auto bg-gray-900 p-3 rounded-lg space-y-4">
+                    <div className={`h-96 overflow-y-auto p-3 rounded-lg space-y-4 ${isDark ? 'bg-gray-900' : 'bg-gray-50'
+                        }`}>
                         {selectedTicket.messages?.map((msg, i) => (
                             <div
                                 key={i}
-                                className={`flex ${msg.sender === 'admin' ? 'justify-end' : 'justify-start'
-                                    }`}
+                                className={`flex ${msg.sender === 'admin' ? 'justify-end' : 'justify-start'}`}
                             >
                                 <div
                                     className={`max-w-lg p-3 rounded-lg ${msg.sender === 'admin'
-                                        ? 'bg-blue-700 text-white'
-                                        : 'bg-gray-700 text-gray-100'
+                                            ? isDark ? 'bg-blue-700 text-white' : 'bg-[#c9a84c] text-white'
+                                            : isDark ? 'bg-gray-700 text-gray-100' : 'bg-gray-200 text-gray-800'
                                         }`}
                                 >
                                     <p>{msg.text}</p>
-                                    <p className="text-xs opacity-70 mt-1 text-right">
+                                    <p className={`text-xs opacity-70 mt-1 text-right ${isDark ? '' : 'text-gray-600'
+                                        }`}>
                                         {formatDate(msg.createdAt)}
                                     </p>
                                 </div>
@@ -143,11 +191,17 @@ const SupportTickets: React.FC = () => {
                                 onChange={(e) => setReplyText(e.target.value)}
                                 rows={4}
                                 placeholder="اكتب ردك هنا..."
-                                className="w-full bg-gray-700 border border-gray-600 rounded-md p-2 mb-2 text-white"
+                                className={`w-full rounded-md p-2 mb-2 transition-all duration-300 ${isDark
+                                        ? 'bg-gray-700 border border-gray-600 text-white'
+                                        : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
+                                    }`}
                             ></textarea>
                             <button
                                 onClick={handleSendReply}
-                                className="bg-primary-600 hover:bg-primary-700 text-white py-2 px-6 rounded-lg"
+                                className={`font-bold py-2 px-6 rounded-lg transition-all duration-300 ${isDark
+                                        ? 'bg-primary-600 hover:bg-primary-700 text-white'
+                                        : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
+                                    }`}
                             >
                                 إرسال الرد
                             </button>
@@ -160,12 +214,20 @@ const SupportTickets: React.FC = () => {
 
     // ✅ عرض قائمة التذاكر
     return (
-        <div>
-            <h1 className="text-3xl font-bold text-white mb-6">تذاكر الدعم الفني</h1>
+        <div className="p-4" style={{
+            backgroundColor: isDark ? '#1e2235' : '#f8f6f0',
+            minHeight: "100vh",
+            transition: "all 0.3s ease"
+        }}>
+            <h1 className="text-3xl font-bold mb-6" style={{ color: getTextColor() }}>تذاكر الدعم الفني</h1>
 
-            <div className="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
-                <table className="w-full text-sm text-right text-gray-300">
-                    <thead className="text-xs text-gray-400 uppercase bg-gray-700/50">
+            <div className={`rounded-lg overflow-hidden transition-all duration-300 ${isDark
+                    ? 'bg-gray-800 border border-gray-700'
+                    : 'bg-white border border-[#dfd7bb] shadow-md'
+                }`}>
+                <table className="w-full text-sm text-right" style={{ color: getTextColor() }}>
+                    <thead className={`text-xs uppercase ${isDark ? 'text-gray-400 bg-gray-700/50' : 'text-gray-500 bg-gray-50'
+                        }`}>
                         <tr>
                             <th className="px-6 py-4">الموضوع</th>
                             <th className="px-6 py-4">الحالة</th>
@@ -178,21 +240,24 @@ const SupportTickets: React.FC = () => {
                             <tr
                                 key={ticket._id}
                                 onClick={() => setSelectedTicket(ticket)}
-                                className="border-b border-gray-700 hover:bg-gray-700/30 cursor-pointer"
+                                className={`border-b cursor-pointer transition-colors ${isDark
+                                        ? 'border-gray-700 hover:bg-gray-700/30'
+                                        : 'border-[#dfd7bb] hover:bg-gray-50'
+                                    }`}
                             >
-                                <td className="px-6 py-4 text-white font-semibold">
+                                <td className="px-6 py-4 font-semibold" style={{ color: getTextColor() }}>
                                     {ticket.title}
                                 </td>
                                 <td className="px-6 py-4">{getStatusBadge(ticket.status)}</td>
-                                <td className="px-6 py-4">{formatDate(ticket.createdAt)}</td>
-                                <td className="px-6 py-4">{formatDate(ticket.updatedAt)}</td>
+                                <td className="px-6 py-4" style={{ color: getMutedTextColor() }}>{formatDate(ticket.createdAt)}</td>
+                                <td className="px-6 py-4" style={{ color: getMutedTextColor() }}>{formatDate(ticket.updatedAt)}</td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
 
                 {tickets.length === 0 && (
-                    <div className="p-12 text-center text-gray-400">
+                    <div className="p-12 text-center" style={{ color: getMutedTextColor() }}>
                         لا توجد تذاكر حالياً
                     </div>
                 )}

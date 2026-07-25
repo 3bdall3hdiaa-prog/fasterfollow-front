@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useThemeStore } from '@/store/theme.store';
 
 interface BlogPost {
     _id: string;
@@ -23,6 +24,7 @@ const Blog: React.FC<BlogProps> = ({ onPostClick }) => {
     const [posts, setPosts] = useState<BlogPost[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const { isDark } = useThemeStore();
 
     // جلب المقالات من الـ API
     useEffect(() => {
@@ -62,10 +64,14 @@ const Blog: React.FC<BlogProps> = ({ onPostClick }) => {
 
     if (loading) {
         return (
-            <div className="pt-24 pb-20 bg-gray-900 min-h-screen">
+            <div className={`pt-24 pb-20 min-h-screen transition-colors duration-300 ${isDark ? 'bg-gray-900' : 'bg-gradient-to-b from-[#faf8f2] to-white'
+                }`}>
                 <div className="container mx-auto px-6">
                     <div className="text-center">
-                        <div className="text-white text-lg">جاري تحميل المقالات...</div>
+                        <div className={`transition-colors duration-300 ${isDark ? 'text-white' : 'text-gray-800'
+                            }`}>
+                            جاري تحميل المقالات...
+                        </div>
                     </div>
                 </div>
             </div>
@@ -74,13 +80,17 @@ const Blog: React.FC<BlogProps> = ({ onPostClick }) => {
 
     if (error) {
         return (
-            <div className="pt-24 pb-20 bg-gray-900 min-h-screen">
+            <div className={`pt-24 pb-20 min-h-screen transition-colors duration-300 ${isDark ? 'bg-gray-900' : 'bg-gradient-to-b from-[#faf8f2] to-white'
+                }`}>
                 <div className="container mx-auto px-6">
                     <div className="text-center">
                         <div className="text-red-400 text-lg mb-4">{error}</div>
                         <button
                             onClick={fetchPosts}
-                            className="bg-primary-600 hover:bg-primary-700 text-white py-2 px-6 rounded-lg"
+                            className={`font-bold py-2 px-6 rounded-lg transition-all duration-300 ${isDark
+                                    ? 'bg-primary-600 hover:bg-primary-700 text-white'
+                                    : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
+                                }`}
                         >
                             إعادة المحاولة
                         </button>
@@ -91,23 +101,36 @@ const Blog: React.FC<BlogProps> = ({ onPostClick }) => {
     }
 
     return (
-        <div className="pt-24 pb-20 bg-gray-900 min-h-screen">
+        <div className={`pt-24 pb-20 min-h-screen transition-colors duration-300 ${isDark ? 'bg-gray-900' : 'bg-gradient-to-b from-[#faf8f2] to-white'
+            }`}>
             <div className="container mx-auto px-6">
                 <div className="text-center mb-12">
-                    <h1 className="text-4xl md:text-5xl font-extrabold text-white">المدونة</h1>
-                    <p className="text-gray-400 mt-2">آخر المقالات والنصائح حول النمو على وسائل التواصل الاجتماعي.</p>
+                    <h1 className={`text-4xl md:text-5xl font-extrabold transition-colors duration-300 ${isDark ? 'text-white' : 'text-gray-800'
+                        }`}>
+                        المدونة
+                    </h1>
+                    <p className={`mt-2 transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-gray-600'
+                        }`}>
+                        آخر المقالات والنصائح حول النمو على وسائل التواصل الاجتماعي.
+                    </p>
                 </div>
 
                 {publishedPosts.length === 0 ? (
                     <div className="text-center py-12">
-                        <div className="text-gray-400 text-lg">لا توجد مقالات منشورة حالياً</div>
+                        <div className={`transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-gray-500'
+                            }`}>
+                            لا توجد مقالات منشورة حالياً
+                        </div>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {publishedPosts.map(post => (
                             <div
                                 key={post._id}
-                                className="bg-gray-800 rounded-lg overflow-hidden border border-gray-700 flex flex-col cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-xl"
+                                className={`rounded-lg overflow-hidden flex flex-col cursor-pointer transition-all duration-300 hover:-translate-y-2 ${isDark
+                                        ? 'bg-gray-800 border border-gray-700 hover:shadow-xl'
+                                        : 'bg-white border border-[#dfd7bb] shadow-md hover:shadow-xl'
+                                    }`}
                                 onClick={() => onPostClick(post.link)}
                             >
                                 {post.urlimage && (
@@ -121,18 +144,25 @@ const Blog: React.FC<BlogProps> = ({ onPostClick }) => {
                                     />
                                 )}
                                 {!post.urlimage && (
-                                    <div className="w-full h-48 bg-gray-700 flex items-center justify-center">
-                                        <span className="text-gray-400">لا توجد صورة</span>
+                                    <div className={`w-full h-48 flex items-center justify-center transition-colors duration-300 ${isDark ? 'bg-gray-700' : 'bg-gray-100'
+                                        }`}>
+                                        <span className={`transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-gray-400'
+                                            }`}>
+                                            لا توجد صورة
+                                        </span>
                                     </div>
                                 )}
                                 <div className="p-6 flex flex-col flex-grow">
-                                    <h2 className="text-xl font-bold text-white mb-3 line-clamp-2">
+                                    <h2 className={`text-xl font-bold mb-3 line-clamp-2 transition-colors duration-300 ${isDark ? 'text-white' : 'text-gray-800'
+                                        }`}>
                                         {post.title}
                                     </h2>
-                                    <p className="text-gray-400 text-sm mb-4 flex-grow line-clamp-3">
+                                    <p className={`text-sm mb-4 flex-grow line-clamp-3 transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-gray-600'
+                                        }`}>
                                         {post.extract || post.Metadescription || 'لا يوجد وصف للمقال...'}
                                     </p>
-                                    <div className="flex justify-between items-center text-xs text-gray-500 mt-auto pt-4 border-t border-gray-700">
+                                    <div className={`flex justify-between items-center text-xs pt-4 border-t transition-colors duration-300 ${isDark ? 'text-gray-500 border-gray-700' : 'text-gray-500 border-[#dfd7bb]'
+                                        }`}>
                                         <span>بواسطة {post.author}</span>
                                         <span>
                                             {post.createdAt ? formatDate(post.createdAt) : 'غير محدد'}
@@ -146,7 +176,8 @@ const Blog: React.FC<BlogProps> = ({ onPostClick }) => {
 
                 {/* إحصائيات */}
                 <div className="mt-12 text-center">
-                    <div className="inline-flex items-center space-x-6 space-x-reverse text-gray-400">
+                    <div className={`inline-flex items-center space-x-6 space-x-reverse transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-gray-500'
+                        }`}>
                         <span>إجمالي المقالات: {posts.length}</span>
                         <span>المقالات المنشورة: {publishedPosts.length}</span>
                         <span>المسودات: {posts.length - publishedPosts.length}</span>

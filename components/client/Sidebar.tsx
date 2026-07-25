@@ -1,7 +1,8 @@
 import React from 'react';
 import { useUser } from '../../contexts/UserContext';
 import { useEffect, useState } from 'react';
-
+import { useThemeStore } from '@/store/theme.store';
+import { useCurrency } from '@/contexts/CurrencyContext';
 
 interface SidebarProps {
     activeView: string;
@@ -12,12 +13,20 @@ interface SidebarProps {
 
 // مكون رابط التنقل القابل لإعادة الاستخدام
 const NavLink: React.FC<{ viewName: string, activeView: string, setActiveView: (view: string) => void, closeSidebar: () => void, children: React.ReactNode }> = ({ viewName, activeView, setActiveView, closeSidebar, children }) => {
+    const { isDark } = useThemeStore();
     const isActive = activeView === viewName;
     return (
         <a
             href={`#/client/${viewName}`}
             onClick={closeSidebar}
-            className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive ? 'bg-primary-600 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'}`}
+            className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all duration-300 ${isActive
+                ? isDark
+                    ? 'bg-primary-600 text-white'
+                    : 'bg-[#c9a84c] text-white shadow-md'
+                : isDark
+                    ? 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                    : 'text-gray-600 hover:bg-gray-100 hover:text-[#c9a84c]'
+                }`}
         >
             {children}
         </a>
@@ -26,10 +35,13 @@ const NavLink: React.FC<{ viewName: string, activeView: string, setActiveView: (
 
 const Sidebar: React.FC<SidebarProps> = ({ activeView, setActiveView, isSidebarOpen, setIsSidebarOpen }) => {
     const { user, logout } = useUser();
+    const { isDark } = useThemeStore();
+    const { formatPrice } = useCurrency();
+
 
     // إغلاق الشريط الجانبي تلقائيًا على الشاشات الصغيرة بعد النقر
     const closeSidebar = () => {
-        if (window.innerWidth < 768) { // md breakpoint
+        if (window.innerWidth < 768) {
             setIsSidebarOpen(false);
         }
     };
@@ -56,14 +68,12 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, setActiveView, isSidebarO
                 return;
             }
 
-            // 🔸 فلترة العمليات الخاصة بالمستخدم الحالي والمكتملة فقط
             const userPayments = payments.filter(
                 (p: any) => p.userName === user?.username
             );
 
             console.log('عمليات المستخدم المفلترة:', userPayments);
 
-            // 🔸 جمع كل قيم الـ amount
             const totalBalance = userPayments.reduce(
                 (sum: number, p: any) => sum + parseFloat(p.amount || 0),
                 0
@@ -76,14 +86,30 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, setActiveView, isSidebarO
             console.error('PayPal Fetch Error:', err);
         }
     };
+
+    // دوال مساعدة للألوان
+    const getTextColor = () => {
+        return isDark ? '#ffffff' : '#1e2235';
+    };
+
+    const getMutedTextColor = () => {
+        return isDark ? '#8a8fa8' : '#6c757d';
+    };
+
     return (
         <>
             {/* الشريط الجانبي */}
-            <aside className={`fixed top-0 right-0 h-full bg-gray-800 border-l border-gray-700 w-64 z-40 transform transition-transform duration-300 ease-in-out md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'}`} style={{ paddingTop: '5rem' }}>
+            <aside className={`fixed top-0 right-0 h-full border-l w-64 z-40 transform transition-transform duration-300 ease-in-out md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'
+                } ${isDark
+                    ? 'bg-gray-800 border-gray-700'
+                    : 'bg-white border-[#dfd7bb] shadow-lg'
+                }`} style={{ paddingTop: '5rem' }}>
                 <div className="p-4 h-full flex flex-col">
                     <div className="mb-6 text-center">
-                        <h4 className="font-bold text-white">{user?.username}</h4>
-                        <p className="text-sm text-primary-400">رصيدك: ${walletBalance.toFixed(2) || "0.00"}</p>
+                        <h4 className="font-bold" style={{ color: getTextColor() }}>{user?.username}</h4>
+                        <p className="text-sm" style={{ color: isDark ? '#60a5fa' : '#c9a84c' }}>
+                            رصيدك (تقريبا) : {formatPrice(walletBalance) || "0.00"}
+                        </p>
                     </div>
                     <nav className="space-y-2 flex-grow">
                         <NavLink viewName="dashboard" activeView={activeView} setActiveView={setActiveView} closeSidebar={closeSidebar}>
@@ -117,7 +143,13 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, setActiveView, isSidebarO
                         </NavLink>
                     </nav>
                     <div className="mt-auto">
-                        <button onClick={logout} className="flex items-center w-full px-4 py-3 text-sm font-medium text-red-400 rounded-lg hover:bg-red-900/50">
+                        <button
+                            onClick={logout}
+                            className={`flex items-center w-full px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-300 ${isDark
+                                ? 'text-red-400 hover:bg-red-900/50'
+                                : 'text-red-600 hover:bg-red-50'
+                                }`}
+                        >
                             <svg className="w-5 h-5 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
                             تسجيل الخروج
                         </button>
@@ -125,7 +157,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, setActiveView, isSidebarO
                 </div>
             </aside>
             {/* خلفية معتمة عند فتح الشريط الجانبي على الجوال */}
-            {isSidebarOpen && <div onClick={() => setIsSidebarOpen(false)} className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden"></div>}
+            {isSidebarOpen && <div onClick={() => setIsSidebarOpen(false)} className="fixed inset-0 bg-black/50 z-30 md:hidden"></div>}
         </>
     );
 };

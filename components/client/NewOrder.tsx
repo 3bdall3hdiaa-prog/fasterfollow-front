@@ -3,6 +3,7 @@ import { ServicePackage } from '../../types';
 import { useUser } from '../../contexts/UserContext';
 import axios from 'axios';
 import { useCurrency } from '../../contexts/CurrencyContext';
+import { useThemeStore } from '@/store/theme.store';
 
 interface NewOrderProps {
     services: ServicePackage[];
@@ -10,10 +11,12 @@ interface NewOrderProps {
 
 const NewOrder: React.FC<NewOrderProps> = ({ services }) => {
     const { user, deductBalance } = useUser();
+    const { isDark } = useThemeStore();
     const [selectedPlatform, setSelectedPlatform] = useState<string>('');
     const [selectedServiceId, setSelectedServiceId] = useState<string>('');
+    const [searchTerm, setSearchTerm] = useState<string>('');
     const [link, setLink] = useState('');
-    const [quantity, setQuantity] = useState(0);
+    const [quantity, setQuantity] = useState<number>(0);
     const [totalCost, setTotalCost] = useState<any>(0);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
@@ -21,6 +24,15 @@ const NewOrder: React.FC<NewOrderProps> = ({ services }) => {
     const [serverServices, setServerServices] = useState<ServicePackage[]>([]);
     const [walletBalance, setWalletBalance] = useState<any>();
     const { formatPrice } = useCurrency();
+
+    // دوال مساعدة للألوان
+    const getTextColor = () => {
+        return isDark ? '#ffffff' : '#1e2235';
+    };
+
+    const getMutedTextColor = () => {
+        return isDark ? '#8a8fa8' : '#6c757d';
+    };
 
     // جلب الرصيد الحالي للمستخدم
     useEffect(() => {
@@ -58,19 +70,12 @@ const NewOrder: React.FC<NewOrderProps> = ({ services }) => {
             try {
                 setLoading(true);
                 const response = await axios.get(`${import.meta.env.VITE_API_URL}/services-list`);
-
-                const servicesData = response.data.map((service: any) => ({
-                    id: service.providerServiceId || service.id,
-                    platform: service.platform || '',
-                    title: service.title || '',
-                    price: service.Price || service.price || 0,
-                    min: service.min || 0,
-                    max: service.max || 0,
-                    provider: service.provider || '',
-                    description: service.description || ''
-                }));
-
-                setServerServices(servicesData);
+                console.log(response.data);
+                const servicesData = response.data;
+                const filteredServices = servicesData.filter((service: any) => {
+                    return service.status === true;
+                })
+                setServerServices(filteredServices);
             } catch (err) {
                 console.error('خطأ في جلب الخدمات:', err);
                 setError('فشل في تحميل الخدمات. يرجى المحاولة مرة أخرى.');
@@ -83,16 +88,32 @@ const NewOrder: React.FC<NewOrderProps> = ({ services }) => {
     }, []);
 
     const platforms = useMemo(() => [...new Set(serverServices.map(s => s.platform))], [serverServices]);
+
+    // فلترة الخدمات حسب المنصة المختارة والبحث
     const filteredServices = useMemo(() => {
-        return serverServices.filter(s => s.platform === selectedPlatform);
-    }, [serverServices, selectedPlatform]);
+        let filtered = serverServices.filter(s => s.platform === selectedPlatform);
+
+        if (searchTerm.trim() !== '') {
+            filtered = filtered.filter(s =>
+                s.title.toLowerCase().includes(searchTerm.toLowerCase().trim())
+            );
+        }
+
+        return filtered;
+    }, [serverServices, selectedPlatform, searchTerm]);
 
     const selectedService = useMemo(() => {
-        return serverServices.find(s => s.id === +selectedServiceId);
+        if (!selectedServiceId) return null;
+
+        // البحث في serverServices باستخدام _id أو providerServiceId أو id
+        return serverServices.find(s => {
+            const serviceId = s._id || s.providerServiceId || s.id;
+            return String(serviceId) === String(selectedServiceId);
+        });
     }, [serverServices, selectedServiceId]);
 
-    React.useEffect(() => {
-        if (selectedService) {
+    useEffect(() => {
+        if (selectedService && quantity > 0) {
             const cost = (quantity / 1000) * selectedService.price;
             setTotalCost(cost);
         } else {
@@ -103,6 +124,9 @@ const NewOrder: React.FC<NewOrderProps> = ({ services }) => {
     const handlePlatformChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         setSelectedPlatform(e.target.value);
         setSelectedServiceId('');
+        setSearchTerm('');
+        setTotalCost(0);
+        setQuantity(0);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -110,7 +134,6 @@ const NewOrder: React.FC<NewOrderProps> = ({ services }) => {
         setError('');
         setSuccess('');
 
-        // 1. التحقق من الرصيد أولاً
         if (totalCost > walletBalance) {
             setError('رصيدك غير كافٍ لإتمام هذا الطلب.');
             return;
@@ -127,33 +150,14 @@ const NewOrder: React.FC<NewOrderProps> = ({ services }) => {
             const getuser = localStorage.getItem('user')
             const userObject = getuser ? JSON.parse(getuser) : null;
 
-            // 2. أولاً: خصم الرصيد
-            // const newBalance = walletBalance - totalCost;
-
-            // const balanceResponse = await fetch('${import.meta.env.VITE_API_URL}/balance-users', {
-            //     method: 'POST',
-            //     headers: {
-            //         'Content-Type': 'application/json',
-            //     },
-            //     body: JSON.stringify({
-            //         username: userObject.username,
-            //         amount: -totalCost
-            //     }),
-            // });
-
-            // if (!balanceResponse.ok) {
-            //     throw new Error('فشل في خصم الرصيد');
-            // }
-
-            // 3. ثانياً: إرسال الطلب بعد ما الرصيد إتخصم
             const res = await axios.post(`${import.meta.env.VITE_API_URL}/new-order`, {
                 username: userObject.username,
                 id_user: userObject._id,
                 selectedPlatform,
-                serviceId: selectedService.id,
-                selectedServiceId: selectedService.id,
-                selectedCategory: selectedService.platform,
-                serviceTitle: selectedService.title,
+                serviceId: selectedService?.id || selectedService?.providerServiceId,
+                selectedServiceId: selectedService?.id || selectedService?.providerServiceId,
+                selectedCategory: selectedService?.platform,
+                serviceTitle: selectedService?.title,
                 link,
                 quantity,
                 totalCost,
@@ -161,19 +165,16 @@ const NewOrder: React.FC<NewOrderProps> = ({ services }) => {
             });
 
             if (res.data) {
-                // 4. تحديث الرصيد محلياً
-                // setWalletBalance(newBalance);
-
                 setSuccess(`تم إرسال طلبك بنجاح! تم خصم ${totalCost.toFixed(2)}$ من رصيدك.`);
-
-                // إعادة تعيين الحقول
                 setSelectedPlatform('');
                 setSelectedServiceId('');
+                setSearchTerm('');
                 setLink('');
-                setQuantity(1000);
+                setQuantity(0);
+                setTotalCost(0);
             }
 
-        } catch (err) {
+        } catch (err: any) {
             setError(err.response?.data?.message || "خطأ في إتمام الطلب");
             console.error('خطأ في إرسال الطلب:', err);
         }
@@ -182,37 +183,76 @@ const NewOrder: React.FC<NewOrderProps> = ({ services }) => {
     if (loading) {
         return (
             <div className="flex justify-center items-center h-64">
-                <div className="text-white text-lg">جاري تحميل الخدمات...</div>
+                <div style={{ color: getTextColor() }}>جاري تحميل الخدمات...</div>
             </div>
         );
     }
 
     return (
         <div>
-            <h1 className="text-3xl font-bold text-white mb-6">طلب جديد</h1>
+            <h1 className="text-3xl font-bold mb-6" style={{ color: getTextColor() }}>طلب جديد</h1>
 
             {/* عرض الرصيد الحالي */}
-            <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 mb-6 max-w-3xl mx-auto">
+            <div className={`rounded-lg p-4 mb-6 max-w-3xl mx-auto transition-all duration-300 ${isDark
+                ? 'bg-gray-800 border border-gray-700'
+                : 'bg-white border border-[#dfd7bb] shadow-md'
+                }`}>
                 <div className="flex justify-between items-center">
-                    <span className="text-gray-300">الرصيد الحالي:</span>
-                    <span className="text-2xl font-bold text-primary-400">{formatPrice(walletBalance?.toFixed(2))}</span>
+                    <span style={{ color: getMutedTextColor() }}>الرصيد الحالي (تقريبا) : </span>
+                    <span className="text-2xl font-bold" style={{ color: isDark ? '#60a5fa' : '#c9a84c' }}>
+                        {formatPrice(walletBalance?.toFixed(2))}
+                    </span>
                 </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="bg-gray-800 border border-gray-700 rounded-lg p-8 max-w-3xl mx-auto">
-                {error && <div className="bg-red-900/50 border border-red-700 text-red-300 p-3 rounded-md mb-6 text-center">{error}</div>}
-                {success && <div className="bg-green-900/50 border border-green-700 text-green-300 p-3 rounded-md mb-6 text-center">{success}</div>}
+            <form onSubmit={handleSubmit} className={`rounded-lg p-8 max-w-3xl mx-auto transition-all duration-300 ${isDark
+                ? 'bg-gray-800 border border-gray-700'
+                : 'bg-white border border-[#dfd7bb] shadow-md'
+                }`}>
+                {error && (
+                    <div className={`p-3 rounded-md mb-6 text-center ${isDark
+                        ? 'bg-red-900/50 border border-red-700 text-red-300'
+                        : 'bg-red-50 border border-red-200 text-red-700'
+                        }`}>{error}</div>
+                )}
+                {success && (
+                    <div className={`p-3 rounded-md mb-6 text-center ${isDark
+                        ? 'bg-green-900/50 border border-green-700 text-green-300'
+                        : 'bg-green-50 border border-green-200 text-green-700'
+                        }`}>{success}</div>
+                )}
 
                 <div className="space-y-6">
+                    {/* حقل البحث عن الخدمة */}
+                    <div>
+                        <input
+                            type="text"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            placeholder="ابحث باسم الخدمة (اختر المنصة اولا) ..."
+                            className={`w-full rounded-lg p-3 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 ${isDark
+                                ? 'bg-gray-700 border border-gray-600 text-white placeholder-gray-400'
+                                : 'bg-gray-50 border border-[#dfd7bb] text-gray-800 placeholder-gray-400'
+                                }`}
+                        />
+                        {searchTerm && filteredServices.length === 0 && selectedPlatform && (
+                            <p className="text-sm mt-2" style={{ color: isDark ? '#f87171' : '#dc2626' }}>
+                                ❌ لا توجد خدمات تطابق البحث "{searchTerm}"
+                            </p>
+                        )}
+                    </div>
+
                     {/* اختيار المنصة */}
                     <div>
-                        <label htmlFor="platform" className="block text-sm font-medium text-gray-300 mb-2">المنصة</label>
+                        <label className="block text-sm font-medium mb-2" style={{ color: getMutedTextColor() }}>المنصة</label>
                         <select
-                            id="platform"
                             value={selectedPlatform}
                             onChange={handlePlatformChange}
                             required
-                            className="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-3 focus:ring-primary-500 focus:border-primary-500"
+                            className={`w-full rounded-lg p-3 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 ${isDark
+                                ? 'bg-gray-700 border border-gray-600 text-white'
+                                : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
+                                }`}
                         >
                             <option value="" disabled>-- اختر المنصة --</option>
                             {platforms.map(platform => (
@@ -223,29 +263,54 @@ const NewOrder: React.FC<NewOrderProps> = ({ services }) => {
 
                     {/* اختيار الخدمة */}
                     <div>
-                        <label htmlFor="service" className="block text-sm font-medium text-gray-300 mb-2">الخدمة</label>
+                        <label className="block text-sm font-medium mb-2" style={{ color: getMutedTextColor() }}>
+                            الخدمة {searchTerm && filteredServices.length > 0 && `(${filteredServices.length} نتيجة)`}
+                        </label>
                         <select
-                            id="service"
                             value={selectedServiceId}
-                            onChange={e => setSelectedServiceId(e.target.value)}
+                            onChange={e => {
+                                setSelectedServiceId(e.target.value);
+                                setQuantity(0);
+                                setTotalCost(0);
+                            }}
                             required
-                            disabled={!selectedPlatform}
-                            className="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-3 focus:ring-primary-500 focus:border-primary-500"
+                            disabled={!selectedPlatform || filteredServices.length === 0}
+                            className={`w-full rounded-lg p-3 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 ${isDark
+                                ? 'bg-gray-700 border border-gray-600 text-white disabled:opacity-50'
+                                : 'bg-gray-50 border border-[#dfd7bb] text-gray-800 disabled:opacity-50'
+                                }`}
                         >
-                            <option value="" disabled>-- اختر خدمة --</option>
-                            {filteredServices.map(service => (
-                                <option key={service.id} value={service.id}>
-                                    {service.title} - {formatPrice(service.price)}/1000
-                                </option>
-                            ))}
+                            <option value="" disabled>
+                                {!selectedPlatform
+                                    ? '-- اختر المنصة أولاً --'
+                                    : filteredServices.length === 0
+                                        ? '-- لا توجد خدمات --'
+                                        : '-- اختر خدمة --'}
+                            </option>
+                            {filteredServices.map(service => {
+                                const serviceId = service._id || service.providerServiceId || service.id;
+                                return (
+                                    <option key={serviceId} value={serviceId}>
+                                        {service.title} - {formatPrice(service.price)}/1000
+                                    </option>
+                                );
+                            })}
                         </select>
+                        {selectedPlatform && filteredServices.length === 0 && (
+                            <p className="text-sm mt-2" style={{ color: isDark ? '#f87171' : '#dc2626' }}>
+                                ❌ لا توجد خدمات على منصة {selectedPlatform}{searchTerm ? ` تطابق البحث "${searchTerm}"` : ''}
+                            </p>
+                        )}
                     </div>
 
-                    {/* ✅ عرض وصف الخدمة المختارة */}
+                    {/* عرض وصف الخدمة المختارة */}
                     {selectedService?.description && (
-                        <div className="bg-gray-700/50 border border-gray-600 rounded-lg p-4">
-                            <h3 className="text-sm font-medium text-gray-300 mb-2">وصف الخدمة:</h3>
-                            <p className="text-white text-sm leading-relaxed">
+                        <div className={`border rounded-lg p-4 ${isDark
+                            ? 'bg-gray-700/50 border-gray-600'
+                            : 'bg-gray-50 border-[#dfd7bb]'
+                            }`}>
+                            <h3 className="text-sm font-medium mb-2" style={{ color: getMutedTextColor() }}>وصف الخدمة:</h3>
+                            <p className="text-sm leading-relaxed" style={{ color: getTextColor() }}>
                                 {selectedService.description}
                             </p>
                         </div>
@@ -253,55 +318,68 @@ const NewOrder: React.FC<NewOrderProps> = ({ services }) => {
 
                     {/* إدخال الرابط */}
                     <div>
-                        <label htmlFor="link" className="block text-sm font-medium text-gray-300 mb-2">الرابط</label>
+                        <label className="block text-sm font-medium mb-2" style={{ color: getMutedTextColor() }}>الرابط</label>
                         <input
                             type="text"
-                            id="link"
                             value={link}
                             onChange={e => setLink(e.target.value)}
                             required
-                            className="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-3 focus:ring-primary-500 focus:border-primary-500"
+                            className={`w-full rounded-lg p-3 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 ${isDark
+                                ? 'bg-gray-700 border border-gray-600 text-white'
+                                : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
+                                }`}
                             placeholder="https://www.instagram.com/username"
                         />
                     </div>
 
                     {/* إدخال الكمية */}
                     <div>
-                        <label htmlFor="quantity" className="block text-sm font-medium text-gray-300 mb-2">الكمية</label>
+                        <label className="block text-sm font-medium mb-2" style={{ color: getMutedTextColor() }}>الكمية</label>
                         <input
                             type="number"
-                            id="quantity"
-                            value={quantity}
-                            onChange={e => setQuantity(parseInt(e.target.value) || 0)}
+                            value={quantity || ''}
+                            onChange={e => {
+                                const val = parseInt(e.target.value) || 0;
+                                setQuantity(val);
+                            }}
                             required
-                            className="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-3 focus:ring-primary-500 focus:border-primary-500"
+                            min="1"
+                            className={`w-full rounded-lg p-3 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 ${isDark
+                                ? 'bg-gray-700 border border-gray-600 text-white'
+                                : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
+                                }`}
                         />
                         {selectedService && (
-                            <p className="text-xs text-gray-400 mt-2">
-                                الحد الأدنى: {selectedService.min.toLocaleString()} / الحد الأقصى: {selectedService.max.toLocaleString()}
+                            <p className="text-xs mt-2" style={{ color: getMutedTextColor() }}>
+                                الحد الأدنى: {selectedService.min?.toLocaleString() || 0} / الحد الأقصى: {selectedService.max?.toLocaleString() || 0}
                             </p>
                         )}
                     </div>
                 </div>
 
                 {/* عرض التكلفة وزر الإرسال */}
-                <div className="mt-8 border-t border-gray-700 pt-6 flex flex-col sm:flex-row justify-between items-center">
+                <div className={`mt-8 pt-6 flex flex-col sm:flex-row justify-between items-center ${isDark ? 'border-gray-700' : 'border-[#dfd7bb]'
+                    } border-t`}>
                     <div className="mb-4 sm:mb-0">
-                        <span className="text-gray-400">التكلفة الإجمالية:</span>
-                        <span className="text-2xl font-bold text-primary-400 mr-2">{formatPrice(totalCost.toFixed(2))}</span>
-                        <div className="text-sm text-gray-400 mt-1">
+                        <span style={{ color: getMutedTextColor() }}>التكلفة الإجمالية:</span>
+                        <span className="text-2xl font-bold mr-2" style={{ color: isDark ? '#60a5fa' : '#c9a84c' }}>
+                            {formatPrice(totalCost.toFixed(2))}
+                        </span>
+                        <div className="text-sm mt-1" style={{ color: getMutedTextColor() }}>
                             الرصيد المتبقي بعد الشراء: {formatPrice((walletBalance - totalCost))}
                         </div>
                     </div>
                     <button
                         type="submit"
-                        disabled={totalCost > walletBalance}
-                        className={`w-full sm:w-auto font-bold py-3 px-8 rounded-lg transition-colors ${totalCost > walletBalance
-                            ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                            : 'bg-primary-600 hover:bg-primary-700 text-white'
+                        disabled={totalCost > walletBalance || totalCost === 0}
+                        className={`w-full sm:w-auto font-bold py-3 px-8 rounded-lg transition-all duration-300 ${totalCost > walletBalance || totalCost === 0
+                            ? isDark ? 'bg-gray-600 text-gray-400 cursor-not-allowed' : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                            : isDark
+                                ? 'bg-primary-600 hover:bg-primary-700 text-white'
+                                : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
                             }`}
                     >
-                        {totalCost > walletBalance ? 'رصيد غير كافي' : 'إرسال الطلب'}
+                        {totalCost === 0 ? 'أدخل الكمية' : totalCost > walletBalance ? 'رصيد غير كافي' : 'إرسال الطلب'}
                     </button>
                 </div>
             </form>

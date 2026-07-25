@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Order, OrderStatus } from '../../types';
 import axios from 'axios';
+import { useThemeStore } from '@/store/theme.store';
 
 const statusClasses: Record<string, string> = {
     'pending': 'bg-yellow-900 text-yellow-300',
@@ -12,15 +13,66 @@ const statusClasses: Record<string, string> = {
     'failed': 'bg-red-900 text-red-300',
 };
 
+// تحديث statusClasses للوضع الفاتح
+const getStatusClasses = (isDark: boolean) => {
+    if (isDark) {
+        return {
+            'pending': 'bg-yellow-900 text-yellow-300',
+            'Pending': 'bg-yellow-900 text-yellow-300',
+            'In Progress': 'bg-blue-900 text-blue-300',
+            'In progress': 'bg-blue-900 text-blue-300',
+            'completed': 'bg-green-900 text-green-300',
+            'cancelled': 'bg-gray-700 text-gray-300',
+            'failed': 'bg-red-900 text-red-300',
+        };
+    } else {
+        return {
+            'pending': 'bg-yellow-100 text-yellow-700',
+            'Pending': 'bg-yellow-100 text-yellow-700',
+            'In Progress': 'bg-blue-100 text-blue-700',
+            'In progress': 'bg-blue-100 text-blue-700',
+            'completed': 'bg-green-100 text-green-700',
+            'cancelled': 'bg-gray-200 text-gray-600',
+            'failed': 'bg-red-100 text-red-700',
+        };
+    }
+};
+
 const allStatuses = ['pending', 'In Progress', 'completed', 'cancelled', 'failed'];
 
 const OrdersHistory = () => {
+    const { isDark } = useThemeStore();
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState<OrderStatus | 'all'>('all');
     const [currentUsername, setCurrentUsername] = useState<string>('');
+
+    // دوال مساعدة للألوان
+    const getTextColor = () => {
+        return isDark ? '#ffffff' : '#1e2235';
+    };
+
+    const getMutedTextColor = () => {
+        return isDark ? '#8a8fa8' : '#6c757d';
+    };
+
+    const getCardBackground = () => {
+        return isDark ? '#252a41' : '#ffffff';
+    };
+
+    const getInputBackground = () => {
+        return isDark ? '#1e2235' : '#ffffff';
+    };
+
+    const getInputTextColor = () => {
+        return isDark ? '#ffffff' : '#1e2235';
+    };
+
+    const getBorderColor = () => {
+        return isDark ? '#374151' : '#dfd7bb';
+    };
 
     // دالة لاستخراج username من التوكن
     const getUsernameFromToken = (): string => {
@@ -66,7 +118,6 @@ const OrdersHistory = () => {
                     return;
                 }
 
-                // تحويل البيانات بناءً على الهيكل الحقيقي مع تحويل status
                 const ordersData: any = response.data
                     .filter((order: any) => {
                         const matchesUsername = order && order.username === usernameFromToken;
@@ -95,7 +146,6 @@ const OrdersHistory = () => {
                         };
                     });
 
-                // ترتيب الطلبات من الأحدث إلى الأقدم
                 const sortedOrders = ordersData.sort((a: any, b: any) =>
                     new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
                 );
@@ -129,7 +179,6 @@ const OrdersHistory = () => {
                 return orderNumber.toLowerCase().includes(searchTerm.toLowerCase());
             });
 
-        // الحفاظ على الترتيب من الأحدث إلى الأقدم بعد التصفية
         return filtered.sort((a: any, b: any) =>
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
@@ -192,7 +241,8 @@ const OrdersHistory = () => {
             'In Progress': 'In Progress'
         };
 
-        const statusClass = statusClasses[status] || 'bg-gray-700 text-gray-300';
+        const statusClassMap = getStatusClasses(isDark);
+        const statusClass = statusClassMap[status] || (isDark ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-600');
         const statusText = statusTexts[status] || status;
 
         return (
@@ -205,18 +255,24 @@ const OrdersHistory = () => {
     if (loading) {
         return (
             <div className="flex justify-center items-center h-64">
-                <div className="text-white text-lg">جاري تحميل الطلبات...</div>
+                <div style={{ color: getTextColor() }}>جاري تحميل الطلبات...</div>
             </div>
         );
     }
 
     if (error) {
         return (
-            <div className="bg-red-900/50 border border-red-700 text-red-300 p-4 rounded-lg text-center">
+            <div className={`p-4 rounded-lg text-center ${isDark
+                ? 'bg-red-900/50 border border-red-700 text-red-300'
+                : 'bg-red-50 border border-red-200 text-red-700'
+                }`}>
                 {error}
                 <button
                     onClick={() => window.location.reload()}
-                    className="mt-2 bg-red-700 hover:bg-red-600 text-white px-4 py-2 rounded-md block mx-auto"
+                    className={`mt-2 px-4 py-2 rounded-md block mx-auto transition-colors ${isDark
+                        ? 'bg-red-700 hover:bg-red-600 text-white'
+                        : 'bg-red-600 hover:bg-red-700 text-white'
+                        }`}
                 >
                     إعادة المحاولة
                 </button>
@@ -225,31 +281,47 @@ const OrdersHistory = () => {
     }
 
     return (
-        <div className="p-4">
-            <h1 className="text-2xl md:text-3xl font-bold text-white mb-6 text-center md:text-right">
+        <div className="p-4" style={{
+            backgroundColor: isDark ? '#1e2235' : '#f8f6f0',
+            minHeight: "100vh",
+            transition: "all 0.3s ease"
+        }}>
+            <h1 className="text-2xl md:text-3xl font-bold mb-6 text-center md:text-right" style={{ color: getTextColor() }}>
                 سجل الطلبات
             </h1>
 
             {currentUsername && (
-                <div className="bg-blue-900/50 border border-blue-700 text-blue-300 p-3 rounded-lg mb-4 text-center md:text-right">
+                <div className={`p-3 rounded-lg mb-4 text-center md:text-right ${isDark
+                    ? 'bg-blue-900/50 border border-blue-700 text-blue-300'
+                    : 'bg-blue-50 border border-blue-200 text-blue-700'
+                    }`}>
                     <span className="font-medium">المستخدم الحالي:</span> {currentUsername}
                 </div>
             )}
 
             {/* حقل البحث والتصفية */}
-            <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 mb-6">
+            <div className={`rounded-lg p-4 mb-6 transition-all duration-300 ${isDark
+                ? 'bg-gray-800 border border-gray-700'
+                : 'bg-white border border-[#dfd7bb] shadow-md'
+                }`}>
                 <div className="flex flex-col md:flex-row gap-4">
                     <input
                         type="text"
                         placeholder="ابحث برقم الطلب..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="bg-gray-700 border border-gray-600 rounded-md p-3 text-white w-full text-sm md:text-base"
+                        className={`rounded-md p-3 w-full text-sm md:text-base transition-all duration-300 ${isDark
+                            ? 'bg-gray-700 border border-gray-600 text-white'
+                            : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
+                            }`}
                     />
                     <select
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value as OrderStatus | 'all')}
-                        className="bg-gray-700 border border-gray-600 rounded-md p-3 text-white w-full md:w-48 text-sm md:text-base"
+                        className={`rounded-md p-3 w-full md:w-48 text-sm md:text-base transition-all duration-300 ${isDark
+                            ? 'bg-gray-700 border border-gray-600 text-white'
+                            : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
+                            }`}
                     >
                         <option value="all">كل الحالات</option>
                         {allStatuses.map(s => (
@@ -264,7 +336,7 @@ const OrdersHistory = () => {
                     </select>
                 </div>
 
-                <div className="mt-4 flex flex-wrap gap-3 text-sm text-gray-400 justify-center md:justify-start">
+                <div className="mt-4 flex flex-wrap gap-3 text-sm justify-center md:justify-start" style={{ color: getMutedTextColor() }}>
                     <span>الإجمالي: {orderStats.total}</span>
                     <span>المعروض: {filteredOrders.length}</span>
                     <span>قيد الانتظار: {orderStats.pending}</span>
@@ -272,24 +344,27 @@ const OrdersHistory = () => {
                     <span>قيد التنفيذ: {orderStats.inProgress}</span>
                 </div>
 
-                {/* إشعار ترتيب الطلبات */}
                 <div className="mt-3 text-center md:text-right">
-                    <div className="text-green-400 text-sm">
+                    <div className="text-sm" style={{ color: isDark ? '#4ade80' : '#22c55e' }}>
                         الطلبات مرتبة من الأحدث إلى الأقدم
                     </div>
                 </div>
             </div>
 
             {/* ✅ جدول الطلبات - للشاشات الكبيرة */}
-            <div className="hidden md:block bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
+            <div className={`hidden md:block rounded-lg overflow-hidden transition-all duration-300 ${isDark
+                ? 'bg-gray-800 border border-gray-700'
+                : 'bg-white border border-[#dfd7bb] shadow-md'
+                }`}>
                 {filteredOrders.length === 0 ? (
-                    <div className="text-center py-8 text-gray-400">
+                    <div className="text-center py-8" style={{ color: getMutedTextColor() }}>
                         {orders.length === 0 ? 'لا توجد طلبات حالياً' : 'لم يتم العثور على طلبات تطابق البحث'}
                     </div>
                 ) : (
                     <div className="overflow-x-auto">
-                        <table className="w-full text-sm text-right text-gray-300">
-                            <thead className="text-xs text-gray-400 uppercase bg-gray-700/50">
+                        <table className="w-full text-sm text-right" style={{ color: getTextColor() }}>
+                            <thead className={`text-xs uppercase ${isDark ? 'text-gray-400 bg-gray-700/50' : 'text-gray-500 bg-gray-50'
+                                }`}>
                                 <tr>
                                     <th className="px-4 py-3">رقم الطلب</th>
                                     <th className="px-4 py-3">التاريخ</th>
@@ -302,20 +377,23 @@ const OrdersHistory = () => {
                             </thead>
                             <tbody>
                                 {filteredOrders.map((order) => (
-                                    <tr key={order.id} className="border-b border-gray-700 hover:bg-gray-700/50">
-                                        <td className="px-4 py-4 font-mono text-xs">
+                                    <tr key={order.id} className={`border-b transition-colors ${isDark
+                                        ? 'border-gray-700 hover:bg-gray-700/50'
+                                        : 'border-[#dfd7bb] hover:bg-gray-50'
+                                        }`}>
+                                        <td className="px-4 py-4 font-mono text-xs" style={{ color: getMutedTextColor() }}>
                                             {order.order_number || 'N/A'}
                                         </td>
-                                        <td className="px-4 py-4 whitespace-nowrap">
+                                        <td className="px-4 py-4 whitespace-nowrap" style={{ color: getMutedTextColor() }}>
                                             {formatDate(order.createdAt)}
                                         </td>
-                                        <td className="px-4 py-4 text-white">
+                                        <td className="px-4 py-4" style={{ color: getTextColor() }}>
                                             {order.service?.title || 'خدمة غير معروفة'}
                                         </td>
-                                        <td className="px-4 py-4 font-mono truncate max-w-xs" title={order.link}>
+                                        <td className="px-4 py-4 font-mono truncate max-w-xs" title={order.link} style={{ color: getMutedTextColor() }}>
                                             {order.link || 'لا يوجد رابط'}
                                         </td>
-                                        <td className="px-4 py-4">
+                                        <td className="px-4 py-4" style={{ color: getTextColor() }}>
                                             {(order.quantity || 0).toLocaleString()}
                                         </td>
                                         <td className="px-4 py-4 text-green-400 font-semibold">
@@ -334,21 +412,27 @@ const OrdersHistory = () => {
 
             {/* ✅ تصميم البطاقات للهواتف */}
             <div className="block md:hidden">
-                <div className="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
+                <div className={`rounded-lg overflow-hidden transition-all duration-300 ${isDark
+                    ? 'bg-gray-800 border border-gray-700'
+                    : 'bg-white border border-[#dfd7bb] shadow-md'
+                    }`}>
                     {filteredOrders.length === 0 ? (
-                        <div className="text-center py-8 text-gray-400">
+                        <div className="text-center py-8" style={{ color: getMutedTextColor() }}>
                             {orders.length === 0 ? 'لا توجد طلبات حالياً' : 'لم يتم العثور على طلبات تطابق البحث'}
                         </div>
                     ) : (
                         filteredOrders.map((order) => (
-                            <div key={order.id} className="border-b border-gray-700 p-4 hover:bg-gray-700/50 transition-colors">
+                            <div key={order.id} className={`border-b p-4 transition-colors ${isDark
+                                ? 'border-gray-700 hover:bg-gray-700/50'
+                                : 'border-[#dfd7bb] hover:bg-gray-50'
+                                }`}>
                                 {/* رأس البطاقة */}
                                 <div className="flex justify-between items-start mb-3">
                                     <div>
-                                        <div className="font-bold text-white text-lg mb-1">
+                                        <div className="font-bold text-lg mb-1" style={{ color: getTextColor() }}>
                                             #{order.order_number || 'N/A'}
                                         </div>
-                                        <div className="text-gray-400 text-sm">
+                                        <div className="text-sm" style={{ color: getMutedTextColor() }}>
                                             {formatDate(order.createdAt)}
                                         </div>
                                     </div>
@@ -360,28 +444,28 @@ const OrdersHistory = () => {
                                 {/* معلومات الطلب */}
                                 <div className="space-y-3 mb-4">
                                     <div>
-                                        <div className="text-gray-400 text-xs mb-1">الخدمة</div>
-                                        <div className="text-white font-semibold">
+                                        <div className="text-xs mb-1" style={{ color: getMutedTextColor() }}>الخدمة</div>
+                                        <div className="font-semibold" style={{ color: getTextColor() }}>
                                             {order.service?.title || 'خدمة غير معروفة'}
                                         </div>
                                     </div>
 
                                     <div>
-                                        <div className="text-gray-400 text-xs mb-1">الرابط</div>
-                                        <div className="text-blue-400 text-sm break-all">
+                                        <div className="text-xs mb-1" style={{ color: getMutedTextColor() }}>الرابط</div>
+                                        <div className="text-sm break-all" style={{ color: isDark ? '#60a5fa' : '#2563eb' }}>
                                             {order.link || 'لا يوجد رابط'}
                                         </div>
                                     </div>
 
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
-                                            <div className="text-gray-400 text-xs mb-1">الكمية</div>
-                                            <div className="text-white font-semibold">
+                                            <div className="text-xs mb-1" style={{ color: getMutedTextColor() }}>الكمية</div>
+                                            <div className="font-semibold" style={{ color: getTextColor() }}>
                                                 {(order.quantity || 0).toLocaleString()}
                                             </div>
                                         </div>
                                         <div>
-                                            <div className="text-gray-400 text-xs mb-1">السعر</div>
+                                            <div className="text-xs mb-1" style={{ color: getMutedTextColor() }}>السعر</div>
                                             <div className="text-green-400 font-bold text-lg">
                                                 ${(order.price || 0).toFixed(3)}
                                             </div>
@@ -390,9 +474,10 @@ const OrdersHistory = () => {
                                 </div>
 
                                 {/* معلومات إضافية */}
-                                <div className="bg-gray-700/50 rounded-lg p-3">
-                                    <div className="text-gray-400 text-xs mb-1">رقم الطلب الكامل</div>
-                                    <div className="text-white font-mono text-sm break-all">
+                                <div className={`rounded-lg p-3 ${isDark ? 'bg-gray-700/50' : 'bg-gray-50'
+                                    }`}>
+                                    <div className="text-xs mb-1" style={{ color: getMutedTextColor() }}>رقم الطلب الكامل</div>
+                                    <div className="font-mono text-sm break-all" style={{ color: getTextColor() }}>
                                         {order.id}
                                     </div>
                                 </div>

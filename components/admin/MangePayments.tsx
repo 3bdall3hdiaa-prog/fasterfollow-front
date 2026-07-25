@@ -1,3 +1,4 @@
+import { useThemeStore } from '@/store/theme.store';
 import React, { useState, useEffect } from 'react';
 
 interface PaymentMethod {
@@ -22,7 +23,36 @@ const ManagePayments: React.FC = () => {
         paymentUrl: '',
         description: '',
     });
+    const { isDark } = useThemeStore();
 
+    // دوال مساعدة للألوان
+    const getTextColor = () => {
+        return isDark ? '#ffffff' : '#1e2235';
+    };
+
+    const getMutedTextColor = () => {
+        return isDark ? '#8a8fa8' : '#6c757d';
+    };
+
+    const getCardBackground = () => {
+        return isDark ? '#252a41' : '#ffffff';
+    };
+
+    const getCardHeaderBackground = () => {
+        return isDark ? '#2f3450' : '#f0ede4';
+    };
+
+    const getInputBackground = () => {
+        return isDark ? '#1e2235' : '#ffffff';
+    };
+
+    const getInputTextColor = () => {
+        return isDark ? '#ffffff' : '#1e2235';
+    };
+
+    const getBorderColor = () => {
+        return isDark ? '#374151' : '#dfd7bb';
+    };
     // دالة لتحويل البيانات من API إلى الشكل المطلوب
     const transformPaymentData = (data: any[]): PaymentMethod[] => {
         console.log('Raw data from API:', data);
@@ -260,15 +290,23 @@ const ManagePayments: React.FC = () => {
         );
     }
 
+
     return (
-        <div className="p-4">
+        <div className="p-4" style={{
+            backgroundColor: isDark ? '#1e2235' : '#f8f6f0',
+            minHeight: "100vh",
+            transition: "all 0.3s ease"
+        }}>
             <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-                <h1 className="text-2xl md:text-3xl font-bold text-white text-center md:text-right">
+                <h1 className="text-2xl md:text-3xl font-bold text-center md:text-right" style={{ color: getTextColor() }}>
                     إدارة طرق الدفع
                 </h1>
                 <button
                     onClick={() => handleOpenModal(null)}
-                    className="bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-6 rounded-lg w-full md:w-auto"
+                    className={`font-bold py-3 px-6 rounded-lg w-full md:w-auto transition-all duration-300 ${isDark
+                        ? 'bg-primary-600 hover:bg-primary-700 text-white'
+                        : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
+                        }`}
                     disabled={loading}
                 >
                     إضافة طريقة دفع جديدة
@@ -276,26 +314,36 @@ const ManagePayments: React.FC = () => {
             </div>
 
             {/* حقل البحث */}
-            <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 mb-6">
+            <div className={`rounded-lg p-4 mb-6 transition-all duration-300 ${isDark
+                ? 'bg-gray-800 border border-gray-700'
+                : 'bg-white border border-[#dfd7bb] shadow-md'
+                }`}>
                 <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
                     <input
                         type="text"
                         placeholder="ابحث باسم طريقة الدفع، المعرف، أو الوصف..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="bg-gray-700 border border-gray-600 rounded-md p-3 text-white w-full md:w-1/2 text-sm md:text-base"
+                        className={`rounded-md p-3 w-full md:w-1/2 text-sm md:text-base transition-all duration-300 ${isDark
+                            ? 'bg-gray-700 border border-gray-600 text-white'
+                            : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
+                            }`}
                     />
-                    <div className="text-gray-400 text-sm md:text-base">
+                    <div className="text-sm md:text-base" style={{ color: getMutedTextColor() }}>
                         إجمالي طرق الدفع: {paymentMethods.length} | المعروض: {filteredPayments.length}
                     </div>
                 </div>
             </div>
 
             {/* ✅ جدول عرض طرق الدفع - للشاشات الكبيرة */}
-            <div className="hidden md:block bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
+            <div className={`hidden md:block rounded-lg overflow-hidden transition-all duration-300 ${isDark
+                ? 'bg-gray-800 border border-gray-700'
+                : 'bg-white border border-[#dfd7bb] shadow-md'
+                }`}>
                 <div className="overflow-x-auto">
-                    <table className="w-full text-sm text-right text-gray-300">
-                        <thead className="text-xs text-gray-400 uppercase bg-gray-700/50">
+                    <table className="w-full text-sm text-right" style={{ color: getTextColor() }}>
+                        <thead className={`text-xs uppercase ${isDark ? 'text-gray-400 bg-gray-700/50' : 'text-gray-500 bg-gray-50'
+                            }`}>
                             <tr>
                                 <th className="px-4 py-3">ID</th>
                                 <th className="px-4 py-3">الاسم</th>
@@ -307,18 +355,22 @@ const ManagePayments: React.FC = () => {
                         </thead>
                         <tbody>
                             {filteredPayments.map(payment => (
-                                <tr key={payment._id} className="border-b border-gray-700 hover:bg-gray-700/50">
+                                <tr key={payment._id} className={`border-b transition-colors ${isDark
+                                    ? 'border-gray-700 hover:bg-gray-700/50'
+                                    : 'border-[#dfd7bb] hover:bg-gray-50'
+                                    }`}>
                                     <td className="px-4 py-4 font-mono text-xs">
-                                        <code className="bg-gray-700 px-2 py-1 rounded">
+                                        <code className={`px-2 py-1 rounded ${isDark ? 'bg-gray-700' : 'bg-gray-100'
+                                            }`} style={{ color: getTextColor() }}>
                                             {payment.id}
                                         </code>
                                     </td>
-                                    <td className="px-4 py-4 text-white font-medium">{payment.name}</td>
+                                    <td className="px-4 py-4 font-medium" style={{ color: getTextColor() }}>{payment.name}</td>
                                     <td className="px-4 py-4 text-2xl">
                                         {payment.icon}
                                     </td>
                                     <td className="px-4 py-4 max-w-xs">
-                                        <div className="text-gray-300 text-sm line-clamp-2" title={payment.description}>
+                                        <div className="text-sm line-clamp-2" style={{ color: getMutedTextColor() }} title={payment.description}>
                                             {payment.description || 'لا يوجد وصف'}
                                         </div>
                                     </td>
@@ -327,16 +379,20 @@ const ManagePayments: React.FC = () => {
                                             href={payment.paymentUrl}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="text-primary-400 hover:text-primary-300 break-all"
+                                            className={`break-all transition-colors ${isDark ? 'text-primary-400 hover:text-primary-300' : 'text-[#c9a84c] hover:text-[#b8973a]'
+                                                }`}
                                         >
                                             {payment.paymentUrl}
                                         </a>
                                     </td>
                                     <td className="px-4 py-4">
-                                        <div className="flex justify-end gap-2">
+                                        <div className="flex justify-end gap-2 flex-wrap">
                                             <button
                                                 onClick={() => handleOpenModal(payment)}
-                                                className="bg-yellow-600 hover:bg-yellow-700 text-white p-2 rounded flex items-center gap-1 text-xs"
+                                                className={`p-2 rounded flex items-center gap-1 text-xs transition-colors ${isDark
+                                                    ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
+                                                    : 'bg-yellow-500 hover:bg-yellow-600 text-white'
+                                                    }`}
                                                 disabled={loading}
                                             >
                                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -346,7 +402,10 @@ const ManagePayments: React.FC = () => {
                                             </button>
                                             <button
                                                 onClick={() => handleDelete(payment._id)}
-                                                className="bg-red-600 hover:bg-red-700 text-white p-2 rounded flex items-center gap-1 text-xs"
+                                                className={`p-2 rounded flex items-center gap-1 text-xs transition-colors ${isDark
+                                                    ? 'bg-red-600 hover:bg-red-700 text-white'
+                                                    : 'bg-red-500 hover:bg-red-600 text-white'
+                                                    }`}
                                                 disabled={loading}
                                             >
                                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -362,7 +421,7 @@ const ManagePayments: React.FC = () => {
                     </table>
 
                     {filteredPayments.length === 0 && !loading && (
-                        <div className="text-center text-gray-400 py-8">
+                        <div className="text-center py-8" style={{ color: getMutedTextColor() }}>
                             {paymentMethods.length === 0 ? 'لا توجد طرق دفع' : 'لم يتم العثور على طرق دفع تطابق البحث'}
                         </div>
                     )}
@@ -371,14 +430,20 @@ const ManagePayments: React.FC = () => {
 
             {/* ✅ تصميم البطاقات للهواتف */}
             <div className="block md:hidden">
-                <div className="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
+                <div className={`rounded-lg overflow-hidden transition-all duration-300 ${isDark
+                    ? 'bg-gray-800 border border-gray-700'
+                    : 'bg-white border border-[#dfd7bb] shadow-md'
+                    }`}>
                     {filteredPayments.length === 0 ? (
-                        <div className="text-center py-8 text-gray-400">
+                        <div className="text-center py-8" style={{ color: getMutedTextColor() }}>
                             {paymentMethods.length === 0 ? 'لا توجد طرق دفع حالياً' : 'لم يتم العثور على طرق دفع تطابق البحث'}
                         </div>
                     ) : (
                         filteredPayments.map(payment => (
-                            <div key={payment._id} className="border-b border-gray-700 p-4 hover:bg-gray-700/50 transition-colors">
+                            <div key={payment._id} className={`border-b p-4 transition-colors ${isDark
+                                ? 'border-gray-700 hover:bg-gray-700/50'
+                                : 'border-[#dfd7bb] hover:bg-gray-50'
+                                }`}>
                                 {/* رأس البطاقة */}
                                 <div className="flex justify-between items-start mb-3">
                                     <div className="flex items-center gap-3">
@@ -386,8 +451,9 @@ const ManagePayments: React.FC = () => {
                                             {payment.icon}
                                         </div>
                                         <div>
-                                            <div className="font-semibold text-white text-lg">{payment.name}</div>
-                                            <div className="text-gray-400 text-sm font-mono bg-gray-700 px-2 py-1 rounded mt-1">
+                                            <div className="font-semibold text-lg" style={{ color: getTextColor() }}>{payment.name}</div>
+                                            <div className={`text-sm font-mono px-2 py-1 rounded mt-1 ${isDark ? 'bg-gray-700 text-gray-400' : 'bg-gray-100 text-gray-600'
+                                                }`}>
                                                 {payment.id}
                                             </div>
                                         </div>
@@ -397,18 +463,19 @@ const ManagePayments: React.FC = () => {
                                 {/* معلومات طريقة الدفع */}
                                 <div className="space-y-3 mb-4">
                                     <div>
-                                        <div className="text-gray-400 text-xs mb-1">الوصف</div>
-                                        <div className="text-white text-sm">
+                                        <div className="text-xs mb-1" style={{ color: getMutedTextColor() }}>الوصف</div>
+                                        <div className="text-sm" style={{ color: getTextColor() }}>
                                             {payment.description || 'لا يوجد وصف'}
                                         </div>
                                     </div>
                                     <div>
-                                        <div className="text-gray-400 text-xs mb-1">رابط الدفع</div>
+                                        <div className="text-xs mb-1" style={{ color: getMutedTextColor() }}>رابط الدفع</div>
                                         <a
                                             href={payment.paymentUrl}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="text-primary-400 hover:text-primary-300 text-sm break-all"
+                                            className={`text-sm break-all transition-colors ${isDark ? 'text-primary-400 hover:text-primary-300' : 'text-[#c9a84c] hover:text-[#b8973a]'
+                                                }`}
                                         >
                                             {payment.paymentUrl}
                                         </a>
@@ -419,7 +486,10 @@ const ManagePayments: React.FC = () => {
                                 <div className="flex gap-2">
                                     <button
                                         onClick={() => handleOpenModal(payment)}
-                                        className="bg-yellow-600 hover:bg-yellow-700 text-white p-2 rounded flex items-center gap-1 flex-1 justify-center text-sm"
+                                        className={`p-2 rounded flex items-center gap-1 flex-1 justify-center text-sm transition-colors ${isDark
+                                            ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
+                                            : 'bg-yellow-500 hover:bg-yellow-600 text-white'
+                                            }`}
                                         disabled={loading}
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -429,7 +499,10 @@ const ManagePayments: React.FC = () => {
                                     </button>
                                     <button
                                         onClick={() => handleDelete(payment._id)}
-                                        className="bg-red-600 hover:bg-red-700 text-white p-2 rounded flex items-center gap-1 flex-1 justify-center text-sm"
+                                        className={`p-2 rounded flex items-center gap-1 flex-1 justify-center text-sm transition-colors ${isDark
+                                            ? 'bg-red-600 hover:bg-red-700 text-white'
+                                            : 'bg-red-500 hover:bg-red-600 text-white'
+                                            }`}
                                         disabled={loading}
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -446,14 +519,17 @@ const ManagePayments: React.FC = () => {
 
             {/* نافذة الإضافة/التعديل */}
             {isModalOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4" onClick={handleCloseModal}>
-                    <div className="bg-gray-800 text-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={handleCloseModal}>
+                    <div className={`rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto transition-all duration-300 ${isDark ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'
+                        }`} onClick={(e) => e.stopPropagation()}>
                         <form onSubmit={handleSubmit}>
                             <div className="p-4 md:p-6">
-                                <h3 className="text-xl font-bold mb-6">{editingPayment ? 'تعديل طريقة الدفع' : 'إضافة طريقة دفع جديدة'}</h3>
+                                <h3 className="text-xl font-bold mb-6" style={{ color: getTextColor() }}>
+                                    {editingPayment ? 'تعديل طريقة الدفع' : 'إضافة طريقة دفع جديدة'}
+                                </h3>
                                 <div className="space-y-4">
                                     <div>
-                                        <label htmlFor="id" className="block text-sm font-medium text-gray-300 mb-1">ID (معرف فريد)</label>
+                                        <label htmlFor="id" className="block text-sm font-medium mb-1" style={{ color: getMutedTextColor() }}>ID (معرف فريد)</label>
                                         <input
                                             type="text"
                                             name="id"
@@ -461,16 +537,19 @@ const ManagePayments: React.FC = () => {
                                             value={formData.id}
                                             onChange={handleChange}
                                             required
-                                            className="w-full bg-gray-700 rounded-md p-3 border border-gray-600 text-sm md:text-base"
+                                            className={`w-full rounded-md p-3 text-sm md:text-base transition-all duration-300 ${isDark
+                                                ? 'bg-gray-700 border border-gray-600 text-white'
+                                                : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
+                                                }`}
                                             placeholder="مثال: paypal, stripe, etc."
                                             disabled={loading || !!editingPayment}
                                         />
                                         {editingPayment && (
-                                            <p className="text-xs text-gray-400 mt-1">لا يمكن تعديل ID بعد الإنشاء</p>
+                                            <p className="text-xs mt-1" style={{ color: getMutedTextColor() }}>لا يمكن تعديل ID بعد الإنشاء</p>
                                         )}
                                     </div>
                                     <div>
-                                        <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-1">اسم طريقة الدفع</label>
+                                        <label htmlFor="name" className="block text-sm font-medium mb-1" style={{ color: getMutedTextColor() }}>اسم طريقة الدفع</label>
                                         <input
                                             type="text"
                                             name="name"
@@ -478,42 +557,51 @@ const ManagePayments: React.FC = () => {
                                             value={formData.name}
                                             onChange={handleChange}
                                             required
-                                            className="w-full bg-gray-700 rounded-md p-3 border border-gray-600 text-sm md:text-base"
+                                            className={`w-full rounded-md p-3 text-sm md:text-base transition-all duration-300 ${isDark
+                                                ? 'bg-gray-700 border border-gray-600 text-white'
+                                                : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
+                                                }`}
                                             placeholder="مثال: PayPal, Stripe, etc."
                                             disabled={loading}
                                         />
                                     </div>
                                     <div>
-                                        <label htmlFor="icon" className="block text-sm font-medium text-gray-300 mb-1">الأيقونة</label>
+                                        <label htmlFor="icon" className="block text-sm font-medium mb-1" style={{ color: getMutedTextColor() }}>الأيقونة</label>
                                         <input
                                             type="text"
                                             name="icon"
                                             id="icon"
                                             value={formData.icon}
                                             onChange={handleChange}
-                                            className="w-full bg-gray-700 rounded-md p-3 border border-gray-600 text-sm md:text-base"
+                                            className={`w-full rounded-md p-3 text-sm md:text-base transition-all duration-300 ${isDark
+                                                ? 'bg-gray-700 border border-gray-600 text-white'
+                                                : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
+                                                }`}
                                             placeholder="مثال: 🅿️, 💳, etc."
                                             disabled={loading}
                                         />
                                     </div>
                                     <div>
-                                        <label htmlFor="description" className="block text-sm font-medium text-gray-300 mb-1">الوصف</label>
+                                        <label htmlFor="description" className="block text-sm font-medium mb-1" style={{ color: getMutedTextColor() }}>الوصف</label>
                                         <textarea
                                             name="description"
                                             id="description"
                                             value={formData.description}
                                             onChange={handleChange}
                                             rows={3}
-                                            className="w-full bg-gray-700 rounded-md p-3 border border-gray-600 resize-none text-sm md:text-base"
+                                            className={`w-full rounded-md p-3 border resize-none text-sm md:text-base transition-all duration-300 ${isDark
+                                                ? 'bg-gray-700 border-gray-600 text-white'
+                                                : 'bg-gray-50 border-[#dfd7bb] text-gray-800'
+                                                }`}
                                             placeholder="أدخل وصفاً لطريقة الدفع يظهر للمستخدم..."
                                             disabled={loading}
                                         />
-                                        <p className="text-xs text-gray-400 mt-1">
+                                        <p className="text-xs mt-1" style={{ color: getMutedTextColor() }}>
                                             هذا الوصف سيظهر للمستخدم عند اختيار طريقة الدفع
                                         </p>
                                     </div>
                                     <div>
-                                        <label htmlFor="paymentUrl" className="block text-sm font-medium text-gray-300 mb-1">رابط بوابة الدفع</label>
+                                        <label htmlFor="paymentUrl" className="block text-sm font-medium mb-1" style={{ color: getMutedTextColor() }}>رابط بوابة الدفع</label>
                                         <input
                                             type="url"
                                             name="paymentUrl"
@@ -521,25 +609,35 @@ const ManagePayments: React.FC = () => {
                                             value={formData.paymentUrl}
                                             onChange={handleChange}
                                             required
-                                            className="w-full bg-gray-700 rounded-md p-3 border border-gray-600 text-sm md:text-base"
+                                            className={`w-full rounded-md p-3 text-sm md:text-base transition-all duration-300 ${isDark
+                                                ? 'bg-gray-700 border border-gray-600 text-white'
+                                                : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
+                                                }`}
                                             placeholder="https://example.com/payment"
                                             disabled={loading}
                                         />
                                     </div>
                                 </div>
                             </div>
-                            <div className="bg-gray-700/50 px-4 md:px-6 py-3 flex justify-end gap-3 rounded-b-2xl">
+                            <div className={`px-4 md:px-6 py-3 flex justify-end gap-3 rounded-b-2xl ${isDark ? 'bg-gray-700/50' : 'bg-gray-50'
+                                }`}>
                                 <button
                                     type="button"
                                     onClick={handleCloseModal}
-                                    className="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg text-sm md:text-base"
+                                    className={`font-bold py-2 px-4 rounded-lg text-sm md:text-base transition-colors ${isDark
+                                        ? 'bg-gray-600 hover:bg-gray-500 text-white'
+                                        : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
+                                        }`}
                                     disabled={loading}
                                 >
                                     إلغاء
                                 </button>
                                 <button
                                     type="submit"
-                                    className="bg-primary-600 hover:bg-primary-700 text-white font-bold py-2 px-4 rounded-lg text-sm md:text-base"
+                                    className={`font-bold py-2 px-4 rounded-lg text-sm md:text-base transition-all duration-300 ${isDark
+                                        ? 'bg-primary-600 hover:bg-primary-700 text-white'
+                                        : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
+                                        }`}
                                     disabled={loading}
                                 >
                                     {loading ? 'جاري الحفظ...' : 'حفظ'}

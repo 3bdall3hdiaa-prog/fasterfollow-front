@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Table, Button, Container, Spinner, Modal, Card, Badge, Form, Alert, Toast } from "react-bootstrap";
 import axios from "axios";
+import { useThemeStore } from "@/store/theme.store";
 const OrdersManagement = () => {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -310,13 +311,58 @@ const OrdersManagement = () => {
     //     return () => clearInterval(interval);
     // }, [orders]);
 
+
+
+    // ... باقي الـ imports والإعدادات
+
+    const { isDark } = useThemeStore();
+    // ... باقي الـ states
+
+    // دوال مساعدة للألوان
+    const getBackgroundColor = () => {
+        return isDark ? '#1e2235' : '#f8f6f0';
+    };
+
+    const getCardBackground = () => {
+        return isDark ? '#252a41' : '#ffffff';
+    };
+
+    const getCardHeaderBackground = () => {
+        return isDark ? '#2f3450' : '#f0ede4';
+    };
+
+    const getTextColor = () => {
+        return isDark ? '#ffffff' : '#1e2235';
+    };
+
+    const getMutedTextColor = () => {
+        return isDark ? '#8a8fa8' : '#6c757d';
+    };
+
+    const getInputBackground = () => {
+        return isDark ? '#1e2235' : '#ffffff';
+    };
+
+    const getInputTextColor = () => {
+        return isDark ? '#ffffff' : '#1e2235';
+    };
+
+    const getModalBackground = () => {
+        return isDark ? '#2f3450' : '#ffffff';
+    };
+
+    const getModalBodyBackground = () => {
+        return isDark ? '#1e2235' : '#f8f6f0';
+    };
+
     return (
         <div
             style={{
-                backgroundColor: "#1e2235",
+                backgroundColor: getBackgroundColor(),
                 minHeight: "100vh",
                 padding: "20px",
-                color: "#fff",
+                color: getTextColor(),
+                transition: "all 0.3s ease"
             }}
         >
             <Container fluid>
@@ -329,35 +375,34 @@ const OrdersManagement = () => {
                         zIndex: 9999
                     }}
                 >
-                    <Toast show={showToast} onClose={() => setShowToast(false)} bg="dark">
+                    <Toast show={showToast} onClose={() => setShowToast(false)} bg={isDark ? "dark" : "light"}>
                         <Toast.Header closeButton>
-                            <strong className="me-auto">إشعار</strong>
+                            <strong className="me-auto" style={{ color: getTextColor() }}>إشعار</strong>
                         </Toast.Header>
-                        <Toast.Body className="text-white">{toastMessage}</Toast.Body>
+                        <Toast.Body style={{ color: isDark ? 'white' : '#1e2235' }}>{toastMessage}</Toast.Body>
                     </Toast>
                 </div>
 
                 {/* العنوان الرئيسي */}
-                <div className="d-flex justify-content-between align-items-center mb-4">
-                    <h2 className="fw-bold mb-0" style={{ color: "#ffffff" }}>إدارة الطلبات</h2>
-                    <div className="d-flex gap-2 align-items-center">
-                        {/* إشعار آخر تحديث */}
+                <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+                    <h2 className="fw-bold mb-0" style={{ color: getTextColor() }}>إدارة الطلبات</h2>
+                    <div className="d-flex gap-2 align-items-center flex-wrap mt-2 mt-md-0">
                         {lastUpdate && (
-                            <small className="text-muted me-3 d-none d-md-block">
+                            <small style={{ color: getMutedTextColor() }} className="me-3 d-none d-md-block">
                                 آخر تحديث: {formatDate(lastUpdate)}
                             </small>
                         )}
 
-                        {/* زر تحديث الكل */}
                         <Button
                             variant="outline-success"
                             onClick={handleUpdateAllStatuses}
                             disabled={updatingAll || orders.length === 0}
                             style={{
-                                border: "1px solid #28a745",
+                                border: isDark ? "1px solid #28a745" : "1px solid #27ae60",
                                 borderRadius: "8px",
                                 padding: "10px 15px",
-                                color: "#28a745"
+                                color: isDark ? "#28a745" : "#27ae60",
+                                transition: "all 0.3s ease"
                             }}
                         >
                             {updatingAll ? (
@@ -378,10 +423,11 @@ const OrdersManagement = () => {
                             variant="outline-primary"
                             onClick={() => window.location.reload()}
                             style={{
-                                border: "1px solid #4a90e2",
+                                border: isDark ? "1px solid #4a90e2" : "1px solid #c9a84c",
                                 borderRadius: "8px",
                                 padding: "10px 15px",
-                                color: "#4a90e2"
+                                color: isDark ? "#4a90e2" : "#c9a84c",
+                                transition: "all 0.3s ease"
                             }}
                         >
                             <i className="fas fa-sync-alt me-2"></i>
@@ -392,7 +438,12 @@ const OrdersManagement = () => {
                 </div>
 
                 {/* حقل البحث */}
-                <Card className="mb-4" style={{ backgroundColor: "#252a41", border: "none", borderRadius: "15px" }}>
+                <Card className="mb-4" style={{
+                    backgroundColor: getCardBackground(),
+                    border: isDark ? "none" : "1px solid #dfd7bb",
+                    borderRadius: "15px",
+                    transition: "all 0.3s ease"
+                }}>
                     <Card.Body>
                         <div className="row align-items-center">
                             <div className="col-md-6">
@@ -403,9 +454,9 @@ const OrdersManagement = () => {
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
                                         style={{
-                                            backgroundColor: "#f6f7ffff",
-                                            border: "1px solid #4a90e2",
-                                            color: "white",
+                                            backgroundColor: getInputBackground(),
+                                            border: isDark ? "1px solid #4a90e2" : "1px solid #c9a84c",
+                                            color: getInputTextColor(),
                                             borderRadius: "8px",
                                             padding: "12px"
                                         }}
@@ -413,7 +464,7 @@ const OrdersManagement = () => {
                                 </Form.Group>
                             </div>
                             <div className="col-md-6 text-md-end text-center mt-2 mt-md-0">
-                                <span className="text-muted">
+                                <span style={{ color: getMutedTextColor() }}>
                                     إجمالي الطلبات: {orders.length} | المعروض: {filteredOrders.length}
                                 </span>
                             </div>
@@ -427,11 +478,12 @@ const OrdersManagement = () => {
                         <Card
                             className="h-100"
                             style={{
-                                backgroundColor: "#4a90e2",
+                                backgroundColor: isDark ? "#4a90e2" : "#c9a84c",
                                 border: "none",
                                 borderRadius: "15px",
-                                boxShadow: "0 4px 12px rgba(74, 144, 226, 0.3)",
+                                boxShadow: isDark ? "0 4px 12px rgba(74, 144, 226, 0.3)" : "0 4px 12px rgba(201, 168, 76, 0.3)",
                                 minHeight: "120px",
+                                transition: "all 0.3s ease"
                             }}
                         >
                             <Card.Body className="text-white d-flex flex-column justify-content-center align-items-center">
@@ -450,11 +502,12 @@ const OrdersManagement = () => {
                         <Card
                             className="h-100"
                             style={{
-                                backgroundColor: "#2ecc71",
+                                backgroundColor: isDark ? "#2ecc71" : "#27ae60",
                                 border: "none",
                                 borderRadius: "15px",
-                                boxShadow: "0 4px 12px rgba(46, 204, 113, 0.3)",
+                                boxShadow: isDark ? "0 4px 12px rgba(46, 204, 113, 0.3)" : "0 4px 12px rgba(39, 174, 96, 0.3)",
                                 minHeight: "120px",
+                                transition: "all 0.3s ease"
                             }}
                         >
                             <Card.Body className="text-white d-flex flex-column justify-content-center align-items-center">
@@ -473,11 +526,12 @@ const OrdersManagement = () => {
                         <Card
                             className="h-100"
                             style={{
-                                backgroundColor: "#f39c12",
+                                backgroundColor: isDark ? "#f39c12" : "#e67e22",
                                 border: "none",
                                 borderRadius: "15px",
-                                boxShadow: "0 4px 12px rgba(243, 156, 18, 0.3)",
+                                boxShadow: isDark ? "0 4px 12px rgba(243, 156, 18, 0.3)" : "0 4px 12px rgba(230, 126, 34, 0.3)",
                                 minHeight: "120px",
+                                transition: "all 0.3s ease"
                             }}
                         >
                             <Card.Body className="text-white d-flex flex-column justify-content-center align-items-center">
@@ -496,11 +550,12 @@ const OrdersManagement = () => {
                         <Card
                             className="h-100"
                             style={{
-                                backgroundColor: "#e74c3c",
+                                backgroundColor: isDark ? "#e74c3c" : "#c0392b",
                                 border: "none",
                                 borderRadius: "15px",
-                                boxShadow: "0 4px 12px rgba(231, 76, 60, 0.3)",
-                                minHeight: "120px"
+                                boxShadow: isDark ? "0 4px 12px rgba(231, 76, 60, 0.3)" : "0 4px 12px rgba(192, 57, 43, 0.3)",
+                                minHeight: "120px",
+                                transition: "all 0.3s ease"
                             }}
                         >
                             <Card.Body className="text-center text-white d-flex flex-column justify-content-center">
@@ -518,12 +573,21 @@ const OrdersManagement = () => {
 
                 {/* جدول الطلبات - للشاشات الكبيرة */}
                 <div className="d-none d-md-block">
-                    <Card style={{ backgroundColor: "#252a41", border: "none", borderRadius: "15px" }}>
-                        <Card.Header style={{ backgroundColor: "#2f3450", border: "none", padding: "20px" }}>
-                            <div className="d-flex justify-content-between align-items-center">
-                                <h5 className="mb-0" style={{ color: "#ffffff" }}>قائمة الطلبات</h5>
+                    <Card style={{
+                        backgroundColor: getCardBackground(),
+                        border: isDark ? "none" : "1px solid #dfd7bb",
+                        borderRadius: "15px",
+                        transition: "all 0.3s ease"
+                    }}>
+                        <Card.Header style={{
+                            backgroundColor: getCardHeaderBackground(),
+                            border: "none",
+                            padding: "20px"
+                        }}>
+                            <div className="d-flex justify-content-between align-items-center flex-wrap">
+                                <h5 className="mb-0" style={{ color: getTextColor() }}>قائمة الطلبات</h5>
                                 {lastUpdate && (
-                                    <small className="text-muted">
+                                    <small style={{ color: getMutedTextColor() }}>
                                         آخر تحديث للحالات: {formatDate(lastUpdate)}
                                     </small>
                                 )}
@@ -532,11 +596,11 @@ const OrdersManagement = () => {
                         <Card.Body className="p-0">
                             {loading ? (
                                 <div className="text-center py-5">
-                                    <Spinner animation="border" variant="light" />
+                                    <Spinner animation="border" variant={isDark ? "light" : "secondary"} />
                                 </div>
                             ) : (
-                                <Table responsive hover className="mb-0" style={{ color: "#ffffff" }}>
-                                    <thead style={{ backgroundColor: "#2f3450" }}>
+                                <Table responsive hover className="mb-0" style={{ color: getTextColor() }}>
+                                    <thead style={{ backgroundColor: getCardHeaderBackground() }}>
                                         <tr>
                                             <th>#</th>
                                             <th>رقم الطلب</th>
@@ -573,7 +637,7 @@ const OrdersManagement = () => {
                                                         </Badge>
                                                     </td>
                                                     <td>
-                                                        <div className="fw-bold" style={{ fontSize: "14px" }}>
+                                                        <div className="fw-bold" style={{ fontSize: "14px", color: getTextColor() }}>
                                                             {order.serviceTitle}
                                                         </div>
                                                     </td>
@@ -590,7 +654,7 @@ const OrdersManagement = () => {
                                                         </a>
                                                     </td>
                                                     <td>
-                                                        <span className="fw-bold">{order.quantity?.toLocaleString()}</span>
+                                                        <span className="fw-bold" style={{ color: getTextColor() }}>{order.quantity?.toLocaleString()}</span>
                                                     </td>
                                                     <td>
                                                         <span className="fw-bold text-success">${order.totalCost}</span>
@@ -602,7 +666,7 @@ const OrdersManagement = () => {
                                                                 style={{
                                                                     width: "30px",
                                                                     height: "30px",
-                                                                    backgroundColor: "#4a90e2",
+                                                                    backgroundColor: isDark ? "#4a90e2" : "#c9a84c",
                                                                     color: "white",
                                                                     fontSize: "12px",
                                                                     fontWeight: "bold"
@@ -610,7 +674,7 @@ const OrdersManagement = () => {
                                                             >
                                                                 {order.username?.charAt(0) || "م"}
                                                             </div>
-                                                            <span>{order.username}</span>
+                                                            <span style={{ color: getTextColor() }}>{order.username}</span>
                                                         </div>
                                                     </td>
                                                     <td>
@@ -619,10 +683,10 @@ const OrdersManagement = () => {
                                                         </Badge>
                                                     </td>
                                                     <td>
-                                                        <small>{formatDate(order.createdAt)}</small>
+                                                        <small style={{ color: getMutedTextColor() }}>{formatDate(order.createdAt)}</small>
                                                     </td>
                                                     <td>
-                                                        <div className="d-flex gap-2">
+                                                        <div className="d-flex gap-2 flex-wrap">
                                                             <Button
                                                                 size="sm"
                                                                 variant="outline-info"
@@ -668,7 +732,7 @@ const OrdersManagement = () => {
                                             ))
                                         ) : (
                                             <tr>
-                                                <td colSpan={11} className="text-center text-muted py-4">
+                                                <td colSpan={11} className="text-center py-4" style={{ color: getMutedTextColor() }}>
                                                     <i className="fas fa-shopping-cart fa-2x mb-3 d-block"></i>
                                                     {orders.length === 0 ? 'لا توجد طلبات' : 'لم يتم العثور على طلبات'}
                                                 </td>
@@ -683,12 +747,21 @@ const OrdersManagement = () => {
 
                 {/* تصميم البطاقات للهواتف */}
                 <div className="d-block d-md-none">
-                    <Card style={{ backgroundColor: "#252a41", border: "none", borderRadius: "15px" }}>
-                        <Card.Header style={{ backgroundColor: "#2f3450", border: "none", padding: "15px" }}>
+                    <Card style={{
+                        backgroundColor: getCardBackground(),
+                        border: isDark ? "none" : "1px solid #dfd7bb",
+                        borderRadius: "15px",
+                        transition: "all 0.3s ease"
+                    }}>
+                        <Card.Header style={{
+                            backgroundColor: getCardHeaderBackground(),
+                            border: "none",
+                            padding: "15px"
+                        }}>
                             <div className="d-flex justify-content-between align-items-center">
-                                <h5 className="mb-0" style={{ color: "#ffffff" }}>قائمة الطلبات</h5>
+                                <h5 className="mb-0" style={{ color: getTextColor() }}>قائمة الطلبات</h5>
                                 {lastUpdate && (
-                                    <small className="text-white" style={{ fontSize: "0.7rem" }}>
+                                    <small style={{ color: getMutedTextColor(), fontSize: "0.7rem" }}>
                                         {formatDate(lastUpdate)}
                                     </small>
                                 )}
@@ -697,15 +770,16 @@ const OrdersManagement = () => {
                         <Card.Body className="p-0">
                             {loading ? (
                                 <div className="text-center py-5">
-                                    <Spinner animation="border" variant="light" />
+                                    <Spinner animation="border" variant={isDark ? "light" : "secondary"} />
                                 </div>
                             ) : filteredOrders.length > 0 ? (
                                 filteredOrders.map((order, index) => (
                                     <div
                                         key={order._id}
-                                        className="border-bottom border-gray-600 p-3 hover-bg"
+                                        className="border-bottom p-3 hover-bg"
                                         style={{
-                                            backgroundColor: hoveredRow === order._id ? "#2f3450" : "transparent",
+                                            backgroundColor: hoveredRow === order._id ? (isDark ? "#2f3450" : "#f0ede4") : "transparent",
+                                            borderColor: isDark ? "#2f3450" : "#dfd7bb",
                                             transition: "background-color 0.3s"
                                         }}
                                         onMouseEnter={() => setHoveredRow(order._id)}
@@ -719,7 +793,7 @@ const OrdersManagement = () => {
                                                     style={{
                                                         width: "40px",
                                                         height: "40px",
-                                                        backgroundColor: "#4a90e2",
+                                                        backgroundColor: isDark ? "#4a90e2" : "#c9a84c",
                                                         color: "white",
                                                         fontSize: "14px",
                                                         fontWeight: "bold"
@@ -728,8 +802,8 @@ const OrdersManagement = () => {
                                                     <i className={getPlatformIcon(order.selectedCategory)}></i>
                                                 </div>
                                                 <div>
-                                                    <div className="fw-bold text-white">{order.serviceTitle}</div>
-                                                    <div className="text-muted small">#{order.order_number}</div>
+                                                    <div className="fw-bold" style={{ color: getTextColor() }}>{order.serviceTitle}</div>
+                                                    <div style={{ color: getMutedTextColor(), fontSize: "0.875rem" }}>#{order.order_number}</div>
                                                 </div>
                                             </div>
                                             <Badge bg={getStatusBadge(order.status)}>
@@ -740,11 +814,11 @@ const OrdersManagement = () => {
                                         {/* معلومات الطلب */}
                                         <div className="row mb-3">
                                             <div className="col-6">
-                                                <div className="text-white small">المستخدم</div>
-                                                <div className="text-white fw-bold">{order.username}</div>
+                                                <div style={{ color: getMutedTextColor(), fontSize: "0.875rem" }}>المستخدم</div>
+                                                <div className="fw-bold" style={{ color: getTextColor() }}>{order.username}</div>
                                             </div>
                                             <div className="col-6">
-                                                <div className="text-white small">المنصة</div>
+                                                <div style={{ color: getMutedTextColor(), fontSize: "0.875rem" }}>المنصة</div>
                                                 <div>
                                                     <Badge bg={getCategoryBadge(order.selectedCategory)}>
                                                         {order.selectedCategory}
@@ -755,17 +829,17 @@ const OrdersManagement = () => {
 
                                         <div className="row mb-3">
                                             <div className="col-6">
-                                                <div className="text-white small">الكمية</div>
-                                                <div className="text-white fw-bold">{order.quantity?.toLocaleString()}</div>
+                                                <div style={{ color: getMutedTextColor(), fontSize: "0.875rem" }}>الكمية</div>
+                                                <div className="fw-bold" style={{ color: getTextColor() }}>{order.quantity?.toLocaleString()}</div>
                                             </div>
                                             <div className="col-6">
-                                                <div className="text-white small">التكلفة</div>
-                                                <div className="text-success fw-bold">${order.totalCost}</div>
+                                                <div style={{ color: getMutedTextColor(), fontSize: "0.875rem" }}>التكلفة</div>
+                                                <div className="fw-bold text-success">${order.totalCost}</div>
                                             </div>
                                         </div>
 
                                         <div className="mb-3">
-                                            <div className="text-white small">الرابط</div>
+                                            <div style={{ color: getMutedTextColor(), fontSize: "0.875rem" }}>الرابط</div>
                                             <a
                                                 href={order.link}
                                                 target="_blank"
@@ -778,8 +852,8 @@ const OrdersManagement = () => {
                                         </div>
 
                                         <div className="mb-3">
-                                            <div className="text-white small">التاريخ</div>
-                                            <div className="text-white small">{formatDate(order.createdAt)}</div>
+                                            <div style={{ color: getMutedTextColor(), fontSize: "0.875rem" }}>التاريخ</div>
+                                            <div style={{ color: getMutedTextColor(), fontSize: "0.875rem" }}>{formatDate(order.createdAt)}</div>
                                         </div>
 
                                         {/* أزرار الإجراءات */}
@@ -831,7 +905,7 @@ const OrdersManagement = () => {
                                     </div>
                                 ))
                             ) : (
-                                <div className="text-center text-muted py-4">
+                                <div className="text-center py-4" style={{ color: getMutedTextColor() }}>
                                     <i className="fas fa-shopping-cart fa-2x mb-3 d-block"></i>
                                     {orders.length === 0 ? 'لا توجد طلبات' : 'لم يتم العثور على طلبات'}
                                 </div>
@@ -840,13 +914,19 @@ const OrdersManagement = () => {
                     </Card>
                 </div>
 
-                {/* باقي المودالات بدون تغيير */}
                 {/* مودال عرض الطلب */}
                 <Modal show={showModal} onHide={handleCloseModal} centered size="lg" style={{ direction: "rtl" }}>
-                    <Modal.Header closeButton style={{ backgroundColor: "#2f3450", color: "white" }}>
+                    <Modal.Header closeButton style={{
+                        backgroundColor: getCardHeaderBackground(),
+                        color: getTextColor(),
+                        borderBottom: isDark ? "1px solid #1e2235" : "1px solid #dfd7bb"
+                    }}>
                         <Modal.Title>تفاصيل الطلب</Modal.Title>
                     </Modal.Header>
-                    <Modal.Body style={{ backgroundColor: "#96979dff", color: "white" }}>
+                    <Modal.Body style={{
+                        backgroundColor: getModalBodyBackground(),
+                        color: getTextColor()
+                    }}>
                         {selectedOrder ? (
                             <div className="row">
                                 <div className="col-12 text-center mb-4">
@@ -855,7 +935,7 @@ const OrdersManagement = () => {
                                         style={{
                                             width: "80px",
                                             height: "80px",
-                                            backgroundColor: "#4a90e2",
+                                            backgroundColor: isDark ? "#4a90e2" : "#c9a84c",
                                             color: "white",
                                             fontSize: "24px",
                                             fontWeight: "bold"
@@ -863,8 +943,8 @@ const OrdersManagement = () => {
                                     >
                                         <i className={getPlatformIcon(selectedOrder.selectedCategory)}></i>
                                     </div>
-                                    <h4 style={{ color: "#ffffff" }}>طلب #{selectedOrder.order_number}</h4>
-                                    <p className="text-muted">{selectedOrder.serviceTitle}</p>
+                                    <h4 style={{ color: getTextColor() }}>طلب #{selectedOrder.order_number}</h4>
+                                    <p style={{ color: getMutedTextColor() }}>{selectedOrder.serviceTitle}</p>
                                 </div>
 
                                 <div className="col-md-6 mb-3">
@@ -885,11 +965,11 @@ const OrdersManagement = () => {
                                 </div>
                                 <div className="col-md-6 mb-3">
                                     <strong>المستخدم:</strong>
-                                    <p>{selectedOrder.username}</p>
+                                    <p style={{ color: getTextColor() }}>{selectedOrder.username}</p>
                                 </div>
                                 <div className="col-md-6 mb-3">
                                     <strong>رقم الطلب:</strong>
-                                    <p>#{selectedOrder.order_number}</p>
+                                    <p style={{ color: getTextColor() }}>#{selectedOrder.order_number}</p>
                                 </div>
                                 <div className="col-md-6 mb-3">
                                     <strong>الرابط:</strong>
@@ -901,7 +981,7 @@ const OrdersManagement = () => {
                                 </div>
                                 <div className="col-md-6 mb-3">
                                     <strong>الكمية:</strong>
-                                    <p>{selectedOrder.quantity?.toLocaleString()}</p>
+                                    <p style={{ color: getTextColor() }}>{selectedOrder.quantity?.toLocaleString()}</p>
                                 </div>
                                 <div className="col-md-6 mb-3">
                                     <strong>التكلفة:</strong>
@@ -909,35 +989,51 @@ const OrdersManagement = () => {
                                 </div>
                                 <div className="col-md-6 mb-3">
                                     <strong>تاريخ الإنشاء:</strong>
-                                    <p>{formatDate(selectedOrder.createdAt)}</p>
+                                    <p style={{ color: getTextColor() }}>{formatDate(selectedOrder.createdAt)}</p>
                                 </div>
                                 <div className="col-12 mb-3">
                                     <strong>الخدمة:</strong>
-                                    <p>{selectedOrder.serviceTitle}</p>
+                                    <p style={{ color: getTextColor() }}>{selectedOrder.serviceTitle}</p>
                                 </div>
                             </div>
                         ) : (
                             <p>جاري التحميل...</p>
                         )}
                     </Modal.Body>
-                    <Modal.Footer style={{ backgroundColor: "#252a41", border: "none" }}>
+                    <Modal.Footer style={{
+                        backgroundColor: getCardBackground(),
+                        border: "none",
+                        borderTop: isDark ? "1px solid #1e2235" : "1px solid #dfd7bb"
+                    }}>
                         <Button variant="secondary" onClick={handleCloseModal}>إغلاق</Button>
                     </Modal.Footer>
                 </Modal>
 
                 {/* مودال تعديل الطلب */}
                 <Modal show={showEditModal} onHide={handleCloseEditModal} centered style={{ direction: "rtl" }}>
-                    <Modal.Header closeButton style={{ backgroundColor: "#2f3450", color: "white" }}>
+                    <Modal.Header closeButton style={{
+                        backgroundColor: getCardHeaderBackground(),
+                        color: getTextColor(),
+                        borderBottom: isDark ? "1px solid #1e2235" : "1px solid #dfd7bb"
+                    }}>
                         <Modal.Title>تعديل الطلب</Modal.Title>
                     </Modal.Header>
-                    <Modal.Body style={{ backgroundColor: "#96979dff", color: "white" }}>
+                    <Modal.Body style={{
+                        backgroundColor: getModalBodyBackground(),
+                        color: getTextColor()
+                    }}>
                         <div className="mb-3">
-                            <label className="form-label">المنصة</label>
+                            <label className="form-label" style={{ color: getTextColor() }}>المنصة</label>
                             <select
                                 name="selectedCategory"
                                 className="form-select"
                                 value={editingOrder.selectedCategory}
                                 onChange={handleEditInputChange}
+                                style={{
+                                    backgroundColor: getInputBackground(),
+                                    color: getInputTextColor(),
+                                    border: isDark ? "1px solid #4a90e2" : "1px solid #c9a84c"
+                                }}
                             >
                                 <option value="TikTok">TikTok</option>
                                 <option value="Instagram">Instagram</option>
@@ -948,42 +1044,62 @@ const OrdersManagement = () => {
                             </select>
                         </div>
                         <div className="mb-3">
-                            <label className="form-label">الرابط</label>
+                            <label className="form-label" style={{ color: getTextColor() }}>الرابط</label>
                             <input
                                 type="text"
                                 name="link"
                                 className="form-control"
                                 value={editingOrder.link}
                                 onChange={handleEditInputChange}
+                                style={{
+                                    backgroundColor: getInputBackground(),
+                                    color: getInputTextColor(),
+                                    border: isDark ? "1px solid #4a90e2" : "1px solid #c9a84c"
+                                }}
                             />
                         </div>
                         <div className="mb-3">
-                            <label className="form-label">الكمية</label>
+                            <label className="form-label" style={{ color: getTextColor() }}>الكمية</label>
                             <input
                                 type="number"
                                 name="quantity"
                                 className="form-control"
                                 value={editingOrder.quantity}
                                 onChange={handleEditInputChange}
+                                style={{
+                                    backgroundColor: getInputBackground(),
+                                    color: getInputTextColor(),
+                                    border: isDark ? "1px solid #4a90e2" : "1px solid #c9a84c"
+                                }}
                             />
                         </div>
                         <div className="mb-3">
-                            <label className="form-label">التكلفة</label>
+                            <label className="form-label" style={{ color: getTextColor() }}>التكلفة</label>
                             <input
                                 type="number"
                                 name="totalCost"
                                 className="form-control"
                                 value={editingOrder.totalCost}
                                 onChange={handleEditInputChange}
+                                style={{
+                                    backgroundColor: getInputBackground(),
+                                    color: getInputTextColor(),
+                                    border: isDark ? "1px solid #4a90e2" : "1px solid #c9a84c"
+                                }}
                             />
                         </div>
                         <div className="mb-3">
-                            <label className="form-label">الحالة</label>
+                            <label className="form-label" style={{ color: getTextColor() }}>الحالة</label>
                             <select
                                 name="status"
                                 className="form-select"
                                 value={editingOrder.status}
                                 onChange={handleEditInputChange}
+                                style={{
+                                    backgroundColor: getInputBackground(),
+                                    color: getInputTextColor(),
+                                    border: isDark ? "1px solid #4a90e2" : "1px solid #c9a84c"
+                                }}
                             >
                                 <option value="pending">pending</option>
                                 <option value="in progress">in progress</option>
@@ -994,32 +1110,49 @@ const OrdersManagement = () => {
                             </select>
                         </div>
                         <div className="mb-3">
-                            <label className="form-label">المستخدم</label>
+                            <label className="form-label" style={{ color: getTextColor() }}>المستخدم</label>
                             <input
                                 type="text"
                                 name="username"
                                 className="form-control"
                                 value={editingOrder.username}
                                 onChange={handleEditInputChange}
+                                style={{
+                                    backgroundColor: getInputBackground(),
+                                    color: getInputTextColor(),
+                                    border: isDark ? "1px solid #4a90e2" : "1px solid #c9a84c"
+                                }}
                             />
                         </div>
                         <div className="mb-3">
-                            <label className="form-label">الخدمة</label>
+                            <label className="form-label" style={{ color: getTextColor() }}>الخدمة</label>
                             <input
                                 type="text"
                                 name="serviceTitle"
                                 className="form-control"
                                 value={editingOrder.serviceTitle}
                                 onChange={handleEditInputChange}
+                                style={{
+                                    backgroundColor: getInputBackground(),
+                                    color: getInputTextColor(),
+                                    border: isDark ? "1px solid #4a90e2" : "1px solid #c9a84c"
+                                }}
                             />
                         </div>
                     </Modal.Body>
-                    <Modal.Footer style={{ backgroundColor: "#252a41", border: "none" }}>
+                    <Modal.Footer style={{
+                        backgroundColor: getCardBackground(),
+                        border: "none",
+                        borderTop: isDark ? "1px solid #1e2235" : "1px solid #dfd7bb"
+                    }}>
                         <Button variant="secondary" onClick={handleCloseEditModal}>إلغاء</Button>
                         <Button
                             variant="primary"
                             onClick={handleEditOrder}
-                            style={{ backgroundColor: "#4a90e2", border: "none" }}
+                            style={{
+                                backgroundColor: isDark ? "#4a90e2" : "#c9a84c",
+                                border: "none"
+                            }}
                         >
                             حفظ التعديلات
                         </Button>

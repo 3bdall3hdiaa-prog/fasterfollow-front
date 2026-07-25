@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import StatCard from './StatCard';
+import { useThemeStore } from '@/store/theme.store';
 
 const Dashboard: React.FC = () => {
     const [orderlength, setOrderlength] = useState(0);
@@ -7,6 +8,7 @@ const Dashboard: React.FC = () => {
     const [providerslength, setProviderslength] = useState(0);
     const [totalRevenue, setTotalRevenue] = useState(0);
     const [loading, setLoading] = useState(true);
+    const { isDark } = useThemeStore();
 
     useEffect(() => {
         const getdata = async () => {
@@ -14,17 +16,29 @@ const Dashboard: React.FC = () => {
                 setLoading(true);
 
                 // جلب بيانات الطلبات
-                const response = await fetch(`${import.meta.env.VITE_API_URL}/new-order`);
+                const response = await fetch(`${import.meta.env.VITE_API_URL}/new-order`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                    },
+                });
                 const data = await response.json();
                 setOrderlength(data.length);
 
                 // جلب بيانات المستخدمين
-                const response2 = await fetch(`${import.meta.env.VITE_API_URL}/getallusers`);
+                const response2 = await fetch(`${import.meta.env.VITE_API_URL}/getallusers`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                    },
+                });
                 const data2 = await response2.json();
                 setUserslength(data2.length);
 
                 // جلب بيانات المزودين
-                const response3 = await fetch(`${import.meta.env.VITE_API_URL}/manage-providers`);
+                const response3 = await fetch(`${import.meta.env.VITE_API_URL}/manage-providers`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                    },
+                });
                 const data3 = await response3.json();
                 const filteredProviders = data3.filter(provider => provider.status === 'Active');
                 setProviderslength(filteredProviders.length);
@@ -61,14 +75,20 @@ const Dashboard: React.FC = () => {
     if (loading) {
         return (
             <div className="flex justify-center items-center h-64">
-                <div className="text-white text-xl">جاري تحميل البيانات...</div>
+                <div className={`transition-colors duration-300 ${isDark ? 'text-white' : 'text-gray-800'
+                    }`}>
+                    جاري تحميل البيانات...
+                </div>
             </div>
         );
     }
 
     return (
         <div>
-            <h1 className="text-3xl font-bold text-white mb-6">لوحة تحكم المشرف</h1>
+            <h1 className={`text-3xl font-bold mb-6 transition-colors duration-300 ${isDark ? 'text-white' : 'text-gray-800'
+                }`}>
+                لوحة تحكم المشرف
+            </h1>
 
             {/* بطاقات الإحصائيات */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -94,21 +114,36 @@ const Dashboard: React.FC = () => {
                 />
             </div>
 
-            <div className="bg-gray-800 border border-gray-700 rounded-lg p-6">
-                <h2 className="text-xl font-semibold text-white">مرحباً بك في لوحة التحكم</h2>
-                <p className="text-gray-400 mt-2">
+            <div className={`rounded-lg p-6 transition-all duration-300 ${isDark
+                    ? 'bg-gray-800 border border-gray-700'
+                    : 'bg-white border border-[#dfd7bb] shadow-md'
+                }`}>
+                <h2 className={`text-xl font-semibold transition-colors duration-300 ${isDark ? 'text-white' : 'text-gray-800'
+                    }`}>
+                    مرحباً بك في لوحة التحكم
+                </h2>
+                <p className={`mt-2 transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-gray-600'
+                    }`}>
                     من هنا يمكنك إدارة جميع جوانب متجرك، من المستخدمين والطلبات إلى الخدمات والمزودين.
                     استخدم الشريط الجانبي للتنقل بين الأقسام المختلفة.
                 </p>
 
                 {/* عرض تفاصيل الإيرادات */}
-                <div className="mt-4 p-4 bg-gray-700 rounded-lg">
-                    <h3 className="text-lg font-semibold text-white mb-2">ملخص الإيرادات</h3>
-                    <p className="text-gray-300">
-                        إجمالي الإيرادات: <span className="text-green-400 font-bold">{formattedRevenue}</span>
+                <div className={`mt-4 p-4 rounded-lg transition-all duration-300 ${isDark ? 'bg-gray-700' : 'bg-[#faf8f2] border border-[#dfd7bb]'
+                    }`}>
+                    <h3 className={`text-lg font-semibold mb-2 transition-colors duration-300 ${isDark ? 'text-white' : 'text-gray-800'
+                        }`}>
+                        ملخص الإيرادات
+                    </h3>
+                    <p className={`transition-colors duration-300 ${isDark ? 'text-gray-300' : 'text-gray-600'
+                        }`}>
+                        إجمالي الإيرادات: <span className={`font-bold ${isDark ? 'text-green-400' : 'text-green-600'
+                            }`}>{formattedRevenue}</span>
                     </p>
-                    <p className="text-gray-300">
-                        عدد المعاملات: <span className="text-blue-400">{totalRevenue > 0 ? 'معلومات المعاملات متاحة' : 'لا توجد معاملات'}</span>
+                    <p className={`transition-colors duration-300 ${isDark ? 'text-gray-300' : 'text-gray-600'
+                        }`}>
+                        عدد المعاملات: <span className={`font-bold ${isDark ? 'text-blue-400' : 'text-blue-600'
+                            }`}>{totalRevenue > 0 ? 'معلومات المعاملات متاحة' : 'لا توجد معاملات'}</span>
                     </p>
                 </div>
             </div>

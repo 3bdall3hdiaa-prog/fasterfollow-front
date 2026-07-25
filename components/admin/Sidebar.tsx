@@ -1,5 +1,6 @@
 import React from 'react';
 import { useUser } from '../../contexts/UserContext';
+import { useThemeStore } from '@/store/theme.store';
 
 interface SidebarProps {
     activeView: string;
@@ -9,11 +10,20 @@ interface SidebarProps {
 }
 
 const NavLink: React.FC<{ viewName: string, activeView: string, setActiveView: (view: string) => void, closeSidebar: () => void, children: React.ReactNode }> = ({ viewName, activeView, setActiveView, closeSidebar, children }) => {
+    const { isDark } = useThemeStore();
+
     return (
         <a
             href={`#/admin/${viewName}`}
             onClick={closeSidebar}
-            className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${activeView === viewName ? 'bg-primary-600 text-white' : 'text-gray-300 hover:bg-gray-700'}`}
+            className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-300 ${activeView === viewName
+                    ? isDark
+                        ? 'bg-primary-600 text-white'
+                        : 'bg-[#c9a84c] text-white shadow-md'
+                    : isDark
+                        ? 'text-gray-300 hover:bg-gray-700'
+                        : 'text-gray-600 hover:bg-gray-100 hover:text-[#c9a84c]'
+                }`}
         >
             {children}
         </a>
@@ -22,6 +32,7 @@ const NavLink: React.FC<{ viewName: string, activeView: string, setActiveView: (
 
 const Sidebar: React.FC<SidebarProps> = ({ activeView, setActiveView, isSidebarOpen, setIsSidebarOpen }) => {
     const { logout } = useUser();
+    const { isDark } = useThemeStore();
 
     const closeSidebar = () => {
         if (window.innerWidth < 768) setIsSidebarOpen(false);
@@ -45,7 +56,14 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, setActiveView, isSidebarO
 
     return (
         <>
-            <aside className={`fixed top-0 right-0 h-full bg-gray-800 border-l border-gray-700 w-64 z-40 transform transition-transform duration-300 ease-in-out md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'}`} style={{ paddingTop: '5rem' }}>
+            <aside
+                className={`fixed top-0 right-0 h-full border-l w-64 z-40 transform transition-transform duration-300 ease-in-out md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'
+                    } ${isDark
+                        ? 'bg-gray-800 border-gray-700'
+                        : 'bg-white border-[#dfd7bb] shadow-lg'
+                    }`}
+                style={{ paddingTop: '5rem' }}
+            >
                 <div className="p-4 h-full flex flex-col">
                     <nav className="space-y-2 flex-grow overflow-y-auto">
                         {navItems.map(item => (
@@ -56,7 +74,13 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, setActiveView, isSidebarO
                         ))}
                     </nav>
                     <div className="mt-auto">
-                        <button onClick={logout} className="flex items-center w-full px-4 py-3 text-sm font-medium text-red-400 rounded-lg hover:bg-red-900/50">
+                        <button
+                            onClick={logout}
+                            className={`flex items-center w-full px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-300 ${isDark
+                                    ? 'text-red-400 hover:bg-red-900/50'
+                                    : 'text-red-600 hover:bg-red-50'
+                                }`}
+                        >
                             <span className="ml-3">🚪</span>
                             تسجيل الخروج
                         </button>

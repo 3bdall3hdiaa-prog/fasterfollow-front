@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useUser } from '../contexts/UserContext';
+import { useThemeStore } from '@/store/theme.store';
 
 interface AuthModalProps {
     onClose: () => void;
 }
 
 const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
+    const { isDark } = useThemeStore();
     const [view, setView] = useState<'login' | 'register' | 'forgotPassword' | 'verifyCode' | 'newPassword' | 'verify2FA'>('login');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -22,6 +24,31 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
 
     const { login, register } = useUser();
 
+    // دوال مساعدة للألوان
+    const getTextColor = () => {
+        return isDark ? '#ffffff' : '#1e2235';
+    };
+
+    const getMutedTextColor = () => {
+        return isDark ? '#8a8fa8' : '#6c757d';
+    };
+
+    const getCardBackground = () => {
+        return isDark ? '#252a41' : '#ffffff';
+    };
+
+    const getInputBackground = () => {
+        return isDark ? '#1e2235' : '#ffffff';
+    };
+
+    const getInputTextColor = () => {
+        return isDark ? '#ffffff' : '#1e2235';
+    };
+
+    const getBorderColor = () => {
+        return isDark ? '#374151' : '#dfd7bb';
+    };
+
     const handleLoginSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
@@ -34,7 +61,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
             if (result.success) {
                 onClose();
             } else if (result.needs2FA) {
-                // حالة الـ 2FA
                 setTwoFAUsername(username);
                 setResetMessage('تم إرسال كود التحقق إلى بريدك الإلكتروني');
                 setView('verify2FA');
@@ -90,9 +116,11 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
                     setResetMessage('');
                 }, 1500);
             } else {
+                alert(data.message);
                 setError(data.message || 'حدث خطأ أثناء إرسال رمز التحقق.');
             }
-        } catch (error) {
+        } catch (error: any) {
+            alert(error?.response?.data?.message);
             setError('حدث خطأ في الاتصال بالخادم.');
         } finally {
             setIsLoading(false);
@@ -120,6 +148,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
                 setTimeout(() => {
                     setView('newPassword');
                     setResetMessage('');
+                    localStorage.setItem('token', data.token);
                 }, 1500);
             } else {
                 setError(data.message || 'رمز التحقق غير صحيح.');
@@ -147,6 +176,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
                 },
                 body: JSON.stringify({ email: email, password: newPassword }),
             });
@@ -172,7 +202,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
         }
     };
 
-    // دالة التحقق من كود الـ 2FA
     const handleVerify2FACode = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
@@ -193,7 +222,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
             const data = await response.json();
 
             if (response.ok && data.token) {
-                // حفظ التوكن والمستخدم
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('user', JSON.stringify(data.user));
 
@@ -213,13 +241,11 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
         }
     };
 
-    // دالة إعادة إرسال كود الـ 2FA
     const handleResend2FACode = async () => {
         setError('');
         setIsLoading(true);
 
         try {
-            // إعادة إرسال الكود عن طريق عمل login تاني
             const response = await fetch(`${import.meta.env.VITE_API_URL}/signin`, {
                 method: 'POST',
                 headers: {
@@ -246,20 +272,22 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
     };
 
     const renderContent = () => {
-        // view للـ 2FA
         if (view === 'verify2FA') {
             return (
                 <>
-                    <h2 className="text-2xl font-bold text-center mb-6">التحقق بخطوتين</h2>
+                    <h2 className="text-2xl font-bold text-center mb-6" style={{ color: getTextColor() }}>التحقق بخطوتين</h2>
                     <form onSubmit={handleVerify2FACode}>
                         {resetMessage && (
-                            <p className="bg-green-900/50 text-green-300 text-center text-sm p-3 rounded-md mb-4">{resetMessage}</p>
+                            <p className={`text-center text-sm p-3 rounded-md mb-4 ${isDark
+                                ? 'bg-green-900/50 text-green-300'
+                                : 'bg-green-50 text-green-700 border border-green-200'
+                                }`}>{resetMessage}</p>
                         )}
-                        <p className="text-center text-gray-400 mb-4 text-sm">
+                        <p className="text-center mb-4 text-sm" style={{ color: getMutedTextColor() }}>
                             تم إرسال كود التحقق إلى بريدك الإلكتروني. يرجى إدخاله أدناه.
                         </p>
                         <div className="mb-4">
-                            <label htmlFor="2fa-code" className="block mb-2 text-sm font-medium text-gray-300">
+                            <label htmlFor="2fa-code" className="block mb-2 text-sm font-medium" style={{ color: getMutedTextColor() }}>
                                 كود التحقق
                             </label>
                             <input
@@ -267,7 +295,10 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
                                 id="2fa-code"
                                 value={resetCode}
                                 onChange={(e) => setResetCode(e.target.value)}
-                                className="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 text-center"
+                                className={`text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 text-center transition-all duration-300 ${isDark
+                                    ? 'bg-gray-700 border border-gray-600 text-white'
+                                    : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
+                                    }`}
                                 placeholder="أدخل الكود المكون من 6 أرقام"
                                 required
                                 maxLength={6}
@@ -276,7 +307,10 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-6 rounded-lg transition-colors disabled:opacity-50"
+                            className={`w-full font-bold py-3 px-6 rounded-lg transition-all duration-300 disabled:opacity-50 ${isDark
+                                ? 'bg-primary-600 hover:bg-primary-700 text-white'
+                                : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
+                                }`}
                         >
                             {isLoading ? 'جاري التحقق...' : 'تحقق وتسجيل الدخول'}
                         </button>
@@ -286,7 +320,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
                             type="button"
                             onClick={handleResend2FACode}
                             disabled={isLoading}
-                            className="text-sm text-primary-400 hover:underline disabled:opacity-50"
+                            className={`text-sm hover:underline disabled:opacity-50 transition-colors ${isDark ? 'text-primary-400' : 'text-[#c9a84c]'
+                                }`}
                         >
                             لم تستلم الكود؟ إعادة الإرسال
                         </button>
@@ -299,7 +334,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
                                 setResetMessage('');
                                 setResetCode('');
                             }}
-                            className="text-sm text-primary-400 hover:underline"
+                            className={`text-sm hover:underline transition-colors ${isDark ? 'text-primary-400' : 'text-[#c9a84c]'
+                                }`}
                         >
                             العودة إلى تسجيل الدخول
                         </button>
@@ -311,20 +347,26 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
         if (view === 'forgotPassword') {
             return (
                 <>
-                    <h2 className="text-2xl font-bold text-center mb-6">استعادة كلمة المرور</h2>
+                    <h2 className="text-2xl font-bold text-center mb-6" style={{ color: getTextColor() }}>استعادة كلمة المرور</h2>
                     <form onSubmit={handlePasswordReset}>
                         {resetMessage && (
-                            <p className="bg-green-900/50 text-green-300 text-center text-sm p-3 rounded-md mb-4">{resetMessage}</p>
+                            <p className={`text-center text-sm p-3 rounded-md mb-4 ${isDark
+                                ? 'bg-green-900/50 text-green-300'
+                                : 'bg-green-50 text-green-700 border border-green-200'
+                                }`}>{resetMessage}</p>
                         )}
-                        <p className="text-center text-gray-400 mb-4 text-sm">أدخل بريدك الإلكتروني لإرسال رمز التحقق.</p>
+                        <p className="text-center mb-4 text-sm" style={{ color: getMutedTextColor() }}>أدخل بريدك الإلكتروني لإرسال رمز التحقق.</p>
                         <div className="mb-4">
-                            <label htmlFor="email-reset" className="block mb-2 text-sm font-medium text-gray-300">البريد الإلكتروني</label>
+                            <label htmlFor="email-reset" className="block mb-2 text-sm font-medium" style={{ color: getMutedTextColor() }}>البريد الإلكتروني</label>
                             <input
                                 type="email"
                                 id="email-reset"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5"
+                                className={`text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 transition-all duration-300 ${isDark
+                                    ? 'bg-gray-700 border border-gray-600 text-white'
+                                    : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
+                                    }`}
                                 placeholder="your@email.com"
                                 required
                             />
@@ -332,13 +374,17 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-6 rounded-lg transition-colors disabled:opacity-50"
+                            className={`w-full font-bold py-3 px-6 rounded-lg transition-all duration-300 disabled:opacity-50 ${isDark
+                                ? 'bg-primary-600 hover:bg-primary-700 text-white'
+                                : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
+                                }`}
                         >
                             {isLoading ? 'جاري الإرسال...' : 'إرسال رمز التحقق'}
                         </button>
                     </form>
                     <div className="mt-6 text-center">
-                        <button onClick={() => { setView('login'); setError(''); setResetMessage(''); }} className="text-sm text-primary-400 hover:underline">
+                        <button onClick={() => { setView('login'); setError(''); setResetMessage(''); }} className={`text-sm hover:underline transition-colors ${isDark ? 'text-primary-400' : 'text-[#c9a84c]'
+                            }`}>
                             العودة إلى تسجيل الدخول
                         </button>
                     </div>
@@ -349,20 +395,26 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
         if (view === 'verifyCode') {
             return (
                 <>
-                    <h2 className="text-2xl font-bold text-center mb-6">إدخال رمز التحقق</h2>
+                    <h2 className="text-2xl font-bold text-center mb-6" style={{ color: getTextColor() }}>إدخال رمز التحقق</h2>
                     <form onSubmit={handleVerifyCode}>
                         {resetMessage && (
-                            <p className="bg-green-900/50 text-green-300 text-center text-sm p-3 rounded-md mb-4">{resetMessage}</p>
+                            <p className={`text-center text-sm p-3 rounded-md mb-4 ${isDark
+                                ? 'bg-green-900/50 text-green-300'
+                                : 'bg-green-50 text-green-700 border border-green-200'
+                                }`}>{resetMessage}</p>
                         )}
-                        <p className="text-center text-gray-400 mb-4 text-sm">تم إرسال رمز التحقق إلى بريدك الإلكتروني. يرجى إدخاله أدناه.</p>
+                        <p className="text-center mb-4 text-sm" style={{ color: getMutedTextColor() }}>تم إرسال رمز التحقق إلى بريدك الإلكتروني. يرجى إدخاله أدناه.</p>
                         <div className="mb-4">
-                            <label htmlFor="reset-code" className="block mb-2 text-sm font-medium text-gray-300">رمز التحقق</label>
+                            <label htmlFor="reset-code" className="block mb-2 text-sm font-medium" style={{ color: getMutedTextColor() }}>رمز التحقق</label>
                             <input
                                 type="text"
                                 id="reset-code"
                                 value={resetCode}
                                 onChange={(e) => setResetCode(e.target.value)}
-                                className="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5"
+                                className={`text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 transition-all duration-300 ${isDark
+                                    ? 'bg-gray-700 border border-gray-600 text-white'
+                                    : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
+                                    }`}
                                 placeholder="أدخل الرمز المكون من 6 أرقام"
                                 required
                                 maxLength={6}
@@ -371,13 +423,17 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-6 rounded-lg transition-colors disabled:opacity-50"
+                            className={`w-full font-bold py-3 px-6 rounded-lg transition-all duration-300 disabled:opacity-50 ${isDark
+                                ? 'bg-primary-600 hover:bg-primary-700 text-white'
+                                : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
+                                }`}
                         >
                             {isLoading ? 'جاري التحقق...' : 'تحقق من الرمز'}
                         </button>
                     </form>
                     <div className="mt-6 text-center">
-                        <button onClick={() => { setView('forgotPassword'); setError(''); setResetMessage(''); }} className="text-sm text-primary-400 hover:underline">
+                        <button onClick={() => { setView('forgotPassword'); setError(''); setResetMessage(''); }} className={`text-sm hover:underline transition-colors ${isDark ? 'text-primary-400' : 'text-[#c9a84c]'
+                            }`}>
                             العودة إلى إدخال البريد الإلكتروني
                         </button>
                     </div>
@@ -388,21 +444,27 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
         if (view === 'newPassword') {
             return (
                 <>
-                    <h2 className="text-2xl font-bold text-center mb-6">تعيين كلمة مرور جديدة</h2>
+                    <h2 className="text-2xl font-bold text-center mb-6" style={{ color: getTextColor() }}>تعيين كلمة مرور جديدة</h2>
                     <form onSubmit={handleChangePassword}>
                         {resetMessage && (
-                            <p className="bg-green-900/50 text-green-300 text-center text-sm p-3 rounded-md mb-4">{resetMessage}</p>
+                            <p className={`text-center text-sm p-3 rounded-md mb-4 ${isDark
+                                ? 'bg-green-900/50 text-green-300'
+                                : 'bg-green-50 text-green-700 border border-green-200'
+                                }`}>{resetMessage}</p>
                         )}
-                        <p className="text-center text-gray-400 mb-4 text-sm">أدخل كلمة المرور الجديدة.</p>
+                        <p className="text-center mb-4 text-sm" style={{ color: getMutedTextColor() }}>أدخل كلمة المرور الجديدة.</p>
 
                         <div className="mb-4">
-                            <label htmlFor="email-new-password" className="block mb-2 text-sm font-medium text-gray-300">البريد الإلكتروني</label>
+                            <label htmlFor="email-new-password" className="block mb-2 text-sm font-medium" style={{ color: getMutedTextColor() }}>البريد الإلكتروني</label>
                             <input
                                 type="email"
                                 id="email-new-password"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5"
+                                className={`text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 transition-all duration-300 ${isDark
+                                    ? 'bg-gray-700 border border-gray-600 text-white'
+                                    : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
+                                    }`}
                                 placeholder="your@email.com"
                                 required
                                 disabled={isLoading}
@@ -410,13 +472,16 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
                         </div>
 
                         <div className="mb-4">
-                            <label htmlFor="new-password" className="block mb-2 text-sm font-medium text-gray-300">كلمة المرور الجديدة</label>
+                            <label htmlFor="new-password" className="block mb-2 text-sm font-medium" style={{ color: getMutedTextColor() }}>كلمة المرور الجديدة</label>
                             <input
                                 type="password"
                                 id="new-password"
                                 value={newPassword}
                                 onChange={(e) => setNewPassword(e.target.value)}
-                                className="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5"
+                                className={`text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 transition-all duration-300 ${isDark
+                                    ? 'bg-gray-700 border border-gray-600 text-white'
+                                    : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
+                                    }`}
                                 placeholder="••••••••"
                                 required
                             />
@@ -424,13 +489,17 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-6 rounded-lg transition-colors disabled:opacity-50"
+                            className={`w-full font-bold py-3 px-6 rounded-lg transition-all duration-300 disabled:opacity-50 ${isDark
+                                ? 'bg-primary-600 hover:bg-primary-700 text-white'
+                                : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
+                                }`}
                         >
                             {isLoading ? 'جاري التغيير...' : 'تغيير كلمة المرور'}
                         </button>
                     </form>
                     <div className="mt-6 text-center">
-                        <button onClick={() => { setView('login'); setError(''); setResetMessage(''); }} className="text-sm text-primary-400 hover:underline">
+                        <button onClick={() => { setView('login'); setError(''); setResetMessage(''); }} className={`text-sm hover:underline transition-colors ${isDark ? 'text-primary-400' : 'text-[#c9a84c]'
+                            }`}>
                             العودة إلى تسجيل الدخول
                         </button>
                     </div>
@@ -444,52 +513,69 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
 
         return (
             <>
-                <h2 className="text-2xl font-bold text-center mb-6">{view === 'register' ? 'إنشاء حساب جديد' : 'تسجيل الدخول'}</h2>
+                <h2 className="text-2xl font-bold text-center mb-6" style={{ color: getTextColor() }}>
+                    {view === 'register' ? 'إنشاء حساب جديد' : 'تسجيل الدخول'}
+                </h2>
 
                 <form onSubmit={view === 'register' ? handleRegisterSubmit : handleLoginSubmit}>
-                    {error && <p className="bg-red-900/50 text-red-300 text-center text-sm p-3 rounded-md mb-4">{error}</p>}
+                    {error && (
+                        <p className={`text-center text-sm p-3 rounded-md mb-4 ${isDark
+                            ? 'bg-red-900/50 text-red-300'
+                            : 'bg-red-50 text-red-700 border border-red-200'
+                            }`}>{error}</p>
+                    )}
 
                     {view === 'register' && (
                         <div className="mb-4">
-                            <label htmlFor="email-auth" className="block mb-2 text-sm font-medium text-gray-300">البريد الإلكتروني</label>
+                            <label htmlFor="email-auth" className="block mb-2 text-sm font-medium" style={{ color: getMutedTextColor() }}>البريد الإلكتروني</label>
                             <input
                                 type="email"
                                 id="email-auth"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5"
+                                className={`text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 transition-all duration-300 ${isDark
+                                    ? 'bg-gray-700 border border-gray-600 text-white'
+                                    : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
+                                    }`}
                                 placeholder="your@email.com"
                                 required
                             />
                         </div>
                     )}
                     <div className="mb-4">
-                        <label htmlFor="username-auth" className="block mb-2 text-sm font-medium text-gray-300">اسم المستخدم</label>
+                        <label htmlFor="username-auth" className="block mb-2 text-sm font-medium" style={{ color: getMutedTextColor() }}>اسم المستخدم</label>
                         <input
                             type="text"
                             id="username-auth"
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
-                            className="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5"
+                            className={`text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 transition-all duration-300 ${isDark
+                                ? 'bg-gray-700 border border-gray-600 text-white'
+                                : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
+                                }`}
                             placeholder="username"
                             required
                         />
                     </div>
                     <div className="mb-2">
-                        <label htmlFor="password-auth" className="block mb-2 text-sm font-medium text-gray-300">كلمة المرور</label>
+                        <label htmlFor="password-auth" className="block mb-2 text-sm font-medium" style={{ color: getMutedTextColor() }}>كلمة المرور</label>
                         <input
                             type="password"
                             id="password-auth"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5"
+                            className={`text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 transition-all duration-300 ${isDark
+                                ? 'bg-gray-700 border border-gray-600 text-white'
+                                : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
+                                }`}
                             placeholder="••••••••"
                             required
                         />
                     </div>
                     {view === 'login' && (
                         <div className="flex justify-end mb-6">
-                            <button type="button" onClick={() => { setView('forgotPassword'); setError(''); }} className="text-sm text-gray-400 hover:text-primary-400 hover:underline">
+                            <button type="button" onClick={() => { setView('forgotPassword'); setError(''); }} className={`text-sm hover:underline transition-colors ${isDark ? 'text-gray-400 hover:text-primary-400' : 'text-gray-500 hover:text-[#c9a84c]'
+                                }`}>
                                 هل نسيت كلمة المرور؟
                             </button>
                         </div>
@@ -498,7 +584,10 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-6 rounded-lg transition-colors disabled:opacity-50"
+                        className={`w-full font-bold py-3 px-6 rounded-lg transition-all duration-300 disabled:opacity-50 ${isDark
+                            ? 'bg-primary-600 hover:bg-primary-700 text-white'
+                            : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
+                            }`}
                     >
                         {isLoading ? 'جاري المعالجة...' : (view === 'register' ? 'إنشاء حساب' : 'دخول')}
                     </button>
@@ -506,7 +595,10 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
                         <button
                             onClick={() => signInWithGoogle()}
                             type="button"
-                            className="w-full bg-white text-gray-800 font-semibold py-3 px-6 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-100 transition-colors"
+                            className={`w-full font-semibold py-3 px-6 rounded-lg flex items-center justify-center gap-2 transition-colors ${isDark
+                                ? 'bg-white text-gray-800 hover:bg-gray-100'
+                                : 'bg-white text-gray-800 border border-[#dfd7bb] hover:bg-gray-50 shadow-sm'
+                                }`}
                         >
                             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
                             {view === 'register' ? 'إنشاء حساب بجوجل' : 'تسجيل الدخول بجوجل'}
@@ -514,7 +606,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
                     </div>
                 </form>
                 <div className="mt-6 text-center">
-                    <button onClick={() => { setView(view === 'register' ? 'login' : 'register'); setError(''); }} className="text-sm text-primary-400 hover:underline">
+                    <button onClick={() => { setView(view === 'register' ? 'login' : 'register'); setError(''); }} className={`text-sm hover:underline transition-colors ${isDark ? 'text-primary-400' : 'text-[#c9a84c]'
+                        }`}>
                         {view === 'register' ? 'لديك حساب بالفعل؟ تسجيل الدخول' : 'ليس لديك حساب؟ إنشاء حساب جديد'}
                     </button>
                 </div>
@@ -523,10 +616,12 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
     }
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4" onClick={onClose}>
-            <div className="bg-gray-800 text-white rounded-2xl shadow-xl w-full max-w-md transform transition-all duration-300 scale-95 animate-scale-in" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={onClose}>
+            <div className={`rounded-2xl shadow-xl w-full max-w-md transform transition-all duration-300 scale-95 animate-scale-in ${isDark ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'
+                }`} onClick={(e) => e.stopPropagation()}>
                 <div className="p-8 relative">
-                    <button onClick={onClose} className="absolute top-4 left-4 text-gray-400 hover:text-white">
+                    <button onClick={onClose} className={`absolute top-4 left-4 transition-colors ${isDark ? 'text-gray-400 hover:text-white' : 'text-gray-400 hover:text-gray-600'
+                        }`}>
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                         </svg>

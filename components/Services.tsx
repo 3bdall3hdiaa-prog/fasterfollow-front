@@ -2,7 +2,8 @@ import React, { useState, useMemo } from 'react';
 import { ServicePackage, Platform, SiteSettings } from '../types';
 import OrderModal from './OrderModal';
 import { useCurrency } from '../contexts/CurrencyContext';
-import AuthModal from './AuthModal'; // ✅ استيراد نافذة تسجيل الدخول
+import AuthModal from './AuthModal';
+import { useThemeStore } from '@/store/theme.store';
 
 interface ServicesProps {
     services: ServicePackage[];
@@ -13,8 +14,9 @@ interface ServicesProps {
 const Services: React.FC<ServicesProps> = ({ services, platforms, content }) => {
     const [selectedService, setSelectedService] = useState<ServicePackage | null>(null);
     const [activePlatform, setActivePlatform] = useState<string>(platforms[0]?.name || '');
-    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false); // ✅ حالة نافذة تسجيل الدخول
+    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     const { formatPrice } = useCurrency();
+    const { isDark } = useThemeStore();
 
     const filteredServices = useMemo(() => {
         return services.filter(s => s.platform === activePlatform);
@@ -30,17 +32,23 @@ const Services: React.FC<ServicesProps> = ({ services, platforms, content }) => 
             alert("you are admin")
         }
         else {
-            setIsAuthModalOpen(true); // ✅ فتح نافذة تسجيل الدخول
+            setIsAuthModalOpen(true);
         }
     }
 
-
     return (
-        <section id="services" className="py-20 bg-gray-900">
+        <section id="services" className={`py-20 transition-colors duration-300 ${isDark ? 'bg-transparent' : 'bg-gradient-to-b from-[#faf8f2] to-white'
+            }`}>
             <div className="container mx-auto px-6">
                 <div className="text-center mb-12">
-                    <h2 className="text-3xl md:text-4xl font-extrabold text-white">{content.title}</h2>
-                    <p className="text-gray-400 mt-2">{content.subtitle}</p>
+                    <h2 className={`text-3xl md:text-4xl font-extrabold transition-colors duration-300 ${isDark ? 'text-white' : 'text-gray-800'
+                        }`}>
+                        {content.title}
+                    </h2>
+                    <p className={`mt-2 transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-gray-600'
+                        }`}>
+                        {content.subtitle}
+                    </p>
                 </div>
 
                 {/* Platform Tabs */}
@@ -49,9 +57,13 @@ const Services: React.FC<ServicesProps> = ({ services, platforms, content }) => 
                         <button
                             key={platform.id}
                             onClick={() => setActivePlatform(platform.name)}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-colors border-2 ${activePlatform === platform.name
-                                ? 'bg-primary-600 border-primary-500 text-white'
-                                : 'bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700 hover:border-gray-600'
+                            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-300 border-2 ${activePlatform === platform.name
+                                    ? isDark
+                                        ? 'bg-primary-600 border-primary-500 text-white'
+                                        : 'bg-[#c9a84c] border-[#c9a84c] text-white shadow-md'
+                                    : isDark
+                                        ? 'bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700 hover:border-gray-600'
+                                        : 'bg-white border-[#dfd7bb] text-gray-600 hover:bg-[#faf8f2] hover:border-[#c9a84c]'
                                 }`}
                         >
                             <span className="text-xl">{platform.iconUrl}</span>
@@ -63,15 +75,33 @@ const Services: React.FC<ServicesProps> = ({ services, platforms, content }) => 
                 {/* Services Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     {filteredServices.map(service => {
-                        console.log("Service title:", service.title);
-
                         return (
-                            <div key={service.id} className="bg-gray-800 rounded-lg overflow-hidden border border-gray-700 flex flex-col text-center transition-all duration-300 hover:border-primary-500 hover:shadow-2xl hover:shadow-primary-900/50 transform hover:-translate-y-2">
+                            <div
+                                key={service.id}
+                                className={`rounded-lg overflow-hidden flex flex-col text-center transition-all duration-300 transform hover:-translate-y-2 ${isDark
+                                        ? 'bg-gray-800 border border-gray-700 hover:border-primary-500 hover:shadow-2xl hover:shadow-primary-900/50'
+                                        : 'bg-white border border-[#dfd7bb] shadow-md hover:border-[#c9a84c] hover:shadow-xl hover:shadow-[#dfd7bb]/30'
+                                    }`}
+                            >
                                 {service.imageUrl && <img src={service.imageUrl} alt={service.title} className="w-full h-40 object-cover" />}
                                 <div className="p-6 flex flex-col flex-grow">
-                                    <p className="text-gray-400 mb-4 flex-grow text-sm">{service.title}</p>
-                                    <p className="text-3xl font-bold text-primary-400 mb-6">{formatPrice(service.price)}<span className="text-sm text-gray-400"> / 1000</span></p>
-                                    <button onClick={z} className="mt-auto bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-6 rounded-lg transition-colors w-full">
+                                    <p className={`mb-4 flex-grow text-sm transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-gray-600'
+                                        }`}>
+                                        {service.title}
+                                    </p>
+                                    <p className={`text-3xl font-bold mb-6 transition-colors duration-300 ${isDark ? 'text-primary-400' : 'text-[#c9a84c]'
+                                        }`}>
+                                        {formatPrice(service.price)}
+                                        <span className={`text-sm transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-gray-500'
+                                            }`}> / 1000</span>
+                                    </p>
+                                    <button
+                                        onClick={z}
+                                        className={`mt-auto font-bold py-3 px-6 rounded-lg transition-all w-full ${isDark
+                                                ? 'bg-primary-600 hover:bg-primary-700 text-white'
+                                                : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
+                                            }`}
+                                    >
                                         اطلب الآن
                                     </button>
                                 </div>
@@ -81,7 +111,7 @@ const Services: React.FC<ServicesProps> = ({ services, platforms, content }) => 
                 </div>
             </div>
 
-            {/* ✅ نافذة تسجيل الدخول */}
+            {/* Auth Modal */}
             {isAuthModalOpen && <AuthModal onClose={() => setIsAuthModalOpen(false)} />}
 
             {selectedService && <OrderModal service={selectedService} onClose={() => setSelectedService(null)} />}

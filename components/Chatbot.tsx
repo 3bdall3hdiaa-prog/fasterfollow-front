@@ -10,7 +10,7 @@ const Chatbot: React.FC = () => {
 
 
     const handleWhatsApp = () => {
-        window.open("https://wa.me/966537763009", "_blank");
+        // window.open("https://wa.me/966537763009", "_blank");
     };
 
     return (
