@@ -18,25 +18,25 @@ import Banners from './components/Banners';
 
 import { useUser } from './contexts/UserContext';
 import { useSEO } from './hooks/useSEO';
-import { Page, BlogPost as BlogPostType, ServicePackage, Provider, Banner, SiteSettings, Platform } from './types';
+import { Page, BlogPost as BlogPostType, ServiceResponse, Provider, BannerResponse, SiteSettings, Platform } from './types';
 import axios from 'axios';
 import { useThemeStore } from './store/theme.store';
 
 // MOCK DATA - Placed here to avoid creating new files
-const mockServices: ServicePackage[] = [
+const mockServices: ServiceResponse[] = [
 ];
 
-const mockBlogPosts: BlogPostType[] = [
-    { id: '1', title: '5 نصائح لزيادة متابعينك على انستغرام', slug: 'increase-instagram-followers', excerpt: 'تعلم أفضل الاستراتيجيات لزيادة عدد متابعينك بشكل طبيعي وفعال على منصة انستغرام.', content: '<h2>مقدمة</h2><p>هنا محتوى المقال الكامل...</p>', imageUrl: 'https://images.unsplash.com/photo-1611162617213-6d22e7a3c7ba?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1074&q=80', author: 'Admin', publishedAt: '2024-07-20', status: 'Published', metaTitle: 'نصائح لزيادة متابعين انستغرام', metaDescription: 'أفضل 5 نصائح لزيادة متابعينك على انستغرام في عام 2024.' },
-    { id: '2', title: 'كيف تصبح مشهوراً على تيك توك؟', slug: 'become-famous-on-tiktok', excerpt: 'استكشف أسرار خوارزمية تيك توك وكيفية إنشاء محتوى ينتشر بسرعة البرق.', content: '<h2>مقدمة</h2><p>هنا محتوى المقال الكامل...</p>', imageUrl: 'https://images.unsplash.com/photo-1611605698335-8b1569810432?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1074&q=80', author: 'Admin', publishedAt: '2024-07-15', status: 'Published' },
-];
+// const mockBlogPosts: BlogPostType[] = [
+//     { id: '1', title: '5 نصائح لزيادة متابعينك على انستغرام', slug: 'increase-instagram-followers', excerpt: 'تعلم أفضل الاستراتيجيات لزيادة عدد متابعينك بشكل طبيعي وفعال على منصة انستغرام.', content: '<h2>مقدمة</h2><p>هنا محتوى المقال الكامل...</p>', imageUrl: 'https://images.unsplash.com/photo-1611162617213-6d22e7a3c7ba?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1074&q=80', author: 'Admin', publishedAt: '2024-07-20', status: 'Published', metaTitle: 'نصائح لزيادة متابعين انستغرام', metaDescription: 'أفضل 5 نصائح لزيادة متابعينك على انستغرام في عام 2024.' },
+//     { id: '2', title: 'كيف تصبح مشهوراً على تيك توك؟', slug: 'become-famous-on-tiktok', excerpt: 'استكشف أسرار خوارزمية تيك توك وكيفية إنشاء محتوى ينتشر بسرعة البرق.', content: '<h2>مقدمة</h2><p>هنا محتوى المقال الكامل...</p>', imageUrl: 'https://images.unsplash.com/photo-1611605698335-8b1569810432?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1074&q=80', author: 'Admin', publishedAt: '2024-07-15', status: 'Published' },
+// ];
 
-const mockProviders: Provider[] = [
-    { id: 'prov_1', name: 'InstaBoost API', apiEndpoint: 'https://instaboost.com/api/v2', apiKey: 'key_12345', status: 'Active', balance: 1500.75 },
-    { id: 'prov_2', name: 'TikFast Services', apiEndpoint: 'https://tikfast.net/api', apiKey: 'key_67890', status: 'Active', balance: 850.20 },
-    { id: 'prov_3', name: 'TweetGrow API', apiEndpoint: 'https://tweetgrow.io/api', apiKey: 'key_abcde', status: 'Inactive' },
-    { id: 'prov_4', name: 'TubeUp Services', apiEndpoint: 'https://tubeup.com/api', apiKey: 'key_fghij', status: 'Active', balance: 2100.00 },
-];
+// const mockProviders: Provider[] = [
+//     { id: 'prov_1', name: 'InstaBoost API', apiEndpoint: 'https://instaboost.com/api/v2', apiKey: 'key_12345', status: 'Active', balance: 1500.75 },
+//     { id: 'prov_2', name: 'TikFast Services', apiEndpoint: 'https://tikfast.net/api', apiKey: 'key_67890', status: 'Active', balance: 850.20 },
+//     { id: 'prov_3', name: 'TweetGrow API', apiEndpoint: 'https://tweetgrow.io/api', apiKey: 'key_abcde', status: 'Inactive' },
+//     { id: 'prov_4', name: 'TubeUp Services', apiEndpoint: 'https://tubeup.com/api', apiKey: 'key_fghij', status: 'Active', balance: 2100.00 },
+// ];
 
 const mockPlatforms: Platform[] = [
     { id: '1', name: 'Instagram', iconUrl: '📸' },
@@ -66,15 +66,17 @@ const App: React.FC = () => {
     const { isDark } = useThemeStore();
 
     // Mock data state
+    const [blogPosts, setBlogPosts] = useState<BlogPostType[]>([]);
     const [siteSettings, setSiteSettings] = useState<SiteSettings | null>(null);
-    const [services, setServices] = useState<ServicePackage[]>([]); // Empty array initially
+    const [services, setServices] = useState<ServiceResponse[]>([]); // Empty array initially
     const [pages, setPages] = useState<Page[]>([]); // Empty array initially
-    const [posts, setPosts] = useState<BlogPostType[]>(mockBlogPosts);
-    const [providers, setProviders] = useState<Provider[]>(mockProviders);
-    const [banners, setBanners] = useState<Banner[]>([]); // Empty array initially
+    const [posts, setPosts] = useState<BlogPostType[]>([]);
+    const [providers, setProviders] = useState<Provider[]>([]);
+    const [banners, setBanners] = useState<BannerResponse[]>([]); // Empty array initially
     const [platforms, setPlatforms] = useState<Platform[]>();
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+    const [reviews, setReviews] = useState<any[]>([]);
 
     useEffect(() => {
         const fetchPlatforms = async () => {
@@ -109,22 +111,16 @@ const App: React.FC = () => {
             }
 
             const data = await response.json();
-
-            // ✅ التحقق من شكل البيانات قبل استخدامها
             const settingsData = Array.isArray(data) ? data[0] : data;
 
-            // ✅ لو البيانات مش موجودة أو مش بالشكل المطلوب، استخدم القيم الافتراضية
             if (!settingsData || typeof settingsData !== 'object') {
                 console.warn('Invalid settings data format, using defaults');
                 setSiteSettings(getDefaultSettings());
                 return;
             }
-
-            // ✅ استخدم optional chaining عشان تتفادى الخطأ
             const formattedSiteSettings: SiteSettings = {
                 siteName: settingsData?.siteName || 'فاستر فولو',
-                logoUrl: settingsData?.logoUrl || 'https://i.imgur.com/3Z4Qj4a.png',
-                faviconUrl: settingsData?.faviconUrl || '/favicon.ico',
+                logo: { url: settingsData?.logo.url || 'https://i.imgur.com/3Z4Qj4a.png', public_id: settingsData?.logo.public_id || 'logo' },
                 primaryColor: settingsData?.primaryColor || '#6366f1',
                 seoTitle: settingsData?.seoTitle || 'فاستر فولو - أفضل خدمات دعم حسابات التواصل الاجتماعي',
                 seoDescription: settingsData?.seoDescription || 'زيادة متابعين، لايكات، ومشاهدات لجميع المنصات. أسعار تنافسية وجودة عالية.',
@@ -176,12 +172,20 @@ const App: React.FC = () => {
             setSiteSettings(getDefaultSettings());
         }
     };
+    const getReviews = async () => {
+        try {
+            const response = await axios.get(`${import.meta.env.VITE_API_URL}/reviews`);
+            if (response.data) {
+                setReviews(response.data);
+            }
+        } catch (error) {
+            console.error('Error fetching reviews:', error);
+        }
+    }
 
-    // ✅ دالة مساعدة للقيم الافتراضية
     const getDefaultSettings = (): SiteSettings => ({
         siteName: 'فاستر فولو',
-        logoUrl: 'https://i.imgur.com/3Z4Qj4a.png',
-        faviconUrl: '/favicon.ico',
+        logo: { url: 'https://i.imgur.com/3Z4Qj4a.png', public_id: '' },
         primaryColor: '#6366f1',
         seoTitle: 'فاستر فولو - أفضل خدمات دعم حسابات التواصل الاجتماعي',
         seoDescription: 'زيادة متابعين، لايكات، ومشاهدات لجميع المنصات. أسعار تنافسية وجودة عالية.',
@@ -224,6 +228,43 @@ const App: React.FC = () => {
             }
         }
     });
+    // Function to fetch blogs from endpoint
+    const fetchBlogsFromEndpoint = async () => {
+        try {
+            setError(null);
+            const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/blog`);
+
+            if (!response.ok) {
+                throw new Error(`Failed to fetch blogs: ${response.status} ${response.statusText}`);
+            }
+
+            const data = await response.json();
+
+            // Transform the API data to match the Blog type
+            const formattedBlogs: any[] = data.map((blog: any) => ({
+                id: blog._id || blog.id?.toString() || Math.random().toString(),
+                title: blog.title || 'Untitled',
+                slug: blog.slug || blog.title?.toLowerCase().replace(/\s+/g, '-'),
+                content: blog.content || '<p>No content available</p>',
+                isPublished: blog.isPublished !== undefined ? blog.isPublished : true,
+                createdAt: blog.createdAt || new Date().toISOString().split('T')[0],
+                updatedAt: blog.updatedAt || '',
+                urlimage: blog.urlimage || '',
+                Metatitle: blog.Metatitle || '',
+                Metadescription: blog.Metadescription || '',
+                author: blog.author || '',
+                status: blog.status || 'Published',
+                extract: blog.extract || '',
+                link: blog.link || '',
+
+
+            }));
+            setBlogPosts(formattedBlogs);
+        } catch (error) {
+            console.error('Error fetching blogs:', error);
+            setError('Failed to fetch blogs');
+        }
+    }
 
     // Function to fetch pages from endpoint
     const fetchPagesFromEndpoint = async () => {
@@ -267,7 +308,7 @@ const App: React.FC = () => {
             const data = await response.json();
 
             // Transform the API data to match the ServicePackage type
-            const formattedServices: ServicePackage[] = data.map((service: any) => ({
+            const formattedServices: ServiceResponse[] = data.map((service: any) => ({
                 id: service._id || service.id?.toString() || Math.random().toString(),
                 title: service.title || 'Untitled',
                 name: service.title || 'Unnamed Service',
@@ -281,7 +322,7 @@ const App: React.FC = () => {
                 provider: service.provider || 'Unknown Provider',
                 providerServiceId: service.providerServiceId || '',
                 providerRate: service.providerRate || 0,
-                imageUrl: service.imageUrl || '',
+                image: service.image.url || '',
                 createdAt: service.createdAt ? new Date(service.createdAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
                 updatedAt: service.updatedAt || ''
             }));
@@ -306,16 +347,15 @@ const App: React.FC = () => {
             const data = await response.json();
 
             // Transform the API data to match the Banner type
-            const formattedBanners: Banner[] = data.map((banner: any) => ({
+            const formattedBanners: BannerResponse[] = data.map((banner: any) => ({
                 id: banner._id || banner.id?.toString() || Math.random().toString(),
                 title: banner.title || 'No Title',
                 subtitle: banner.subtitle || '',
                 ctaText: banner.ctaText || 'اطلب الآن',
                 ctaLink: banner.ctaLink || '#',
-                imageUrl: banner.imageUrl || 'https://images.unsplash.com/photo-1611605698335-8b1569810432?auto=format&fit=crop&w=1000&q=80',
+                image: banner.image.url,
                 isActive: banner.isActive !== undefined ? banner.isActive : true
             }));
-
             setBanners(formattedBanners);
         } catch (error) {
             console.error('Error fetching banners:', error);
@@ -327,13 +367,18 @@ const App: React.FC = () => {
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
-            await Promise.all([
-                fetchSiteSettingsFromEndpoint(),
-                fetchPagesFromEndpoint(),
-                fetchServicesFromEndpoint(),
-                fetchBannersFromEndpoint()
-            ]);
-            setLoading(false);
+            try {
+                await getReviews();
+                await fetchSiteSettingsFromEndpoint();
+                await fetchBlogsFromEndpoint();
+                await fetchPagesFromEndpoint();
+                await fetchServicesFromEndpoint();
+                await fetchBannersFromEndpoint();
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            } finally {
+                setLoading(false);
+            }
         };
 
         fetchData();
@@ -362,6 +407,9 @@ const App: React.FC = () => {
                     break;
                 case 'page':
                     setAppView(slug ? { view: 'page', slug } : { view: 'home' });
+                    break;
+                case 'blogPost':
+                    setAppView({ view: 'blogPost', slug: slug || '' });
                     break;
                 default:
                     setAppView({ view: 'home' });
@@ -392,7 +440,7 @@ const App: React.FC = () => {
         prevUser.current = user;
     }, [user, appView.view]);
 
-    const onNavigate = (view: 'page' | 'blogPost' | 'home' | 'blog', slug: string = '') => {
+    const onNavigate = (view: 'page' | 'blogPost' | 'home' | 'blog', slug: string) => {
         window.location.hash = `/${view}${slug ? `/${slug}` : ''}`;
     };
 
@@ -431,13 +479,13 @@ const App: React.FC = () => {
                 }
                 return <ClientPanel services={services} initialView={appView.slug} />;
             case 'page':
-                const page = pages.find(p => p.slug === appView.slug && p.isPublished);
+                const page = pages.find((p: any) => p.link === appView.slug && p.isPublished);
                 return page ? <PageView page={page} /> : <div className="text-center pt-40">الصفحة غير موجودة</div>;
             case 'blog':
                 return <Blog onPostClick={(slug) => onNavigate('blogPost', slug)} />;
 
             case 'blogPost':
-                const post = posts.find(p => p.slug === appView.slug && p.status === 'Published');
+                const post = blogPosts.find((p: any) => p.link === appView.slug && p.status === 'Published');
                 return post ? <BlogPost post={post} /> : <div className="text-center pt-40">المقال غير موجود</div>;
             case 'home':
 
@@ -458,7 +506,7 @@ const App: React.FC = () => {
                                 content={siteSettings.homepageContent.services}
                             />
                             <HowItWorks content={siteSettings.homepageContent.howItWorks} />
-                            <Testimonials content={siteSettings.homepageContent.testimonials} />
+                            <Testimonials content={reviews} />
                         </div>
                     </>
                 );
@@ -475,7 +523,7 @@ const App: React.FC = () => {
             pageDescription = currentPage.content.replace(/<[^>]*>?/gm, '').substring(0, 160);
         }
     } else if (appView.view === 'blogPost') {
-        const currentPost = posts.find(p => p.slug === appView.slug);
+        const currentPost = posts.find(p => p.link === appView.slug);
         if (currentPost) {
             pageTitle = `${currentPost.metaTitle || currentPost.title} | ${siteSettings?.siteName || 'فاستر فولو'}`;
             pageDescription = currentPost.metaDescription || currentPost.excerpt;
@@ -495,7 +543,7 @@ const App: React.FC = () => {
 
     return (
         <div className={`bg-gray-900 text-white min-h-screen font-sans" dir="rtl  ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
-            <Header siteName={siteSettings?.siteName || 'فاستر فولو'} logoUrl={siteSettings?.logoUrl} pages={pages} />
+            <Header color={siteSettings?.primaryColor} siteName={siteSettings?.siteName || 'فاستر فولو'} logoUrl={siteSettings?.logo?.url} pages={pages} />
             <main>{renderView()}</main>
             {(appView.view === 'home' || appView.view === 'blog' || appView.view === 'blogPost' || appView.view === 'page') && <Footer siteName={siteSettings?.siteName || 'فاستر فولو'} pages={pages} onNavigate={onNavigate} />}
             <Chatbot />

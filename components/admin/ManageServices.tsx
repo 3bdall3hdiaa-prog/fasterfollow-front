@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { ServicePackage, Provider, Platform } from '../../types';
+import { ServiceForm, ServiceResponse, Provider, Platform } from '../../types';
 import { useThemeStore } from '@/store/theme.store';
 
 interface ManageServicesProps {
-    services: ServicePackage[];
-    setServices: React.Dispatch<React.SetStateAction<ServicePackage[]>>;
+    services: ServiceResponse[];
+    setServices: React.Dispatch<React.SetStateAction<ServiceResponse[]>>;
     providers: Provider[];
     platforms: Platform[];
 }
@@ -13,9 +13,22 @@ interface ManageServicesProps {
 const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, providers, platforms }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-    const [editingService, setEditingService] = useState<ServicePackage | null>(null);
-    const [viewingService, setViewingService] = useState<ServicePackage | null>(null);
-    const [formData, setFormData] = useState<Partial<ServicePackage>>({});
+    const [editingService, setEditingService] = useState<ServiceResponse | null>(null);
+    const [viewingService, setViewingService] = useState<ServiceResponse | null>(null);
+    const [formData, setFormData] = useState<ServiceForm>({
+        title: '',
+        description: '',
+        provider: '',
+        platform: '',
+        price: 0,
+        min: 0,
+        max: 0,
+        providerRate: 0,
+        status: false,
+        providerServiceId: 0,
+        file: null as any,
+
+    });
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(true);
     const { isDark } = useThemeStore();
@@ -73,7 +86,7 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
         fetchServices();
     }, [setServices]);
 
-    const handleOpenModal = (service: ServicePackage | null) => {
+    const handleOpenModal = (service: ServiceResponse | null) => {
         setEditingService(service);
         setFormData(service || {
             platform: platforms[0]?.name || 'Instagram',
@@ -85,7 +98,7 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
             max: 10000,
             status: true,
             provider: '',
-            imageUrl: '',
+            file: null as any,
             description: '',
         });
         setIsModalOpen(true);
@@ -93,7 +106,7 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
 
     const handleCloseModal = () => setIsModalOpen(false);
 
-    const handleViewService = (service: ServicePackage) => {
+    const handleViewService = (service: ServiceResponse) => {
         setViewingService(service);
         setIsViewModalOpen(true);
     };
@@ -103,25 +116,40 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
         setViewingService(null);
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-        const { name, value, type } = e.target;
-        const parsedValue = type === 'number' ? Number(value) : value;
-        setFormData(prev => ({ ...prev, [name]: parsedValue }));
-    };
+    // const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    //     const { name, type } = e.target;
+    //     const parsedValue = type === 'number' ? Number(value) : value;
+    //     setFormData(prev => ({ ...prev, [name]: e.target.files?.[0] }));
+    // };
 
     const handleSubmit = async (e: React.FormEvent) => {
+        const data = new FormData();
+        if (formData.file) {
+            data.append('file', formData.file);
+        }
+        data.append('title', formData.title);
+        data.append('platform', formData.platform);
+        if (formData.description) data.append('description', formData.description);
+        data.append('provider', formData.provider);
+        data.append('providerServiceId', formData.providerServiceId.toString());
+        data.append('providerRate', formData.providerRate.toString());
+        data.append('price', formData.price.toString());
+        data.append('min', formData.min.toString());
+        data.append('max', formData.max.toString());
+        data.append('status', formData.status.toString());
         e.preventDefault();
         try {
             if (editingService) {
                 // تعديل الخدمة
-                const response = await axios.put(`${import.meta.env.VITE_API_URL}/services-list/${editingService._id}`, formData);
+                const response = await axios.put(`${import.meta.env.VITE_API_URL}/services-list/${editingService._id}`, data);
                 if (response.data) {
                     setServices(prev => prev.map(s => s._id === editingService._id ? response.data : s));
                     handleCloseModal();
                 }
             } else {
                 // إضافة خدمة جديدة
-                const response = await axios.post(`${import.meta.env.VITE_API_URL}/services-list`, formData);
+
+                const response = await axios.post(`${import.meta.env.VITE_API_URL}/services-list`, data);
                 if (response.data) {
                     setServices(prev => [...prev, response.data]);
                     handleCloseModal();
@@ -228,9 +256,9 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                                     : 'border-[#dfd7bb] hover:bg-gray-50'
                                     }`}>
                                     <td className="px-4 py-4">
-                                        {service.imageUrl ? (
+                                        {service.image?.url ? (
                                             <img
-                                                src={service.imageUrl}
+                                                src={service.image.url}
                                                 alt={service.title}
                                                 className="w-10 h-10 rounded object-cover"
                                             />
@@ -326,9 +354,9 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                                 {/* رأس البطاقة */}
                                 <div className="flex justify-between items-start mb-3">
                                     <div className="flex items-center gap-3">
-                                        {service.imageUrl ? (
+                                        {service.image?.url ? (
                                             <img
-                                                src={service.imageUrl}
+                                                src={service.image.url}
                                                 alt={service.title}
                                                 className="w-12 h-12 rounded object-cover"
                                             />
@@ -440,21 +468,19 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                             <div>
                                 <label className="block text-sm font-medium mb-1" style={{ color: getTextColor() }}>رابط الصورة</label>
                                 <input
-                                    type="url"
-                                    name="imageUrl"
-                                    value={formData.imageUrl || ''}
-                                    onChange={handleChange}
-                                    placeholder="https://example.com/image.jpg"
+                                    type="file"
+                                    name="file"
+                                    onChange={(e: any) => { setFormData(prev => ({ ...prev, file: e.target.files?.[0] })); }}
                                     className={`w-full p-2 rounded text-sm md:text-base transition-all duration-300 ${isDark
                                         ? 'bg-gray-700 text-white'
                                         : 'bg-gray-50 text-gray-800 border border-[#dfd7bb]'
                                         }`}
                                 />
-                                {formData.imageUrl && (
+                                {formData.file && (
                                     <div className="mt-2">
                                         <p className="text-sm mb-1" style={{ color: getMutedTextColor() }}>معاينة الصورة:</p>
                                         <img
-                                            src={formData.imageUrl}
+                                            src={formData.file ? URL.createObjectURL(formData.file) : ''}
                                             alt="معاينة"
                                             className="h-20 object-cover rounded border border-gray-600"
                                             onError={(e) => {
@@ -468,7 +494,7 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                             <input
                                 name="title"
                                 value={formData.title || ''}
-                                onChange={handleChange}
+                                onChange={(e) => { setFormData(prev => ({ ...prev, title: e.target.value })); }}
                                 placeholder="اسم الخدمة"
                                 className={`w-full p-2 rounded text-sm md:text-base transition-all duration-300 ${isDark
                                     ? 'bg-gray-700 text-white'
@@ -483,7 +509,7 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                                 <textarea
                                     name="description"
                                     value={formData.description || ''}
-                                    onChange={handleChange}
+                                    onChange={(e) => { setFormData(prev => ({ ...prev, description: e.target.value })); }}
                                     placeholder="أدخل وصف الخدمة هنا..."
                                     rows={3}
                                     className={`w-full p-2 rounded text-sm md:text-base transition-all duration-300 ${isDark
@@ -496,7 +522,7 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                             <select
                                 name="platform"
                                 value={formData.platform || ''}
-                                onChange={handleChange}
+                                onChange={(e) => { setFormData(prev => ({ ...prev, platform: e.target.value })); }}
                                 className={`w-full p-2 rounded text-sm md:text-base transition-all duration-300 ${isDark
                                     ? 'bg-gray-700 text-white'
                                     : 'bg-gray-50 text-gray-800 border border-[#dfd7bb]'
@@ -512,7 +538,7 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                             <select
                                 name="provider"
                                 value={formData.provider || ''}
-                                onChange={handleChange}
+                                onChange={(e) => { setFormData(prev => ({ ...prev, provider: e.target.value })); }}
                                 className={`w-full p-2 rounded text-sm md:text-base transition-all duration-300 ${isDark
                                     ? 'bg-gray-700 text-white'
                                     : 'bg-gray-50 text-gray-800 border border-[#dfd7bb]'
@@ -531,7 +557,7 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                                     type="number"
                                     name="providerServiceId"
                                     value={formData.providerServiceId || ''}
-                                    onChange={handleChange}
+                                    onChange={(e) => { setFormData((prev: any) => ({ ...prev, providerServiceId: e.target.value })); }}
                                     placeholder="رقم الخدمة عند المزود"
                                     className={`w-full p-2 rounded text-sm md:text-base transition-all duration-300 ${isDark
                                         ? 'bg-gray-700 text-white'
@@ -545,7 +571,7 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                                     step="0.01"
                                     name="providerRate"
                                     value={formData.providerRate || ''}
-                                    onChange={handleChange}
+                                    onChange={(e) => { setFormData((prev: any) => ({ ...prev, providerRate: e.target.value })); }}
                                     placeholder="سعر المزود"
                                     className={`w-full p-2 rounded text-sm md:text-base transition-all duration-300 ${isDark
                                         ? 'bg-gray-700 text-white'
@@ -559,7 +585,7 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                                     step="0.01"
                                     name="price"
                                     value={formData.price || ''}
-                                    onChange={handleChange}
+                                    onChange={(e) => { setFormData((prev: any) => ({ ...prev, price: e.target.value })); }}
                                     placeholder="سعرك للعميل"
                                     className={`w-full p-2 rounded text-sm md:text-base transition-all duration-300 ${isDark
                                         ? 'bg-gray-700 text-white'
@@ -572,7 +598,7 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                                     type="number"
                                     name="min"
                                     value={formData.min || ''}
-                                    onChange={handleChange}
+                                    onChange={(e) => { setFormData((prev: any) => ({ ...prev, min: e.target.value })); }}
                                     placeholder="الحد الأدنى للطلب"
                                     className={`w-full p-2 rounded text-sm md:text-base transition-all duration-300 ${isDark
                                         ? 'bg-gray-700 text-white'
@@ -585,7 +611,7 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                                     type="number"
                                     name="max"
                                     value={formData.max || ''}
-                                    onChange={handleChange}
+                                    onChange={(e) => { setFormData((prev: any) => ({ ...prev, max: e.target.value })); }}
                                     placeholder="الحد الأقصى للطلب"
                                     className={`w-full p-2 rounded text-sm md:text-base transition-all duration-300 ${isDark
                                         ? 'bg-gray-700 text-white'
@@ -651,10 +677,10 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                             <h3 className="text-xl font-bold mb-2" style={{ color: getTextColor() }}>تفاصيل الخدمة</h3>
 
                             {/* ✅ عرض الصورة في نافذة العرض */}
-                            {viewingService.imageUrl && (
+                            {viewingService.image?.url && (
                                 <div className="flex justify-center mb-4">
                                     <img
-                                        src={viewingService.imageUrl}
+                                        src={viewingService.image.url}
                                         alt={viewingService.title}
                                         className="h-32 md:h-40 object-cover rounded-lg border border-gray-600"
                                     />
@@ -710,10 +736,10 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                                         {viewingService.status ? 'نشطة' : 'موقوفة'}
                                     </p>
                                 </div>
-                                {viewingService.imageUrl && (
+                                {viewingService.image?.url && (
                                     <div className="col-span-1 md:col-span-2">
                                         <p className="text-sm" style={{ color: getMutedTextColor() }}>رابط الصورة:</p>
-                                        <p className="break-words text-sm" style={{ color: getTextColor() }}>{viewingService.imageUrl}</p>
+                                        <p className="break-words text-sm" style={{ color: getTextColor() }}>{viewingService.image.url}</p>
                                     </div>
                                 )}
                             </div>

@@ -6,6 +6,7 @@ export type PostStatus = 'Published' | 'Draft';
 
 export interface User {
     id: string;
+    _id?: string;
     username: string;
     role: UserRole;
     balance: number;
@@ -22,7 +23,7 @@ export interface User {
     };
 }
 
-export interface ServicePackage {
+export interface ServiceForm {
     _id?: string; // 👈 ده الـ ID اللي بيجي من MongoDB
     id?: number; // ID محلي في الواجهة فقط (اختياري)
     providerServiceId: number; // رقم الخدمة عند المزود
@@ -36,7 +37,26 @@ export interface ServicePackage {
     max: number; // الحد الأقصى
     type?: string; // نوع الخدمة (اختياري)
     status: boolean; // الحالة (نشطة / موقوفة)
-    imageUrl?: string;
+    file?: File;
+}
+export interface ServiceResponse {
+    _id?: string; // 👈 ده الـ ID اللي بيجي من MongoDB
+    id?: number; // ID محلي في الواجهة فقط (اختياري)
+    providerServiceId: number; // رقم الخدمة عند المزود
+    provider: string; // ID الخاص بالمزود
+    platform: string; // اسم المنصة (Instagram, YouTube...)
+    title: string; // اسم الخدمة
+    description?: string; // وصف الخدمة
+    providerRate: number; // سعر المزود
+    price: number; // سعر العميل
+    min: number; // الحد الأدنى
+    max: number; // الحد الأقصى
+    type?: string; // نوع الخدمة (اختياري)
+    status: boolean; // الحالة (نشطة / موقوفة)
+    image?: {
+        url: string;
+        public_id: string;
+    };
 }
 
 
@@ -143,10 +163,10 @@ export interface Provider {
 export interface BlogPost {
     id: string;
     title: string;
-    slug: string;
+    link: string;
     excerpt: string;
     content: string; // HTML content
-    imageUrl: string;
+    urlimage: string;
     author: string;
     publishedAt: string; // YYYY-MM-DD
     status: PostStatus;
@@ -154,13 +174,26 @@ export interface BlogPost {
     metaDescription?: string;
 }
 
-export interface Banner {
-    id: string;
+export interface BannerResponse {
+    _id?: string;
+    id?: string;
     title: string;
     subtitle: string;
     ctaText: string;
     ctaLink: string;
-    imageUrl: string;
+    image?: {
+        url: string;
+        public_id: string;
+    };
+    isActive: boolean;
+}
+// في ملف types.ts
+export interface BannerFormData {
+    title: string;
+    subtitle: string;
+    ctaText: string;
+    ctaLink: string;
+    file?: File | string;  // ✅ يقبل الاثنين
     isActive: boolean;
 }
 
@@ -171,10 +204,14 @@ export interface Platform {
     iconUrl: string;
 }
 
+
 export interface SiteSettings {
     siteName: string;
-    logoUrl: string;
-    faviconUrl: string;
+    logo?: {
+        url: string;
+        public_id: string;
+    };
+    file?: File
     primaryColor: string;
     seoTitle: string;
     seoDescription: string;

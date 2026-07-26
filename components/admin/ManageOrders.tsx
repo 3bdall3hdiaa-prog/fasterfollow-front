@@ -3,12 +3,12 @@ import { Table, Button, Container, Spinner, Modal, Card, Badge, Form, Alert, Toa
 import axios from "axios";
 import { useThemeStore } from "@/store/theme.store";
 const OrdersManagement = () => {
-    const [orders, setOrders] = useState([]);
+    const [orders, setOrders] = useState<any>([]);
     const [loading, setLoading] = useState(true);
-    const [selectedOrder, setSelectedOrder] = useState(null);
+    const [selectedOrder, setSelectedOrder] = useState<any>(null);
     const [showModal, setShowModal] = useState(false);
     const [hoveredRow, setHoveredRow] = useState(null);
-    const [lastUpdate, setLastUpdate] = useState(null);
+    const [lastUpdate, setLastUpdate] = useState<any>(null);
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState("");
     const [searchTerm, setSearchTerm] = useState("");
@@ -29,15 +29,15 @@ const OrdersManagement = () => {
 
     // حالات التحميل
     const [updatingAll, setUpdatingAll] = useState(false);
-    const [updatingOrders, setUpdatingOrders] = useState({});
+    const [updatingOrders, setUpdatingOrders] = useState<any>({});
 
-    const showNotification = (message) => {
+    const showNotification = (message: any) => {
         setToastMessage(message);
         setShowToast(true);
         setTimeout(() => setShowToast(false), 3000);
     };
 
-    const handleShowEditModal = (order) => {
+    const handleShowEditModal = (order: any) => {
         setEditingOrder({
             _id: order._id,
             selectedCategory: order.selectedCategory,
@@ -67,7 +67,7 @@ const OrdersManagement = () => {
         });
     };
 
-    const handleEditInputChange = (e) => {
+    const handleEditInputChange = (e: any) => {
         const { name, value } = e.target;
         setEditingOrder({ ...editingOrder, [name]: value });
     };
@@ -84,7 +84,7 @@ const OrdersManagement = () => {
                 serviceTitle: editingOrder.serviceTitle
             });
 
-            setOrders(orders.map(order =>
+            setOrders(orders.map((order: any) =>
                 order._id === editingOrder._id
                     ? {
                         ...order,
@@ -123,7 +123,7 @@ const OrdersManagement = () => {
         fetchOrders();
     }, []);
 
-    const handleView = (order) => {
+    const handleView = (order: any) => {
         setSelectedOrder(order);
         setShowModal(true);
     };
@@ -133,11 +133,11 @@ const OrdersManagement = () => {
         setSelectedOrder(null);
     };
 
-    const handleDelete = async (id) => {
+    const handleDelete = async (id: any) => {
         if (window.confirm("هل أنت متأكد من حذف هذا الطلب؟")) {
             try {
                 await axios.delete(`${import.meta.env.VITE_API_URL}/new-order/${id}`);
-                setOrders(orders.filter((order) => order._id !== id));
+                setOrders(orders.filter((order: any) => order._id !== id));
                 showNotification("تم حذف الطلب بنجاح ✅");
             } catch (err) {
                 console.error("Delete error:", err);
@@ -147,13 +147,13 @@ const OrdersManagement = () => {
     };
 
     // تحديث حالة طلب واحد
-    const handleUpdateSingleStatus = async (orderId, providerOrderId) => {
+    const handleUpdateSingleStatus = async (orderId: any, providerOrderId: any) => {
         if (!providerOrderId) {
             showNotification("لا يوجد providerOrderId لهذا الطلب ❌");
             return;
         }
 
-        setUpdatingOrders(prev => ({ ...prev, [orderId]: true }));
+        setUpdatingOrders((prev: any) => ({ ...prev, [orderId]: true }));
 
         try {
             const response = await axios.get(`${import.meta.env.VITE_API_URL}/new-order/status/${providerOrderId}`);
@@ -165,7 +165,7 @@ const OrdersManagement = () => {
             });
 
             // تحديث الواجهة فوراً
-            setOrders(orders.map(order =>
+            setOrders(orders.map((order: any) =>
                 order._id === orderId
                     ? { ...order, status: newStatus }
                     : order
@@ -173,11 +173,11 @@ const OrdersManagement = () => {
 
             setLastUpdate(new Date());
             showNotification(`تم تحديث حالة الطلب إلى: ${newStatus} ✅`);
-        } catch (err) {
+        } catch (err: any) {
             console.error("Error updating single status:", err);
             showNotification(err.response?.data?.message || "حدث خطأ أثناء تحديث حالة الطلب ❌");
         } finally {
-            setUpdatingOrders(prev => ({ ...prev, [orderId]: false }));
+            setUpdatingOrders((prev: any) => ({ ...prev, [orderId]: false }));
         }
     };
 
@@ -190,7 +190,7 @@ const OrdersManagement = () => {
         try {
             // استخدم Promise.allSettled لمعالجة جميع الطلبات حتى لو فشل بعضها
             const results = await Promise.allSettled(
-                orders.map(async (order) => {
+                orders.map(async (order: any) => {
                     if (!order.providerOrderId) return;
 
                     try {
@@ -240,7 +240,7 @@ const OrdersManagement = () => {
         }
     };
 
-    const getStatusBadge = (status) => {
+    const getStatusBadge = (status: any) => {
         if (status === "completed") return "success";
         if (status === "in progress") return "warning";
         if (status === "pending") return "secondary";
@@ -250,8 +250,8 @@ const OrdersManagement = () => {
         return "secondary";
     };
 
-    const getCategoryBadge = (category) => {
-        const categoryColors = {
+    const getCategoryBadge = (category: any) => {
+        const categoryColors: any = {
             "TikTok": "primary",
             "Instagram": "danger",
             "YouTube": "danger",
@@ -262,13 +262,13 @@ const OrdersManagement = () => {
         return categoryColors[category] || "secondary";
     };
 
-    const getRowStyle = (orderId) => ({
+    const getRowStyle = (orderId: any) => ({
         backgroundColor: hoveredRow === orderId ? "#2f3450" : "transparent",
         borderBottom: "1px solid #2f3450",
         transition: "background-color 0.3s"
     });
 
-    const formatDate = (dateString) => {
+    const formatDate = (dateString: any) => {
         if (!dateString) return "لم يتم التحديث بعد";
         return new Date(dateString).toLocaleDateString('ar-EG', {
             year: 'numeric',
@@ -279,8 +279,8 @@ const OrdersManagement = () => {
         });
     };
 
-    const getPlatformIcon = (category) => {
-        const icons = {
+    const getPlatformIcon = (category: any) => {
+        const icons: any = {
             "TikTok": "fab fa-tiktok",
             "Instagram": "fab fa-instagram",
             "YouTube": "fab fa-youtube",
@@ -292,7 +292,7 @@ const OrdersManagement = () => {
     };
 
     // فلترة الطلبات حسب البحث
-    const filteredOrders = orders.filter(order =>
+    const filteredOrders = orders.filter((order: any) =>
         order.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         order.serviceTitle?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         order.selectedCategory?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -514,7 +514,7 @@ const OrdersManagement = () => {
                                 <div className="d-flex align-items-center justify-content-center mb-2">
                                     <i className="fas fa-check-circle fa-lg me-2"></i>
                                     <h4 className="mb-0 fw-bold">
-                                        {orders.filter((order) => order.status === "completed").length}
+                                        {orders.filter((order: any) => order.status === "completed").length}
                                     </h4>
                                 </div>
                                 <p className="mb-0 fw-bold" style={{ fontSize: "0.9rem" }}>الطلبات المكتملة</p>
@@ -538,7 +538,7 @@ const OrdersManagement = () => {
                                 <div className="d-flex align-items-center justify-content-center mb-2">
                                     <i className="fas fa-spinner fa-lg me-2"></i>
                                     <h4 className="mb-0 fw-bold">
-                                        {orders.filter((order) => order.status === "in progress").length}
+                                        {orders.filter((order: any) => order.status === "in progress").length}
                                     </h4>
                                 </div>
                                 <p className="mb-0 fw-bold" style={{ fontSize: "0.9rem" }}>قيد التنفيذ</p>
@@ -562,7 +562,7 @@ const OrdersManagement = () => {
                                 <div className="d-flex align-items-center justify-content-center mb-2">
                                     <i className="fas fa-clock fa-lg me-2"></i>
                                     <h4 className="mb-0 fw-bold">
-                                        {orders.filter(order => order.status === "pending").length}
+                                        {orders.filter((order: any) => order.status === "pending").length}
                                     </h4>
                                 </div>
                                 <p className="mb-0 fw-bold" style={{ fontSize: "0.9rem" }}>الطلبات المعلقة</p>
@@ -617,7 +617,7 @@ const OrdersManagement = () => {
                                     </thead>
                                     <tbody>
                                         {filteredOrders.length > 0 ? (
-                                            filteredOrders.map((order, index) => (
+                                            filteredOrders.map((order: any, index: any) => (
                                                 <tr
                                                     key={order._id}
                                                     style={getRowStyle(order._id)}
@@ -773,7 +773,7 @@ const OrdersManagement = () => {
                                     <Spinner animation="border" variant={isDark ? "light" : "secondary"} />
                                 </div>
                             ) : filteredOrders.length > 0 ? (
-                                filteredOrders.map((order, index) => (
+                                filteredOrders.map((order: any, index: number) => (
                                     <div
                                         key={order._id}
                                         className="border-bottom p-3 hover-bg"

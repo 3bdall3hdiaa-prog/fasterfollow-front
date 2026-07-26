@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ServicePackage, Page, BlogPost, Provider, Banner, SiteSettings, Platform } from '../types';
+import { ServiceResponse, Page, BlogPost, Provider, BannerResponse, SiteSettings, Platform } from '../types';
 import Sidebar from './admin/Sidebar';
 import Dashboard from './admin/Dashboard';
 import ManageUsers from './admin/ManageUsers';
@@ -16,19 +16,20 @@ import ManagePlatforms from './admin/ManagePlatforms';
 import ManageCoupons from './admin/ManageCoppons';
 import ManagePayments from './admin/MangePayments';
 import { useThemeStore } from '@/store/theme.store';
+import ManageReviews from './admin/ManageReviews';
 
 interface AdminPanelProps {
     initialView?: string;
-    services: ServicePackage[];
-    setServices: React.Dispatch<React.SetStateAction<ServicePackage[]>>;
+    services: ServiceResponse[];
+    setServices: React.Dispatch<React.SetStateAction<ServiceResponse[]>>;
     pages: Page[];
     setPages: React.Dispatch<React.SetStateAction<Page[]>>;
     posts: BlogPost[];
     setPosts: React.Dispatch<React.SetStateAction<BlogPost[]>>;
     providers: Provider[];
     setProviders: React.Dispatch<React.SetStateAction<Provider[]>>;
-    banners: Banner[];
-    setBanners: React.Dispatch<React.SetStateAction<Banner[]>>;
+    banners: BannerResponse[];
+    setBanners: React.Dispatch<React.SetStateAction<BannerResponse[]>>;
     settings: SiteSettings;
     setSettings: any;
     platforms: any;
@@ -60,14 +61,15 @@ const AdminPanel: React.FC<AdminPanelProps> = (props) => {
             case 'settings': return <SiteSettingsComponent settings={props.settings} setSettings={props.setSettings} />;
             case 'coupons': return <ManageCoupons />;
             case 'payments': return <ManagePayments />;
+            case 'reviews': return <ManageReviews />;
             default: return <Dashboard />;
         }
     };
 
     return (
         <div className={`pt-20 min-h-screen transition-colors duration-300 ${isDark
-                ? 'bg-gray-900 text-gray-300'
-                : 'bg-gradient-to-b from-[#faf8f2] to-white text-gray-800'
+            ? 'bg-gray-900 text-gray-300'
+            : 'bg-gradient-to-b from-[#faf8f2] to-white text-gray-800'
             }`}>
             <div className="flex">
                 <Sidebar activeView={activeView} setActiveView={setActiveView} isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
@@ -77,8 +79,8 @@ const AdminPanel: React.FC<AdminPanelProps> = (props) => {
                         <button
                             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                             className={`fixed md:hidden z-50 bottom-6 right-6 p-4 rounded-full text-white shadow-lg transition-all duration-300 hover:scale-110 ${isDark
-                                    ? 'bg-primary-600 hover:bg-primary-700'
-                                    : 'bg-[#c9a84c] hover:bg-[#b8973a]'
+                                ? 'bg-primary-600 hover:bg-primary-700'
+                                : 'bg-[#c9a84c] hover:bg-[#b8973a]'
                                 }`}
                         >
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

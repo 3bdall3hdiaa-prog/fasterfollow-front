@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
-import { Banner } from '../../types';
+import { BannerFormData, BannerResponse } from '../../types';
 import { useThemeStore } from '@/store/theme.store';
 
 interface ManageBannersProps {
-    banners: Banner[];
-    setBanners: React.Dispatch<React.SetStateAction<Banner[]>>;
+    banners: BannerResponse[];
+    setBanners: React.Dispatch<React.SetStateAction<BannerResponse[]>>;
 }
 
 const ManageBanners: React.FC<ManageBannersProps> = ({ banners, setBanners }) => {
     const { isDark } = useThemeStore();
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingBanner, setEditingBanner] = useState<Banner | null>(null);
-    const [formData, setFormData] = useState<Partial<Banner>>({});
+    const [editingBanner, setEditingBanner] = useState<BannerResponse | null>(null);
+    const [formData, setFormData] = useState<Partial<BannerFormData>>({});
     const [loading, setLoading] = useState(false);
 
     const API_BASE = import.meta.env.VITE_API_URL;
@@ -48,13 +48,13 @@ const ManageBanners: React.FC<ManageBannersProps> = ({ banners, setBanners }) =>
             if (!response.ok) throw new Error('فشل في جلب البيانات');
             const data = await response.json();
 
-            const formattedBanners: Banner[] = data.map((banner: any) => ({
+            const formattedBanners: BannerResponse[] = data.map((banner: any) => ({
                 id: banner._id,
                 title: banner.title || 'No Title',
                 subtitle: banner.subtitle || '',
                 ctaText: banner.ctaText || 'اطلب الآن',
                 ctaLink: banner.ctaLink || '#',
-                imageUrl: banner.imageUrl || 'https://images.unsplash.com/photo-1611605698335-8b1569810432?auto=format&fit=crop&w=1000&q=80',
+                imageUrl: banner.image.url || '',
                 isActive: banner.isActive !== undefined ? banner.isActive : true
             }));
 
@@ -66,16 +66,22 @@ const ManageBanners: React.FC<ManageBannersProps> = ({ banners, setBanners }) =>
     };
 
     // دالة لإضافة بانر جديد
-    const addBanner = async (bannerData: Partial<Banner>) => {
+    const addBanner = async (bannerData: Partial<BannerFormData>) => {
         setLoading(true);
         try {
+            const data = new FormData();
+            if (bannerData.file) data.append('file', bannerData.file);
+            data.append('title', bannerData.title || '');
+            data.append('subtitle', bannerData.subtitle || '');
+            data.append('ctaText', bannerData.ctaText || 'اطلب الآن');
+            data.append('ctaLink', bannerData.ctaLink || '#services');
+            if (bannerData.isActive) data.append('isActive', bannerData.isActive.toString());
             const response = await fetch(`${API_BASE}/managepanners`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 },
-                body: JSON.stringify(bannerData),
+                body: data,
             });
 
             if (!response.ok) throw new Error('فشل في إضافة البانر');
@@ -93,7 +99,7 @@ const ManageBanners: React.FC<ManageBannersProps> = ({ banners, setBanners }) =>
     };
 
     // دالة لتعديل بانر موجود
-    const updateBanner = async (bannerId: string, bannerData: Partial<Banner>) => {
+    const updateBanner = async (bannerId: string, bannerData: Partial<BannerFormData>) => {
         if (!bannerId || bannerId === 'undefined' || bannerId === 'null') {
             console.error('Invalid banner ID:', bannerId);
             alert('معرف البانر غير صالح');
@@ -109,13 +115,19 @@ const ManageBanners: React.FC<ManageBannersProps> = ({ banners, setBanners }) =>
 
         setLoading(true);
         try {
+            const data = new FormData();
+            if (bannerData.file) data.append('file', bannerData.file);
+            data.append('title', bannerData.title || '');
+            data.append('subtitle', bannerData.subtitle || '');
+            data.append('ctaText', bannerData.ctaText || 'اطلب الآن');
+            data.append('ctaLink', bannerData.ctaLink || '#services');
+            if (bannerData.isActive) data.append('isActive', bannerData.isActive.toString());
             const response = await fetch(`${API_BASE}/managepanners/${bannerId}`, {
                 method: 'PUT',
                 headers: {
-                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 },
-                body: JSON.stringify(bannerData),
+                body: data,
             });
 
             if (!response.ok) {
@@ -173,14 +185,14 @@ const ManageBanners: React.FC<ManageBannersProps> = ({ banners, setBanners }) =>
         }
     };
 
-    const handleOpenModal = (banner: Banner | null) => {
+    const handleOpenModal = (banner: BannerResponse | null) => {
         setEditingBanner(banner);
         setFormData(banner || {
             title: '',
             subtitle: '',
             ctaText: 'اطلب الآن',
             ctaLink: '#services',
-            imageUrl: '',
+            file: null as any,
             isActive: true
         });
         setIsModalOpen(true);
@@ -210,7 +222,7 @@ const ManageBanners: React.FC<ManageBannersProps> = ({ banners, setBanners }) =>
             subtitle: formData.subtitle || '',
             ctaText: formData.ctaText || 'اطلب الآن',
             ctaLink: formData.ctaLink || '#services',
-            imageUrl: formData.imageUrl || '',
+            file: formData.file,
             isActive: formData.isActive !== undefined ? formData.isActive : true
         };
 
@@ -227,7 +239,7 @@ const ManageBanners: React.FC<ManageBannersProps> = ({ banners, setBanners }) =>
         }
     };
 
-    const handleDelete = (bannerId: string) => {
+    const handleDelete = (bannerId: any) => {
         deleteBanner(bannerId);
     };
 
@@ -378,15 +390,14 @@ const ManageBanners: React.FC<ManageBannersProps> = ({ banners, setBanners }) =>
                             />
 
                             <input
-                                name="imageUrl"
-                                value={formData.imageUrl || ''}
-                                onChange={handleChange}
+                                type="file"
+                                onChange={(e: any) => { setFormData(prev => ({ ...prev, file: e.target.files?.[0] })); }}
                                 placeholder="رابط صورة الخلفية"
                                 className={`w-full p-2 rounded border focus:border-primary-500 focus:outline-none transition-all duration-300 ${isDark
                                     ? 'bg-gray-700 border-gray-600 text-white'
                                     : 'bg-gray-50 border-[#dfd7bb] text-gray-800'
                                     }`}
-                                required
+
                                 disabled={loading}
                             />
 

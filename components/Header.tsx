@@ -12,9 +12,10 @@ interface HeaderProps {
     siteName: string;
     logoUrl: any;
     pages: Page[];
+    color: any
 }
 
-const Header: React.FC<HeaderProps> = ({ siteName, logoUrl, pages }) => {
+const Header: React.FC<HeaderProps> = ({ siteName, logoUrl, pages, color }) => {
     const { user, logout } = useUser();
     const { currency, setCurrency, currencies } = useCurrency();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -54,8 +55,8 @@ const Header: React.FC<HeaderProps> = ({ siteName, logoUrl, pages }) => {
     return (
         <>
             <header className={`fixed top-0 right-0 left-0 backdrop-blur-md border-b z-30 transition-colors duration-300 ${isDark
-                    ? 'bg-gray-900/80 border-gray-700'
-                    : 'bg-white/90 border-[#dfd7bb] shadow-sm'
+                ? 'bg-gray-900/80 border-gray-700'
+                : 'bg-white/90 border-[#dfd7bb] shadow-sm'
                 }`}>
                 <div className="container mx-auto px-6">
                     <div className="flex justify-between items-center h-20">
@@ -63,7 +64,7 @@ const Header: React.FC<HeaderProps> = ({ siteName, logoUrl, pages }) => {
                         <a href="#/" className="flex items-center space-x-3 space-x-reverse">
                             {logoUrl && <img src={logoUrl} alt={siteName} className="h-10 w-10 object-contain" />}
                             <span className="text-xl font-extrabold transition-colors duration-300">
-                                <span className={isDark ? 'text-primary-500' : 'text-[#c9a84c]'}>
+                                <span className={isDark ? `text-[${color}]` : 'text-[#c9a84c]'}>
                                     {mainName}
                                 </span>
                                 <span className={isDark ? 'text-white' : 'text-gray-800'}>
@@ -94,8 +95,8 @@ const Header: React.FC<HeaderProps> = ({ siteName, logoUrl, pages }) => {
                                 value={currency}
                                 onChange={(e) => setCurrency(e.target.value)}
                                 className={`rounded-md py-1 px-2 text-xs focus:outline-none transition-colors duration-300 ${isDark
-                                        ? 'bg-gray-800 text-gray-300 border border-gray-700'
-                                        : 'bg-white text-gray-700 border border-[#dfd7bb]'
+                                    ? 'bg-gray-800 text-gray-300 border border-gray-700'
+                                    : 'bg-white text-gray-700 border border-[#dfd7bb]'
                                     }`}
                             >
                                 {currencies.map(c => <option key={c} value={c}>{c}</option>)}
@@ -116,8 +117,8 @@ const Header: React.FC<HeaderProps> = ({ siteName, logoUrl, pages }) => {
                                     </button>
                                     {isUserMenuOpen && (
                                         <div className={`absolute top-full mt-2 left-0 w-48 rounded-lg shadow-lg border z-20 transition-colors duration-300 ${isDark
-                                                ? 'bg-gray-800 border-gray-700'
-                                                : 'bg-white border-[#dfd7bb]'
+                                            ? 'bg-gray-800 border-gray-700'
+                                            : 'bg-white border-[#dfd7bb]'
                                             }`}>
                                             <a href="#" onClick={(e) => { e.preventDefault(); navigateToPanel(); }} className={`block px-4 py-2 text-sm transition-colors duration-300 ${isDark ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'
                                                 }`}>لوحة التحكم</a>
@@ -140,8 +141,8 @@ const Header: React.FC<HeaderProps> = ({ siteName, logoUrl, pages }) => {
                                     <button
                                         onClick={() => setIsAuthModalOpen(true)}
                                         className={`font-bold py-2 px-4 rounded-lg text-sm transition-all duration-300 ${isDark
-                                                ? 'bg-primary-600 hover:bg-primary-700 text-white'
-                                                : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
+                                            ? 'bg-primary-600 hover:bg-primary-700 text-white'
+                                            : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
                                             }`}
                                     >
                                         دخول / تسجيل
@@ -162,8 +163,8 @@ const Header: React.FC<HeaderProps> = ({ siteName, logoUrl, pages }) => {
                 {/* Mobile Menu */}
                 {isMenuOpen && (
                     <div className={`md:hidden border-t p-4 space-y-2 transition-colors duration-300 ${isDark
-                            ? 'bg-gray-800 border-gray-700'
-                            : 'bg-white border-[#dfd7bb]'
+                        ? 'bg-gray-800 border-gray-700'
+                        : 'bg-white border-[#dfd7bb]'
                         }`}>
                         <a href="#/" onClick={() => setIsMenuOpen(false)} className={`block transition-colors duration-300 ${isDark ? 'text-gray-300 hover:text-primary-400' : 'text-gray-600 hover:text-[#c9a84c]'
                             }`}>الرئيسية</a>
@@ -175,8 +176,8 @@ const Header: React.FC<HeaderProps> = ({ siteName, logoUrl, pages }) => {
                         ))}
                         {!user && (
                             <button onClick={() => { setIsAuthModalOpen(true); setIsMenuOpen(false); }} className={`w-full text-right font-bold py-2 px-4 rounded-lg text-sm transition-all duration-300 mt-2 ${isDark
-                                    ? 'bg-primary-600 hover:bg-primary-700 text-white'
-                                    : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white'
+                                ? 'bg-primary-600 hover:bg-primary-700 text-white'
+                                : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white'
                                 }`}>
                                 دخول / تسجيل
                             </button>

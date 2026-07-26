@@ -9,7 +9,7 @@ interface SiteSettingsProps {
 
 const SiteSettingsComponent: React.FC<SiteSettingsProps> = ({ settings, setSettings }) => {
     const { isDark } = useThemeStore();
-    const [formData, setFormData] = useState(settings);
+    const [formData, setFormData] = useState<SiteSettings>(settings);
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -39,28 +39,28 @@ const SiteSettingsComponent: React.FC<SiteSettingsProps> = ({ settings, setSetti
         return isDark ? '#374151' : '#dfd7bb';
     };
 
-    useEffect(() => {
-        setFormData(settings);
-    }, [settings]);
+    // useEffect(() => {
+    //     setFormData(settings);
+    // }, [settings]);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value, type } = e.target;
-        if (name.startsWith('announcement.')) {
-            const key = name.split('.')[1];
-            const checked = (e.target as HTMLInputElement).checked;
-            setFormData(prev => ({
-                ...prev,
-                announcement: { ...prev.announcement, [key]: type === 'checkbox' ? checked : value }
-            }));
-        } else {
-            setFormData(prev => ({ ...prev, [name]: value }));
-        }
-    };
+    // const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    //     const { name, value, type } = e.target;
+    //     if (name.startsWith('announcement.')) {
+    //         const key = name.split('.')[1];
+    //         const checked = (e.target as HTMLInputElement).checked;
+    //         setFormData(prev => ({
+    //             ...prev,
+    //             announcement: { ...prev.announcement, [key]: type === 'checkbox' ? checked : value }
+    //         }));
+    //     } else {
+    //         setFormData(prev => ({ ...prev, [name]: value }));
+    //     }
+    // };
 
     const handleContentChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         const [section, key] = name.split('.');
-        setFormData(prev => ({
+        setFormData((prev: any) => ({
             ...prev,
             homepageContent: {
                 ...prev.homepageContent,
@@ -80,14 +80,58 @@ const SiteSettingsComponent: React.FC<SiteSettingsProps> = ({ settings, setSetti
 
         try {
             console.log('🔄 جاري حفظ الإعدادات...', formData);
+            const data = new FormData();
+
+            if (formData.file instanceof File) {
+                data.append('file', formData.file);
+            }
+
+            if (formData.siteName) data.append('siteName', formData.siteName);
+            if (formData.primaryColor) data.append('primaryColor', formData.primaryColor);
+            if (formData.seoTitle) data.append('seoTitle', formData.seoTitle);
+            if (formData.seoDescription) data.append('seoDescription', formData.seoDescription);
+
+            if (formData.announcement) {
+                data.append('announcement', JSON.stringify({
+                    text: formData.announcement.text || '',
+                    isEnabled: formData.announcement.isEnabled ?? true
+                }));
+            }
+
+            if (formData.homepageContent) {
+                data.append('homepageContent', JSON.stringify({
+                    hero: {
+                        title: formData.homepageContent.hero?.title || '',
+                        subtitle: formData.homepageContent.hero?.subtitle || '',
+                        cta1: formData.homepageContent.hero?.cta1 || '',
+                        cta2: formData.homepageContent.hero?.cta2 || ''
+                    },
+                    features: {
+                        title: formData.homepageContent.features?.title || '',
+                        items: formData.homepageContent.features?.items || []
+                    },
+                    services: {
+                        title: formData.homepageContent.services?.title || '',
+                        subtitle: formData.homepageContent.services?.subtitle || ''
+                    },
+                    howItWorks: {
+                        title: formData.homepageContent.howItWorks?.title || '',
+                        subtitle: formData.homepageContent.howItWorks?.subtitle || '',
+                        steps: formData.homepageContent.howItWorks?.steps || []
+                    },
+                    testimonials: {
+                        title: formData.homepageContent.testimonials?.title || '',
+                        subtitle: formData.homepageContent.testimonials?.subtitle || ''
+                    }
+                }));
+            }
 
             const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/manage-setting`, {
                 method: 'PATCH',
                 headers: {
-                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 },
-                body: JSON.stringify(formData)
+                body: data
             });
 
             if (!response.ok) {
@@ -101,7 +145,7 @@ const SiteSettingsComponent: React.FC<SiteSettingsProps> = ({ settings, setSetti
             setSettings(formData);
             setSuccessMessage('تم حفظ الإعدادات بنجاح!');
 
-        } catch (error) {
+        } catch (error: any) {
             console.error('❌ خطأ في حفظ الإعدادات:', error);
             setErrorMessage(error.message || 'حدث خطأ أثناء حفظ الإعدادات. يرجى المحاولة مرة أخرى.');
         } finally {
@@ -113,7 +157,7 @@ const SiteSettingsComponent: React.FC<SiteSettingsProps> = ({ settings, setSetti
         }
     };
 
-    const FormInput = ({ label, name, value, onChange, type = "text", placeholder = "" }) => (
+    const FormInput = ({ label, name, value, onChange, type = "text", placeholder = "" }: any) => (
         <div>
             <label className="block text-sm font-medium mb-1" style={{ color: getMutedTextColor() }}>{label}</label>
             <input
@@ -124,8 +168,8 @@ const SiteSettingsComponent: React.FC<SiteSettingsProps> = ({ settings, setSetti
                 placeholder={placeholder}
                 disabled={isLoading}
                 className={`w-full rounded-md p-2 border disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 ${isDark
-                        ? 'bg-gray-700 border-gray-600 text-white'
-                        : 'bg-gray-50 border-[#dfd7bb] text-gray-800'
+                    ? 'bg-gray-700 border-gray-600 text-white'
+                    : 'bg-gray-50 border-[#dfd7bb] text-gray-800'
                     }`}
             />
         </div>
@@ -144,8 +188,8 @@ const SiteSettingsComponent: React.FC<SiteSettingsProps> = ({ settings, setSetti
             {/* عرض رسائل التنبيه */}
             {successMessage && (
                 <div className={`px-4 py-3 rounded-lg mb-6 ${isDark
-                        ? 'bg-green-500/20 border border-green-700 text-green-300'
-                        : 'bg-green-50 border border-green-200 text-green-700'
+                    ? 'bg-green-500/20 border border-green-700 text-green-300'
+                    : 'bg-green-50 border border-green-200 text-green-700'
                     }`}>
                     ✅ {successMessage}
                 </div>
@@ -153,16 +197,16 @@ const SiteSettingsComponent: React.FC<SiteSettingsProps> = ({ settings, setSetti
 
             {errorMessage && (
                 <div className={`px-4 py-3 rounded-lg mb-6 ${isDark
-                        ? 'bg-red-500/20 border border-red-700 text-red-300'
-                        : 'bg-red-50 border border-red-200 text-red-700'
+                    ? 'bg-red-500/20 border border-red-700 text-red-300'
+                    : 'bg-red-50 border border-red-200 text-red-700'
                     }`}>
                     ❌ {errorMessage}
                 </div>
             )}
 
             <form onSubmit={handleSubmit} className={`rounded-lg p-6 space-y-6 max-w-4xl mx-auto relative transition-all duration-300 ${isDark
-                    ? 'bg-gray-800 border border-gray-700'
-                    : 'bg-white border border-[#dfd7bb] shadow-md'
+                ? 'bg-gray-800 border border-gray-700'
+                : 'bg-white border border-[#dfd7bb] shadow-md'
                 }`}>
 
                 {isLoading && (
@@ -180,41 +224,83 @@ const SiteSettingsComponent: React.FC<SiteSettingsProps> = ({ settings, setSetti
                     }`}>
                     <h2 className="text-xl font-semibold mb-4" style={{ color: getTextColor() }}>الإعدادات العامة</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <FormInput
-                            label="اسم الموقع"
-                            name="siteName"
-                            value={formData.siteName}
-                            onChange={handleChange}
-                            placeholder="أدخل اسم الموقع"
-                        />
-                        <FormInput
-                            label="رابط شعار الموقع (Logo)"
-                            name="logoUrl"
-                            value={formData.logoUrl}
-                            onChange={handleChange}
-                            placeholder="https://example.com/logo.png"
-                        />
                         <div>
-                            <label className="block text-sm font-medium mb-1" style={{ color: getMutedTextColor() }}>اللون الأساسي</label>
+                            <label
+                                className="block text-sm font-medium mb-1"
+                                style={{ color: getMutedTextColor() }}
+                            >
+                                اسم الموقع
+                            </label>
                             <input
+                                className={`w-full rounded-md p-2 border transition-all duration-300
+                disabled:opacity-50 disabled:cursor-not-allowed
+                ${isDark
+                                        ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                                        : "bg-gray-50 border-[#dfd7bb] text-gray-800 placeholder-gray-400"
+                                    }`}
+                                type="text"
+                                name="siteName"
+                                value={formData.siteName}
+                                onChange={(e) =>
+                                    setFormData((prev) => ({ ...prev, siteName: e.target.value }))
+                                }
+                                placeholder="أدخل اسم الموقع"
+                                disabled={isLoading}
+                            />
+                        </div>
+
+                        <div>
+                            <label
+                                className="block text-sm font-medium mb-1"
+                                style={{ color: getMutedTextColor() }}
+                            >
+                                صورة الموقع
+                            </label>
+                            <input
+                                className={`w-full rounded-md p-2 border transition-all duration-300
+                file:mr-3 file:py-2 file:px-4 file:rounded-md file:border-0
+                file:text-sm file:font-medium
+                ${isDark
+                                        ? "bg-gray-700 border-gray-600 text-white file:bg-gray-600 file:text-white"
+                                        : "bg-gray-50 border-[#dfd7bb] text-gray-800 file:bg-[#c9a84c] file:text-white"
+                                    }`}
+                                type="file"
+                                onChange={(e: any) =>
+                                    setFormData((prev) => ({
+                                        ...prev,
+                                        file: e.target.files?.[0],
+                                    }))
+                                }
+                                disabled={isLoading}
+                            />
+                        </div>
+
+                        <div>
+                            <label
+                                className="block text-sm font-medium mb-1"
+                                style={{ color: getMutedTextColor() }}
+                            >
+                                اللون الأساسي
+                            </label>
+                            <input
+                                className={`w-full h-10 rounded-md p-1 border transition-all duration-300
+                disabled:opacity-50 disabled:cursor-not-allowed
+                ${isDark
+                                        ? "bg-gray-700 border-gray-600"
+                                        : "bg-gray-50 border-[#dfd7bb]"
+                                    }`}
                                 type="color"
                                 name="primaryColor"
                                 value={formData.primaryColor}
-                                onChange={handleChange}
+                                onChange={(e) =>
+                                    setFormData((prev) => ({
+                                        ...prev,
+                                        primaryColor: e.target.value,
+                                    }))
+                                }
                                 disabled={isLoading}
-                                className={`w-full h-10 p-1 rounded-md border disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 ${isDark
-                                        ? 'bg-gray-700 border-gray-600'
-                                        : 'bg-gray-50 border-[#dfd7bb]'
-                                    }`}
                             />
                         </div>
-                        <FormInput
-                            label="رابط الأيقونة (Favicon)"
-                            name="faviconUrl"
-                            value={formData.faviconUrl}
-                            onChange={handleChange}
-                            placeholder="/favicon.ico"
-                        />
                     </div>
                 </div>
 
@@ -225,13 +311,23 @@ const SiteSettingsComponent: React.FC<SiteSettingsProps> = ({ settings, setSetti
                         <h3 className="font-semibold" style={{ color: isDark ? '#60a5fa' : '#c9a84c' }}>
                             قسم Hero
                         </h3>
-                        <FormInput
-                            label="العنوان الرئيسي"
-                            name="hero.title"
-                            value={formData.homepageContent.hero.title}
-                            onChange={handleContentChange}
-                            placeholder="عزز حضورك الرقمي مع"
-                        />
+                        <div>
+                            <label className="block text-sm font-medium mb-1" style={{ color: getMutedTextColor() }}>العنوان الرئيسي</label>
+                            <input
+                                type="text"
+                                name="hero.title"
+                                value={formData.homepageContent.hero.title}
+                                onChange={handleContentChange}
+                                placeholder="عزز حضورك الرقمي مع"
+                                disabled={isLoading}
+                                className={`w-full rounded-md p-2 border transition-all duration-300
+    disabled:opacity-50 disabled:cursor-not-allowed
+    ${isDark
+                                        ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                                        : "bg-gray-50 border-[#dfd7bb] text-gray-800 placeholder-gray-400"
+                                    }`}
+                            />
+                        </div>
                         <FormInput
                             label="العنوان الفرعي (الوصف)"
                             name="hero.subtitle"
@@ -280,7 +376,7 @@ const SiteSettingsComponent: React.FC<SiteSettingsProps> = ({ settings, setSetti
                         label="عنوان الصفحة الرئيسية (SEO)"
                         name="seoTitle"
                         value={formData.seoTitle}
-                        onChange={handleChange}
+                        onChange={(e: any) => setFormData(prev => ({ ...prev, seoTitle: e.target.value }))}
                         placeholder="عنوان SEO للموقع"
                     />
                     <div className="mt-4">
@@ -288,13 +384,13 @@ const SiteSettingsComponent: React.FC<SiteSettingsProps> = ({ settings, setSetti
                         <textarea
                             name="seoDescription"
                             value={formData.seoDescription}
-                            onChange={handleChange}
+                            onChange={(e: any) => setFormData(prev => ({ ...prev, seoDescription: e.target.value }))}
                             placeholder="وصف SEO للموقع"
                             rows={3}
                             disabled={isLoading}
                             className={`w-full rounded-md p-2 border disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 ${isDark
-                                    ? 'bg-gray-700 border-gray-600 text-white'
-                                    : 'bg-gray-50 border-[#dfd7bb] text-gray-800'
+                                ? 'bg-gray-700 border-gray-600 text-white'
+                                : 'bg-gray-50 border-[#dfd7bb] text-gray-800'
                                 }`}
                         />
                     </div>
@@ -307,7 +403,7 @@ const SiteSettingsComponent: React.FC<SiteSettingsProps> = ({ settings, setSetti
                         label="نص الإعلان"
                         name="announcement.text"
                         value={formData.announcement.text}
-                        onChange={handleChange}
+                        onChange={(e: any) => setFormData(prev => ({ ...prev, announcement: { ...prev.announcement, text: e.target.value } }))}
                         placeholder="🎉 إعلان خاص!"
                     />
                     <div className="mt-4">
@@ -316,7 +412,7 @@ const SiteSettingsComponent: React.FC<SiteSettingsProps> = ({ settings, setSetti
                                 type="checkbox"
                                 name="announcement.isEnabled"
                                 checked={formData.announcement.isEnabled}
-                                onChange={handleChange}
+                                onChange={(e: any) => setFormData(prev => ({ ...prev, announcement: { ...prev.announcement, isEnabled: e.target.checked } }))}
                                 disabled={isLoading}
                                 className="form-checkbox rounded disabled:opacity-50 disabled:cursor-not-allowed"
                             />
@@ -332,8 +428,8 @@ const SiteSettingsComponent: React.FC<SiteSettingsProps> = ({ settings, setSetti
                         type="submit"
                         disabled={isLoading}
                         className={`font-bold py-2 px-6 rounded-lg transition-all duration-300 ${isDark
-                                ? 'bg-primary-600 hover:bg-primary-700 disabled:bg-gray-600 text-white'
-                                : 'bg-[#c9a84c] hover:bg-[#b8973a] disabled:bg-gray-400 text-white shadow-md hover:shadow-lg disabled:shadow-none'
+                            ? 'bg-primary-600 hover:bg-primary-700 disabled:bg-gray-600 text-white'
+                            : 'bg-[#c9a84c] hover:bg-[#b8973a] disabled:bg-gray-400 text-white shadow-md hover:shadow-lg disabled:shadow-none'
                             }`}
                     >
                         {isLoading ? 'جاري الحفظ...' : 'حفظ الإعدادات'}

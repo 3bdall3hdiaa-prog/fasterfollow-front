@@ -1,9 +1,9 @@
 import React from 'react';
-import { Banner } from '../types';
+import { BannerResponse } from '../types';
 import { useThemeStore } from '@/store/theme.store';
 
 interface BannersProps {
-    banners: Banner[];
+    banners: any[];
 }
 
 const Banners: React.FC<BannersProps> = ({ banners }) => {
@@ -30,8 +30,8 @@ const Banners: React.FC<BannersProps> = ({ banners }) => {
             <div className="container mx-auto px-6">
                 <div
                     className={`relative rounded-lg overflow-hidden p-8 md:p-12 border transition-colors duration-300 ${isDark
-                            ? 'bg-gray-800 border-gray-700'
-                            : 'bg-white border-[#dfd7bb] shadow-lg'
+                        ? 'bg-gray-800 border-gray-700'
+                        : 'bg-white border-[#dfd7bb] shadow-lg'
                         }`}
                 >
                     <div className="relative z-10 text-center md:text-right">
@@ -47,16 +47,16 @@ const Banners: React.FC<BannersProps> = ({ banners }) => {
                             href={banner.ctaLink}
                             onClick={(e) => handleScroll(e, banner.ctaLink)}
                             className={`font-bold py-3 px-8 rounded-lg inline-block transition-all hover:scale-105 ${isDark
-                                    ? 'bg-primary-600 hover:bg-primary-700 text-white'
-                                    : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white'
+                                ? 'bg-primary-600 hover:bg-primary-700 text-white'
+                                : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white'
                                 }`}
                         >
                             {banner.ctaText}
                         </a>
                     </div>
-                    {banner.imageUrl && (
+                    {banner.image && (
                         <img
-                            src={banner.imageUrl}
+                            src={banner.image}
                             alt={banner.title}
                             className={`absolute top-0 left-0 w-full h-full object-cover z-0 transition-opacity duration-300 ${isDark ? 'opacity-10 md:opacity-20' : 'opacity-5 md:opacity-10'
                                 }`}

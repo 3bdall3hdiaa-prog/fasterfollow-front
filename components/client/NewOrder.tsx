@@ -1,16 +1,27 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { ServicePackage } from '../../types';
+import { ServiceResponse } from '../../types';
 import { useUser } from '../../contexts/UserContext';
 import axios from 'axios';
 import { useCurrency } from '../../contexts/CurrencyContext';
 import { useThemeStore } from '@/store/theme.store';
 
 interface NewOrderProps {
-    services: ServicePackage[];
+    services: ServiceResponse[];
+}
+
+// ✅ Interface للتقييمات
+interface Review {
+    _id: string;
+    username: string;
+    userId: string;
+    serviceId: string;
+    rating: number;
+    comment: string;
+    createdAt: string;
 }
 
 const NewOrder: React.FC<NewOrderProps> = ({ services }) => {
-    const { user, deductBalance } = useUser();
+    const { user } = useUser();
     const { isDark } = useThemeStore();
     const [selectedPlatform, setSelectedPlatform] = useState<string>('');
     const [selectedServiceId, setSelectedServiceId] = useState<string>('');
@@ -21,9 +32,16 @@ const NewOrder: React.FC<NewOrderProps> = ({ services }) => {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(false);
-    const [serverServices, setServerServices] = useState<ServicePackage[]>([]);
+    const [serverServices, setServerServices] = useState<ServiceResponse[]>([]);
     const [walletBalance, setWalletBalance] = useState<any>();
     const { formatPrice } = useCurrency();
+
+    const [reviews, setReviews] = useState<Review[]>([]);
+    const [newRating, setNewRating] = useState<number>(5);
+    const [newComment, setNewComment] = useState<string>('');
+    const [showReviewForm, setShowReviewForm] = useState<boolean>(false);
+    const [reviewLoading, setReviewLoading] = useState<boolean>(false);
+    const [reviewError, setReviewError] = useState<string>('');
 
     // دوال مساعدة للألوان
     const getTextColor = () => {
@@ -61,6 +79,76 @@ const NewOrder: React.FC<NewOrderProps> = ({ services }) => {
             setWalletBalance(totalBalance);
         } catch (err) {
             console.error('PayPal Fetch Error:', err);
+        }
+    };
+
+    // ✅ جلب التقييمات للخدمة المختارة
+    useEffect(() => {
+        if (selectedServiceId) {
+            fetchServiceReviews(selectedServiceId);
+        } else {
+            setReviews([]);
+        }
+    }, [selectedServiceId]);
+
+    const fetchServiceReviews = async (serviceId: string) => {
+        console.log('جاري جلب التقييمات للخدمة:', serviceId);
+        try {
+            setReviewLoading(true);
+            const response = await axios.get(`${import.meta.env.VITE_API_URL}/reviews/${serviceId}`);
+            if (response.data) {
+                console.log("ascascacssac", response.data);
+                setReviews(response.data);
+            } else {
+                setReviews([]);
+            }
+        } catch (err) {
+            console.error('Error fetching reviews:', err);
+            setReviews([]);
+        } finally {
+            setReviewLoading(false);
+        }
+    };
+
+    const handleAddReview = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!user) {
+            setReviewError('يجب تسجيل الدخول لإضافة تقييم');
+            return;
+        }
+
+        if (!newComment.trim()) {
+            setReviewError('يرجى كتابة تعليق');
+            return;
+        }
+
+        setReviewLoading(true);
+        setReviewError('');
+
+        try {
+            console.log("the user", user);
+            const data = {
+                serviceId: selectedServiceId,
+                rating: newRating,
+                comment: newComment,
+                userId: user._id,
+                username: user.username
+            }
+            console.log(data);
+            const response = await axios.post(`${import.meta.env.VITE_API_URL}/reviews`, data);
+
+            if (response.data) {
+                setReviews(prev => [response.data, ...prev]);
+                setNewComment('');
+                setNewRating(5);
+                setShowReviewForm(false);
+                setSuccess('تم إضافة تقييمك بنجاح! شكراً لك');
+                setTimeout(() => setSuccess(''), 3000);
+            }
+        } catch (err: any) {
+            setReviewError(err.response?.data?.message || 'فشل في إضافة التقييم');
+        } finally {
+            setReviewLoading(false);
         }
     };
 
@@ -105,7 +193,6 @@ const NewOrder: React.FC<NewOrderProps> = ({ services }) => {
     const selectedService = useMemo(() => {
         if (!selectedServiceId) return null;
 
-        // البحث في serverServices باستخدام _id أو providerServiceId أو id
         return serverServices.find(s => {
             const serviceId = s._id || s.providerServiceId || s.id;
             return String(serviceId) === String(selectedServiceId);
@@ -127,6 +214,8 @@ const NewOrder: React.FC<NewOrderProps> = ({ services }) => {
         setSearchTerm('');
         setTotalCost(0);
         setQuantity(0);
+        setReviews([]);
+        setShowReviewForm(false);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -172,12 +261,24 @@ const NewOrder: React.FC<NewOrderProps> = ({ services }) => {
                 setLink('');
                 setQuantity(0);
                 setTotalCost(0);
+                setReviews([]);
+                setShowReviewForm(false);
             }
 
         } catch (err: any) {
             setError(err.response?.data?.message || "خطأ في إتمام الطلب");
             console.error('خطأ في إرسال الطلب:', err);
         }
+    };
+
+    const renderStars = (rating: number) => {
+        return '⭐'.repeat(rating) + '☆'.repeat(5 - rating);
+    };
+
+    const getAverageRating = () => {
+        if (reviews.length === 0) return 0;
+        const sum = reviews.reduce((acc, review) => acc + review.rating, 0);
+        return (sum / reviews.length).toFixed(1);
     };
 
     if (loading) {
@@ -272,6 +373,7 @@ const NewOrder: React.FC<NewOrderProps> = ({ services }) => {
                                 setSelectedServiceId(e.target.value);
                                 setQuantity(0);
                                 setTotalCost(0);
+                                setShowReviewForm(false);
                             }}
                             required
                             disabled={!selectedPlatform || filteredServices.length === 0}
@@ -313,6 +415,143 @@ const NewOrder: React.FC<NewOrderProps> = ({ services }) => {
                             <p className="text-sm leading-relaxed" style={{ color: getTextColor() }}>
                                 {selectedService.description}
                             </p>
+                        </div>
+                    )}
+
+                    {/* ✅ قسم التقييمات - يظهر فقط عند اختيار خدمة */}
+                    {selectedServiceId && (
+                        <div className={`border rounded-lg p-4 ${isDark
+                            ? 'border-gray-600'
+                            : 'border-[#dfd7bb]'
+                            }`}>
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="text-lg font-semibold" style={{ color: getTextColor() }}>
+                                    📊 تقييمات الخدمة
+                                </h3>
+                                {reviews.length > 0 && (
+                                    <span className="text-sm" style={{ color: getMutedTextColor() }}>
+                                        {getAverageRating()} ⭐ ({reviews.length} تقييم)
+                                    </span>
+                                )}
+                            </div>
+
+                            {/* عرض التقييمات مع Scroll */}
+                            {reviewLoading && reviews.length === 0 ? (
+                                <div className="text-center py-4" style={{ color: getMutedTextColor() }}>
+                                    جاري تحميل التقييمات...
+                                </div>
+                            ) : reviews.length === 0 ? (
+                                <p className="text-center py-4" style={{ color: getMutedTextColor() }}>
+                                    لا توجد تقييمات لهذه الخدمة بعد. كن أول من يقيم!
+                                </p>
+                            ) : (
+                                <div className="space-y-3 max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent">
+                                    {reviews.map((review) => (
+                                        <div key={review._id} className={`p-3 rounded-lg ${isDark
+                                            ? 'bg-gray-700/50'
+                                            : 'bg-gray-50'
+                                            }`}>
+                                            <div className="flex justify-between items-start">
+                                                <div>
+                                                    <span className="font-medium" style={{ color: getTextColor() }}>
+                                                        {review.username || 'مستخدم'}
+                                                    </span>
+                                                    <span className="text-sm mr-2" style={{ color: getMutedTextColor() }}>
+                                                        {renderStars(review.rating)}
+                                                    </span>
+                                                </div>
+                                                <span className="text-xs" style={{ color: getMutedTextColor() }}>
+                                                    {review.createdAt ? new Date(review.createdAt).toLocaleDateString('ar-EG') : ''}
+                                                </span>
+                                            </div>
+                                            <p className="text-sm mt-1" style={{ color: getMutedTextColor() }}>
+                                                {review.comment}
+                                            </p>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            {/* ✅ زر إضافة تقييم */}
+                            {user && (
+                                <div className="mt-4">
+                                    {!showReviewForm ? (
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowReviewForm(true)}
+                                            className={`text-sm font-medium transition-colors ${isDark
+                                                ? 'text-primary-400 hover:text-primary-300'
+                                                : 'text-[#c9a84c] hover:text-[#b8973a]'
+                                                }`}
+                                        >
+                                            + أضف تقييمك
+                                        </button>
+                                    ) : (
+                                        <div className="space-y-3 mt-3">
+                                            <div>
+                                                <label className="block text-sm font-medium mb-1" style={{ color: getMutedTextColor() }}>
+                                                    تقييمك
+                                                </label>
+                                                <div className="flex gap-2">
+                                                    {[1, 2, 3, 4, 5].map((star) => (
+                                                        <button
+                                                            key={star}
+                                                            type="button"
+                                                            onClick={() => setNewRating(star)}
+                                                            className="text-2xl transition-transform hover:scale-110"
+                                                        >
+                                                            {star <= newRating ? '⭐' : '☆'}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <textarea
+                                                    value={newComment}
+                                                    onChange={(e) => setNewComment(e.target.value)}
+                                                    placeholder="شارك تجربتك مع هذه الخدمة..."
+                                                    rows={3}
+                                                    className={`w-full rounded-lg p-3 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 ${isDark
+                                                        ? 'bg-gray-700 border border-gray-600 text-white placeholder-gray-400'
+                                                        : 'bg-gray-50 border border-[#dfd7bb] text-gray-800 placeholder-gray-400'
+                                                        }`}
+                                                />
+                                            </div>
+                                            {reviewError && (
+                                                <p className="text-sm text-red-500">{reviewError}</p>
+                                            )}
+                                            <div className="flex gap-2">
+                                                <button
+                                                    onClick={handleAddReview}
+                                                    disabled={reviewLoading || !newComment.trim()}
+                                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${reviewLoading || !newComment.trim()
+                                                        ? isDark ? 'bg-gray-600 text-gray-400 cursor-not-allowed' : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                                                        : isDark
+                                                            ? 'bg-primary-600 hover:bg-primary-700 text-white'
+                                                            : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white'
+                                                        }`}
+                                                >
+                                                    {reviewLoading ? 'جاري الإرسال...' : 'إرسال التقييم'}
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setShowReviewForm(false);
+                                                        setReviewError('');
+                                                        setNewComment('');
+                                                    }}
+                                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${isDark
+                                                        ? 'bg-gray-600 hover:bg-gray-500 text-white'
+                                                        : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
+                                                        }`}
+                                                >
+                                                    إلغاء
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     )}
 

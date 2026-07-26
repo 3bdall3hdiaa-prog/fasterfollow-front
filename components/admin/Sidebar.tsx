@@ -17,12 +17,12 @@ const NavLink: React.FC<{ viewName: string, activeView: string, setActiveView: (
             href={`#/admin/${viewName}`}
             onClick={closeSidebar}
             className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-300 ${activeView === viewName
-                    ? isDark
-                        ? 'bg-primary-600 text-white'
-                        : 'bg-[#c9a84c] text-white shadow-md'
-                    : isDark
-                        ? 'text-gray-300 hover:bg-gray-700'
-                        : 'text-gray-600 hover:bg-gray-100 hover:text-[#c9a84c]'
+                ? isDark
+                    ? 'bg-primary-600 text-white'
+                    : 'bg-[#c9a84c] text-white shadow-md'
+                : isDark
+                    ? 'text-gray-300 hover:bg-gray-700'
+                    : 'text-gray-600 hover:bg-gray-100 hover:text-[#c9a84c]'
                 }`}
         >
             {children}
@@ -43,6 +43,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, setActiveView, isSidebarO
         { view: 'users', label: 'إدارة المستخدمين', icon: '👥' },
         { view: 'orders', label: 'إدارة الطلبات', icon: '🛒' },
         { view: 'services', label: 'إدارة الخدمات', icon: '📦' },
+        { view: 'reviews', label: 'إدارة التقييمات', icon: '🌟' },
         { view: 'copons', label: 'إدارة الكوبون', icon: '🎁' },
         { view: 'providers', label: 'إدارة المزودين', icon: '🔌' },
         { view: 'payments', label: 'إدارة طرق الدفع ', icon: '💳' },
@@ -77,8 +78,8 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, setActiveView, isSidebarO
                         <button
                             onClick={logout}
                             className={`flex items-center w-full px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-300 ${isDark
-                                    ? 'text-red-400 hover:bg-red-900/50'
-                                    : 'text-red-600 hover:bg-red-50'
+                                ? 'text-red-400 hover:bg-red-900/50'
+                                : 'text-red-600 hover:bg-red-50'
                                 }`}
                         >
                             <span className="ml-3">🚪</span>

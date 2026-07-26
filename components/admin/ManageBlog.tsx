@@ -274,7 +274,7 @@ const ManageBlog: React.FC = () => {
                 </div>
             </div>
 
-            {/* ✅ جدول المقالات - للشاشات الكبيرة */}
+            {/*  جدول المقالات - للشاشات الكبيرة */}
             <div className={`hidden md:block rounded-lg overflow-hidden transition-all duration-300 ${isDark
                 ? 'bg-gray-800 border border-gray-700'
                 : 'bg-white border border-[#dfd7bb] shadow-md'
@@ -364,7 +364,7 @@ const ManageBlog: React.FC = () => {
                 )}
             </div>
 
-            {/* ✅ تصميم البطاقات للهواتف */}
+            {/*  تصميم البطاقات للهواتف */}
             <div className="block md:hidden">
                 <div className={`rounded-lg overflow-hidden transition-all duration-300 ${isDark
                     ? 'bg-gray-800 border border-gray-700'

@@ -88,8 +88,8 @@ const Blog: React.FC<BlogProps> = ({ onPostClick }) => {
                         <button
                             onClick={fetchPosts}
                             className={`font-bold py-2 px-6 rounded-lg transition-all duration-300 ${isDark
-                                    ? 'bg-primary-600 hover:bg-primary-700 text-white'
-                                    : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
+                                ? 'bg-primary-600 hover:bg-primary-700 text-white'
+                                : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
                                 }`}
                         >
                             إعادة المحاولة
@@ -124,12 +124,12 @@ const Blog: React.FC<BlogProps> = ({ onPostClick }) => {
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {publishedPosts.map(post => (
+                        {publishedPosts.map((post: any) => (
                             <div
                                 key={post._id}
                                 className={`rounded-lg overflow-hidden flex flex-col cursor-pointer transition-all duration-300 hover:-translate-y-2 ${isDark
-                                        ? 'bg-gray-800 border border-gray-700 hover:shadow-xl'
-                                        : 'bg-white border border-[#dfd7bb] shadow-md hover:shadow-xl'
+                                    ? 'bg-gray-800 border border-gray-700 hover:shadow-xl'
+                                    : 'bg-white border border-[#dfd7bb] shadow-md hover:shadow-xl'
                                     }`}
                                 onClick={() => onPostClick(post.link)}
                             >

@@ -1,18 +1,18 @@
 import React, { useState, useMemo } from 'react';
-import { ServicePackage, Platform, SiteSettings } from '../types';
+import { ServiceResponse, Platform, SiteSettings } from '../types';
 import OrderModal from './OrderModal';
 import { useCurrency } from '../contexts/CurrencyContext';
 import AuthModal from './AuthModal';
 import { useThemeStore } from '@/store/theme.store';
 
 interface ServicesProps {
-    services: ServicePackage[];
+    services: any[];
     platforms: any;
     content: SiteSettings['homepageContent']['services'];
 }
 
 const Services: React.FC<ServicesProps> = ({ services, platforms, content }) => {
-    const [selectedService, setSelectedService] = useState<ServicePackage | null>(null);
+    const [selectedService, setSelectedService] = useState<any | null>(null);
     const [activePlatform, setActivePlatform] = useState<string>(platforms[0]?.name || '');
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     const { formatPrice } = useCurrency();
@@ -58,12 +58,12 @@ const Services: React.FC<ServicesProps> = ({ services, platforms, content }) => 
                             key={platform.id}
                             onClick={() => setActivePlatform(platform.name)}
                             className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-300 border-2 ${activePlatform === platform.name
-                                    ? isDark
-                                        ? 'bg-primary-600 border-primary-500 text-white'
-                                        : 'bg-[#c9a84c] border-[#c9a84c] text-white shadow-md'
-                                    : isDark
-                                        ? 'bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700 hover:border-gray-600'
-                                        : 'bg-white border-[#dfd7bb] text-gray-600 hover:bg-[#faf8f2] hover:border-[#c9a84c]'
+                                ? isDark
+                                    ? 'bg-primary-600 border-primary-500 text-white'
+                                    : 'bg-[#c9a84c] border-[#c9a84c] text-white shadow-md'
+                                : isDark
+                                    ? 'bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700 hover:border-gray-600'
+                                    : 'bg-white border-[#dfd7bb] text-gray-600 hover:bg-[#faf8f2] hover:border-[#c9a84c]'
                                 }`}
                         >
                             <span className="text-xl">{platform.iconUrl}</span>
@@ -79,11 +79,11 @@ const Services: React.FC<ServicesProps> = ({ services, platforms, content }) => 
                             <div
                                 key={service.id}
                                 className={`rounded-lg overflow-hidden flex flex-col text-center transition-all duration-300 transform hover:-translate-y-2 ${isDark
-                                        ? 'bg-gray-800 border border-gray-700 hover:border-primary-500 hover:shadow-2xl hover:shadow-primary-900/50'
-                                        : 'bg-white border border-[#dfd7bb] shadow-md hover:border-[#c9a84c] hover:shadow-xl hover:shadow-[#dfd7bb]/30'
+                                    ? 'bg-gray-800 border border-gray-700 hover:border-primary-500 hover:shadow-2xl hover:shadow-primary-900/50'
+                                    : 'bg-white border border-[#dfd7bb] shadow-md hover:border-[#c9a84c] hover:shadow-xl hover:shadow-[#dfd7bb]/30'
                                     }`}
                             >
-                                {service.imageUrl && <img src={service.imageUrl} alt={service.title} className="w-full h-40 object-cover" />}
+                                {service.image && <img src={service.image} alt={service.title} className="w-full h-40 object-cover" />}
                                 <div className="p-6 flex flex-col flex-grow">
                                     <p className={`mb-4 flex-grow text-sm transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-gray-600'
                                         }`}>
@@ -98,8 +98,8 @@ const Services: React.FC<ServicesProps> = ({ services, platforms, content }) => 
                                     <button
                                         onClick={z}
                                         className={`mt-auto font-bold py-3 px-6 rounded-lg transition-all w-full ${isDark
-                                                ? 'bg-primary-600 hover:bg-primary-700 text-white'
-                                                : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
+                                            ? 'bg-primary-600 hover:bg-primary-700 text-white'
+                                            : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
                                             }`}
                                     >
                                         اطلب الآن

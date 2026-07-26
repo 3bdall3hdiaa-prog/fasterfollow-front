@@ -354,7 +354,7 @@ const ManageCoupons: React.FC = () => {
                 <div className="text-center py-8" style={{ color: getMutedTextColor() }}>جاري تحميل الكوبونات...</div>
             ) : (
                 <>
-                    {/* ✅ جدول الكوبونات - للشاشات الكبيرة */}
+                    {/*  جدول الكوبونات - للشاشات الكبيرة */}
                     <div className={`hidden md:block rounded-lg overflow-hidden transition-all duration-300 ${isDark
                         ? 'bg-gray-800 border border-gray-700'
                         : 'bg-white border border-[#dfd7bb] shadow-md'
@@ -445,7 +445,7 @@ const ManageCoupons: React.FC = () => {
                         )}
                     </div>
 
-                    {/* ✅ تصميم البطاقات للهواتف */}
+                    {/*  تصميم البطاقات للهواتف */}
                     <div className="block md:hidden">
                         <div className={`rounded-lg overflow-hidden transition-all duration-300 ${isDark
                             ? 'bg-gray-800 border border-gray-700'

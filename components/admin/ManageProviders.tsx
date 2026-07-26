@@ -296,8 +296,8 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
                 <button
                     onClick={() => handleOpenModal(null)}
                     className={`font-bold py-3 px-6 rounded-lg w-full md:w-auto transition-all duration-300 ${isDark
-                            ? 'bg-primary-600 hover:bg-primary-700 text-white'
-                            : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
+                        ? 'bg-primary-600 hover:bg-primary-700 text-white'
+                        : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
                         }`}
                     disabled={loading}
                 >
@@ -307,8 +307,8 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
 
             {/* حقل البحث */}
             <div className={`rounded-lg p-4 mb-6 transition-all duration-300 ${isDark
-                    ? 'bg-gray-800 border border-gray-700'
-                    : 'bg-white border border-[#dfd7bb] shadow-md'
+                ? 'bg-gray-800 border border-gray-700'
+                : 'bg-white border border-[#dfd7bb] shadow-md'
                 }`}>
                 <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
                     <input
@@ -317,8 +317,8 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className={`rounded-md p-3 w-full md:w-1/2 text-sm md:text-base transition-all duration-300 ${isDark
-                                ? 'bg-gray-700 border border-gray-600 text-white'
-                                : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
+                            ? 'bg-gray-700 border border-gray-600 text-white'
+                            : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
                             }`}
                     />
                     <div className="text-sm md:text-base" style={{ color: getMutedTextColor() }}>
@@ -329,8 +329,8 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
 
             {/* ✅ جدول عرض المزودين - للشاشات الكبيرة */}
             <div className={`hidden md:block rounded-lg overflow-hidden transition-all duration-300 ${isDark
-                    ? 'bg-gray-800 border border-gray-700'
-                    : 'bg-white border border-[#dfd7bb] shadow-md'
+                ? 'bg-gray-800 border border-gray-700'
+                : 'bg-white border border-[#dfd7bb] shadow-md'
                 }`}>
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm text-right" style={{ color: getTextColor() }}>
@@ -347,8 +347,8 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
                         <tbody>
                             {filteredProviders.map(provider => (
                                 <tr key={provider.id} className={`border-b transition-colors ${isDark
-                                        ? 'border-gray-700 hover:bg-gray-700/50'
-                                        : 'border-[#dfd7bb] hover:bg-gray-50'
+                                    ? 'border-gray-700 hover:bg-gray-700/50'
+                                    : 'border-[#dfd7bb] hover:bg-gray-50'
                                     }`}>
                                     <td className="px-4 py-4 font-medium" style={{ color: getTextColor() }}>{provider.name}</td>
                                     <td className="px-4 py-4 font-mono text-xs" style={{ color: getMutedTextColor() }}>{provider.apiEndpoint}</td>
@@ -361,8 +361,8 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
                                             <button
                                                 onClick={() => handleOpenModal(provider)}
                                                 className={`p-2 rounded flex items-center gap-1 text-xs transition-colors ${isDark
-                                                        ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
-                                                        : 'bg-yellow-500 hover:bg-yellow-600 text-white'
+                                                    ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
+                                                    : 'bg-yellow-500 hover:bg-yellow-600 text-white'
                                                     }`}
                                                 disabled={loading}
                                             >
@@ -374,8 +374,8 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
                                             <button
                                                 onClick={() => handleDelete(provider.id)}
                                                 className={`p-2 rounded flex items-center gap-1 text-xs transition-colors ${isDark
-                                                        ? 'bg-red-600 hover:bg-red-700 text-white'
-                                                        : 'bg-red-500 hover:bg-red-600 text-white'
+                                                    ? 'bg-red-600 hover:bg-red-700 text-white'
+                                                    : 'bg-red-500 hover:bg-red-600 text-white'
                                                     }`}
                                                 disabled={loading}
                                             >
@@ -396,8 +396,8 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
             {/* ✅ تصميم البطاقات للهواتف */}
             <div className="block md:hidden">
                 <div className={`rounded-lg overflow-hidden transition-all duration-300 ${isDark
-                        ? 'bg-gray-800 border border-gray-700'
-                        : 'bg-white border border-[#dfd7bb] shadow-md'
+                    ? 'bg-gray-800 border border-gray-700'
+                    : 'bg-white border border-[#dfd7bb] shadow-md'
                     }`}>
                     {filteredProviders.length === 0 ? (
                         <div className="text-center py-8" style={{ color: getMutedTextColor() }}>
@@ -406,8 +406,8 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
                     ) : (
                         filteredProviders.map(provider => (
                             <div key={provider.id} className={`border-b p-4 transition-colors ${isDark
-                                    ? 'border-gray-700 hover:bg-gray-700/50'
-                                    : 'border-[#dfd7bb] hover:bg-gray-50'
+                                ? 'border-gray-700 hover:bg-gray-700/50'
+                                : 'border-[#dfd7bb] hover:bg-gray-50'
                                 }`}>
                                 {/* رأس البطاقة */}
                                 <div className="flex justify-between items-start mb-3">
@@ -425,8 +425,8 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
                                             onClick={() => handleSync(provider.id)}
                                             disabled={syncingProviderId === provider.id || loading}
                                             className={`text-xs px-2 py-1 rounded mt-1 transition-colors ${isDark
-                                                    ? 'text-blue-400 hover:text-blue-300 bg-blue-900/30 hover:bg-blue-900/50'
-                                                    : 'text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100'
+                                                ? 'text-blue-400 hover:text-blue-300 bg-blue-900/30 hover:bg-blue-900/50'
+                                                : 'text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100'
                                                 }`}
                                         >
                                             {syncingProviderId === provider.id ? 'جاري المزامنة...' : 'مزامنة الرصيد'}
@@ -455,8 +455,8 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
                                     <button
                                         onClick={() => handleOpenModal(provider)}
                                         className={`p-2 rounded flex items-center gap-1 flex-1 justify-center text-sm transition-colors ${isDark
-                                                ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
-                                                : 'bg-yellow-500 hover:bg-yellow-600 text-white'
+                                            ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
+                                            : 'bg-yellow-500 hover:bg-yellow-600 text-white'
                                             }`}
                                         disabled={loading}
                                     >
@@ -468,8 +468,8 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
                                     <button
                                         onClick={() => handleDelete(provider.id)}
                                         className={`p-2 rounded flex items-center gap-1 flex-1 justify-center text-sm transition-colors ${isDark
-                                                ? 'bg-red-600 hover:bg-red-700 text-white'
-                                                : 'bg-red-500 hover:bg-red-600 text-white'
+                                            ? 'bg-red-600 hover:bg-red-700 text-white'
+                                            : 'bg-red-500 hover:bg-red-600 text-white'
                                             }`}
                                         disabled={loading}
                                     >
@@ -486,7 +486,7 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
             </div>
 
             {isModalOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4" onClick={handleCloseModal}>
+                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={handleCloseModal}>
                     <div className={`rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-hidden transition-all duration-300 ${isDark ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'
                         }`} onClick={(e) => e.stopPropagation()}>
                         <form onSubmit={handleSubmit}>
@@ -505,8 +505,8 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
                                             onChange={handleChange}
                                             required
                                             className={`w-full rounded-md p-3 text-sm md:text-base transition-all duration-300 ${isDark
-                                                    ? 'bg-gray-700 border border-gray-600 text-white'
-                                                    : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
+                                                ? 'bg-gray-700 border border-gray-600 text-white'
+                                                : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
                                                 }`}
                                             disabled={loading}
                                         />
@@ -521,8 +521,8 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
                                             onChange={handleChange}
                                             required
                                             className={`w-full rounded-md p-3 text-sm md:text-base transition-all duration-300 ${isDark
-                                                    ? 'bg-gray-700 border border-gray-600 text-white'
-                                                    : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
+                                                ? 'bg-gray-700 border border-gray-600 text-white'
+                                                : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
                                                 }`}
                                             placeholder="https://provider.com/api"
                                             disabled={loading}
@@ -539,8 +539,8 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
                                             required={!editingProvider}
                                             placeholder={editingProvider ? 'اتركه فارغاً لعدم التغيير' : ''}
                                             className={`w-full rounded-md p-3 text-sm md:text-base transition-all duration-300 ${isDark
-                                                    ? 'bg-gray-700 border border-gray-600 text-white'
-                                                    : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
+                                                ? 'bg-gray-700 border border-gray-600 text-white'
+                                                : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
                                                 }`}
                                             disabled={loading}
                                         />
@@ -556,8 +556,8 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
                                             value={formData.status}
                                             onChange={handleChange}
                                             className={`w-full rounded-md p-3 text-sm md:text-base transition-all duration-300 ${isDark
-                                                    ? 'bg-gray-700 border border-gray-600 text-white'
-                                                    : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
+                                                ? 'bg-gray-700 border border-gray-600 text-white'
+                                                : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
                                                 }`}
                                             disabled={loading}
                                         >
@@ -573,8 +573,8 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
                                     type="button"
                                     onClick={handleCloseModal}
                                     className={`font-bold py-2 px-4 rounded-lg text-sm md:text-base transition-colors ${isDark
-                                            ? 'bg-gray-600 hover:bg-gray-500 text-white'
-                                            : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
+                                        ? 'bg-gray-600 hover:bg-gray-500 text-white'
+                                        : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
                                         }`}
                                     disabled={loading}
                                 >
@@ -583,8 +583,8 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
                                 <button
                                     type="submit"
                                     className={`font-bold py-2 px-4 rounded-lg text-sm md:text-base transition-all duration-300 ${isDark
-                                            ? 'bg-primary-600 hover:bg-primary-700 text-white'
-                                            : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
+                                        ? 'bg-primary-600 hover:bg-primary-700 text-white'
+                                        : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
                                         }`}
                                     disabled={loading}
                                 >
