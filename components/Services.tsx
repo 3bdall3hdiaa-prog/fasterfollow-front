@@ -19,9 +19,9 @@ const Services: React.FC<ServicesProps> = ({ services, platforms, content }) => 
     const { isDark } = useThemeStore();
 
     const filteredServices = useMemo(() => {
-        return services.filter(s => s.platform === activePlatform);
+        return services.filter(s => (s.platform).includes(activePlatform.split(' ')[0]));
     }, [services, activePlatform]);
-
+    console.log(activePlatform)
     function z() {
         const user = JSON.parse(localStorage.getItem('user') || '{}');
         if (user.role === "client") {
@@ -83,7 +83,7 @@ const Services: React.FC<ServicesProps> = ({ services, platforms, content }) => 
                                     : 'bg-white border border-[#dfd7bb] shadow-md hover:border-[#c9a84c] hover:shadow-xl hover:shadow-[#dfd7bb]/30'
                                     }`}
                             >
-                                {service.image && <img src={service.image} alt={service.title} className="w-full h-40 object-cover" />}
+                                {service.image && <img src={service.image.url} alt={service.title} className="w-full h-40 object-cover" />}
                                 <div className="p-6 flex flex-col flex-grow">
                                     <p className={`mb-4 flex-grow text-sm transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-gray-600'
                                         }`}>

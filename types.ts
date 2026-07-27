@@ -27,7 +27,7 @@ export interface ServiceForm {
     _id?: string; // 👈 ده الـ ID اللي بيجي من MongoDB
     id?: number; // ID محلي في الواجهة فقط (اختياري)
     providerServiceId: number; // رقم الخدمة عند المزود
-    provider: string; // ID الخاص بالمزود
+    provider: { _id: string; name: string }; // ID الخاص بالمزود
     platform: string; // اسم المنصة (Instagram, YouTube...)
     title: string; // اسم الخدمة
     description?: string; // وصف الخدمة
@@ -43,7 +43,7 @@ export interface ServiceResponse {
     _id?: string; // 👈 ده الـ ID اللي بيجي من MongoDB
     id?: number; // ID محلي في الواجهة فقط (اختياري)
     providerServiceId: number; // رقم الخدمة عند المزود
-    provider: string; // ID الخاص بالمزود
+    provider: { _id: string; name: string }; // ID الخاص بالمزود
     platform: string; // اسم المنصة (Instagram, YouTube...)
     title: string; // اسم الخدمة
     description?: string; // وصف الخدمة
@@ -202,6 +202,7 @@ export interface Platform {
     id: string;
     name: string;
     iconUrl: string;
+    slug: string;
 }
 
 

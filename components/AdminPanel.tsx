@@ -17,6 +17,8 @@ import ManageCoupons from './admin/ManageCoppons';
 import ManagePayments from './admin/MangePayments';
 import { useThemeStore } from '@/store/theme.store';
 import ManageReviews from './admin/ManageReviews';
+import { Import } from 'lucide-react';
+import ImportServices from './admin/ImportServices';
 
 interface AdminPanelProps {
     initialView?: string;
@@ -62,6 +64,7 @@ const AdminPanel: React.FC<AdminPanelProps> = (props) => {
             case 'coupons': return <ManageCoupons />;
             case 'payments': return <ManagePayments />;
             case 'reviews': return <ManageReviews />;
+            case 'importservices': return <ImportServices />;
             default: return <Dashboard />;
         }
     };

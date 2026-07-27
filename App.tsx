@@ -38,13 +38,13 @@ const mockServices: ServiceResponse[] = [
 //     { id: 'prov_4', name: 'TubeUp Services', apiEndpoint: 'https://tubeup.com/api', apiKey: 'key_fghij', status: 'Active', balance: 2100.00 },
 // ];
 
-const mockPlatforms: Platform[] = [
-    { id: '1', name: 'Instagram', iconUrl: '📸' },
-    { id: '2', name: 'TikTok', iconUrl: '🎵' },
-    { id: '3', name: 'Twitter', iconUrl: '🐦' },
-    { id: '4', name: 'YouTube', iconUrl: '▶️' },
-    { id: '5', name: 'Facebook', iconUrl: '👍' },
-]
+// const mockPlatforms: Platform[] = [
+//     { id: '1', name: 'Instagram', iconUrl: '📸' },
+//     { id: '2', name: 'TikTok', iconUrl: '🎵' },
+//     { id: '3', name: 'Twitter', iconUrl: '🐦' },
+//     { id: '4', name: 'YouTube', iconUrl: '▶️' },
+//     { id: '5', name: 'Facebook', iconUrl: '👍' },
+// ]
 
 const Redirector: React.FC<{ message: string; to?: string }> = ({ message, to = '/' }) => {
     useEffect(() => {
@@ -299,35 +299,12 @@ const App: React.FC = () => {
     const fetchServicesFromEndpoint = async () => {
         try {
             setError(null);
-            const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/services-list`);
+            const response = await axios.get(`${import.meta.env.VITE_API_URL}/services-list`);
 
-            if (!response.ok) {
-                throw new Error(`Failed to fetch services: ${response.status} ${response.statusText}`);
+            if (response.data) {
+                setServices(response.data);
             }
 
-            const data = await response.json();
-
-            // Transform the API data to match the ServicePackage type
-            const formattedServices: ServiceResponse[] = data.map((service: any) => ({
-                id: service._id || service.id?.toString() || Math.random().toString(),
-                title: service.title || 'Untitled',
-                name: service.title || 'Unnamed Service',
-                description: service.description || 'No description available',
-                price: service.price || 0,
-                originalPrice: service.price || 0, // نفس السعر إذا مفيش original price
-                platform: service.platform || 'Unknown',
-                isActive: service.status !== undefined ? service.status : true,
-                minOrder: service.min || 1,
-                maxOrder: service.max || 1000,
-                provider: service.provider || 'Unknown Provider',
-                providerServiceId: service.providerServiceId || '',
-                providerRate: service.providerRate || 0,
-                image: service.image.url || '',
-                createdAt: service.createdAt ? new Date(service.createdAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-                updatedAt: service.updatedAt || ''
-            }));
-
-            setServices(formattedServices);
         } catch (error) {
             console.error('Error fetching services:', error);
             setError('فشل في تحميل الخدمات. يرجى المحاولة مرة أخرى.');
@@ -362,12 +339,25 @@ const App: React.FC = () => {
             setError('فشل في تحميل البانرات. يرجى المحاولة مرة أخرى.');
         }
     };
+    const getProviders = async () => {
+        try {
+            setError(null);
+            const res = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/manage-providers`);
+            if (res.data) {
+                setProviders(res.data);
+            }
+        } catch (error) {
+            console.error('Error fetching providers:', error);
+            setError('فشل في تحميل قائمة المزودين. يرجى المحاولة مرة أخرى.');
+        }
+    }
 
     // Effect for fetching data on component mount
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
             try {
+                await getProviders();
                 await getReviews();
                 await fetchSiteSettingsFromEndpoint();
                 await fetchBlogsFromEndpoint();

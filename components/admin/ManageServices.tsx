@@ -18,7 +18,7 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
     const [formData, setFormData] = useState<ServiceForm>({
         title: '',
         description: '',
-        provider: '',
+        provider: { _id: '', name: '' },
         platform: '',
         price: 0,
         min: 0,
@@ -97,7 +97,7 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
             min: 100,
             max: 10000,
             status: true,
-            provider: '',
+            provider: { _id: '', name: '' },
             file: null as any,
             description: '',
         });
@@ -130,7 +130,7 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
         data.append('title', formData.title);
         data.append('platform', formData.platform);
         if (formData.description) data.append('description', formData.description);
-        data.append('provider', formData.provider);
+        data.append('provider', formData.provider._id);
         data.append('providerServiceId', formData.providerServiceId.toString());
         data.append('providerRate', formData.providerRate.toString());
         data.append('price', formData.price.toString());
@@ -174,7 +174,7 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
     // فلترة الخدمات حسب البحث
     const filteredServices = services.filter(service =>
         service.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        service.provider?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        service.provider?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         service.platform?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         service.providerServiceId?.toString().includes(searchTerm)
     );
@@ -274,8 +274,8 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                                     </td>
                                     <td className="px-4 py-4">{service.providerServiceId}</td>
                                     <td className="px-4 py-4" style={{ color: getTextColor() }}>{service.title}</td>
-                                    <td className="px-4 py-4" style={{ color: getTextColor() }}>{service.provider}</td>
-                                    <td className="px-4 py-4 text-green-400 font-semibold">${service.price}</td>
+                                    <td className="px-4 py-4" style={{ color: getTextColor() }}>{service.provider.name}</td>
+                                    <td className="px-4 py-4 text-green-400 font-semibold">${service.price.toFixed(2)}</td>
                                     <td className="px-4 py-4">
                                         <span className={`px-2 py-1 rounded-full text-xs ${service.status
                                             ? isDark ? 'bg-green-500/20 text-green-400' : 'bg-green-100 text-green-700'
@@ -386,7 +386,7 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                                 <div className="grid grid-cols-2 gap-3 text-sm mb-3">
                                     <div>
                                         <div className="text-xs mb-1" style={{ color: getMutedTextColor() }}>المزود</div>
-                                        <div style={{ color: getTextColor() }}>{service.provider}</div>
+                                        <div style={{ color: getTextColor() }}>{service.provider.name}</div>
                                     </div>
                                     <div>
                                         <div className="text-xs mb-1" style={{ color: getMutedTextColor() }}>المنصة</div>
@@ -394,7 +394,7 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                                     </div>
                                     <div>
                                         <div className="text-xs mb-1" style={{ color: getMutedTextColor() }}>السعر / 1000</div>
-                                        <div className="text-green-400 font-semibold">${service.price}</div>
+                                        <div className="text-green-400 font-semibold">${(service.price).toFixed(2)}</div>
                                     </div>
                                     <div>
                                         <div className="text-xs mb-1" style={{ color: getMutedTextColor() }}>الحد الأدنى</div>
@@ -535,10 +535,10 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                                 ))}
                             </select>
 
-                            <select
+                            {/* <select
                                 name="provider"
                                 value={formData.provider || ''}
-                                onChange={(e) => { setFormData(prev => ({ ...prev, provider: e.target.value })); }}
+                                onChange={(e) => { setFormData((prev: any) => ({ ...prev, provider: e.target.value })); }}
                                 className={`w-full p-2 rounded text-sm md:text-base transition-all duration-300 ${isDark
                                     ? 'bg-gray-700 text-white'
                                     : 'bg-gray-50 text-gray-800 border border-[#dfd7bb]'
@@ -550,7 +550,7 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                                         {p.name}
                                     </option>
                                 ))}
-                            </select>
+                            </select> */}
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <input
@@ -702,7 +702,7 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                                 </div>
                                 <div>
                                     <p className="text-sm" style={{ color: getMutedTextColor() }}>المزود:</p>
-                                    <p style={{ color: getTextColor() }}>{viewingService.provider}</p>
+                                    <p style={{ color: getTextColor() }}>{viewingService.provider.name}</p>
                                 </div>
                                 <div>
                                     <p className="text-sm" style={{ color: getMutedTextColor() }}>المنصة:</p>
@@ -710,7 +710,7 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                                 </div>
                                 <div>
                                     <p className="text-sm" style={{ color: getMutedTextColor() }}>السعر / 1000:</p>
-                                    <p className="text-green-400 font-semibold">${viewingService.price}</p>
+                                    <p className="text-green-400 font-semibold">${(viewingService.price).toFixed(2)}</p>
                                 </div>
                                 <div>
                                     <p className="text-sm" style={{ color: getMutedTextColor() }}>سعر المزود:</p>
