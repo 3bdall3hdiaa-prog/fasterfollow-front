@@ -168,12 +168,11 @@ const AddFunds: React.FC = () => {
                 setCouponMessage('يرجى تسجيل الدخول أولاً');
                 return;
             }
-
             const response = await fetch(`${import.meta.env.VITE_API_URL}/managecopons/cheeckcoupon`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${user.token}`
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
                 },
                 body: JSON.stringify({
                     userName,

@@ -16,6 +16,7 @@ export interface TestimonialsProps {
         _id: string;
     }
     rating: number;
+    username: string;
 }
 
 const renderStars = (rate: number, isDark: boolean) => {
@@ -200,7 +201,7 @@ const Testimonials: React.FC<any> = ({ content }) => {
                     {/* عرض العناصر في شبكة */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 transition-all duration-500">
                         {currentItems.map((el: any, index: number) => {
-                            const userName = el.userId?.name || el.userId?.email || 'مستخدم';
+                            const userName = el.userId?.name || el.userId?.email || el.userId?.username || el.username || 'مستخدم';
 
                             return (
                                 <div
@@ -227,7 +228,7 @@ const Testimonials: React.FC<any> = ({ content }) => {
                                             </h4>
                                             <p className={`text-sm transition-colors duration-300 ${isDark ? 'text-gray-500' : 'text-gray-400'
                                                 }`}>
-                                                {el.userId?.username || ''}
+                                                {el.userId?.username || el.username || ''}
                                             </p>
                                         </div>
                                     </div>

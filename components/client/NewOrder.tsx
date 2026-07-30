@@ -92,7 +92,6 @@ const NewOrder: React.FC<NewOrderProps> = ({ services }) => {
     }, [selectedServiceId]);
 
     const fetchServiceReviews = async (serviceId: string) => {
-        console.log('جاري جلب التقييمات للخدمة:', serviceId);
         try {
             setReviewLoading(true);
             const response = await axios.get(`${import.meta.env.VITE_API_URL}/reviews/${serviceId}`);
@@ -126,15 +125,13 @@ const NewOrder: React.FC<NewOrderProps> = ({ services }) => {
         setReviewError('');
 
         try {
-            console.log("the user", user);
             const data = {
                 serviceId: selectedServiceId,
                 rating: newRating,
                 comment: newComment,
-                userId: user._id,
+                userId: user._id || user.id,
                 username: user.username
             }
-            console.log(data);
             const response = await axios.post(`${import.meta.env.VITE_API_URL}/reviews`, data);
 
             if (response.data) {
@@ -158,7 +155,6 @@ const NewOrder: React.FC<NewOrderProps> = ({ services }) => {
             try {
                 setLoading(true);
                 const response = await axios.get(`${import.meta.env.VITE_API_URL}/services-list`);
-                console.log(response.data);
                 const servicesData = response.data;
                 const filteredServices = servicesData.filter((service: any) => {
                     return service.status === true;
