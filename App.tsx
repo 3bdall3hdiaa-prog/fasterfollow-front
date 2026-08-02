@@ -3,7 +3,8 @@ import React, { useState, useEffect, useRef } from 'react';
 
 import Header from './components/Header';
 import Hero from './components/Hero';
-import Features from './components/Features';
+import image1 from './assests/images/bitmap2.png';
+import image2 from './assests/images/b92164c9-7af4-45b6-94fb-95fdecf76609.webp';
 import Services from './components/Services';
 import HowItWorks from './components/HowItWorks';
 import Testimonials from './components/Testimonials';
@@ -538,14 +539,14 @@ const App: React.FC = () => {
 
                                     <div className='mt-6 sm:mt-8 md:mt-[35px]'>
                                         <img
-                                            src='./assests/images/bitmap2.png'
+                                            src={image1}
                                             className='w-full h-auto'
                                             alt=''
                                         />
                                     </div>
                                     <div className='rounded-2xl overflow-hidden mt-6 sm:mt-8 md:mt-[35px]'>
                                         <img
-                                            src='./assests/images/b92164c9-7af4-45b6-94fb-95fdecf76609.webp'
+                                            src={image2}
                                             className='w-full h-auto object-cover'
                                             alt=''
                                         />
