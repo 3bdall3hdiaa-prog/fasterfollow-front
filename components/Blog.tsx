@@ -64,7 +64,7 @@ const Blog: React.FC<BlogProps> = ({ onPostClick }) => {
 
     if (loading) {
         return (
-            <div className={`pt-24 pb-20 min-h-screen transition-colors duration-300 ${isDark ? 'bg-gray-900' : 'bg-gradient-to-b from-[#faf8f2] to-white'
+            <div className={`px-[120px] pt-24 pb-20 min-h-screen transition-colors duration-300 ${isDark ? 'bg-gray-900' : 'bg-gradient-to-b from-[#faf8f2] to-white'
                 }`}>
                 <div className="container mx-auto px-6">
                     <div className="text-center">
@@ -80,7 +80,7 @@ const Blog: React.FC<BlogProps> = ({ onPostClick }) => {
 
     if (error) {
         return (
-            <div className={`pt-24 pb-20 min-h-screen transition-colors duration-300 ${isDark ? 'bg-gray-900' : 'bg-gradient-to-b from-[#faf8f2] to-white'
+            <div className={`px-[120px] pt-24 pb-20 min-h-screen transition-colors duration-300 ${isDark ? 'bg-gray-900' : 'bg-gradient-to-b from-[#faf8f2] to-white'
                 }`}>
                 <div className="container mx-auto px-6">
                     <div className="text-center">
@@ -101,9 +101,9 @@ const Blog: React.FC<BlogProps> = ({ onPostClick }) => {
     }
 
     return (
-        <div className={`pt-24 pb-20 min-h-screen transition-colors duration-300 ${isDark ? 'bg-gray-900' : 'bg-gradient-to-b from-[#faf8f2] to-white'
+        <div className={`px-[120px] pt-24 pb-20 min-h-screen transition-colors duration-300 ${isDark ? 'bg-gray-900' : ''
             }`}>
-            <div className="container mx-auto px-6">
+            <div className=" px-6">
                 <div className="text-center mb-12">
                     <h1 className={`text-4xl md:text-5xl font-extrabold transition-colors duration-300 ${isDark ? 'text-white' : 'text-gray-800'
                         }`}>

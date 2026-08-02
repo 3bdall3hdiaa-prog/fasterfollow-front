@@ -3,6 +3,7 @@ import { useUser } from '../../contexts/UserContext';
 import StatCard from './StatCard';
 import { Order, OrderStatus } from '../../types';
 import { useThemeStore } from '@/store/theme.store';
+import { useCurrency } from '@/contexts/CurrencyContext';
 
 const statusClasses: any = {
     'Pending': 'bg-yellow-900 text-yellow-300',
@@ -56,7 +57,7 @@ const Dashboard: React.FC<DashboardProps> = ({ setActiveView }) => {
     const [orderlength, setOrderlength] = useState(0);
     const [error, setError] = useState<string | null>(null);
     const [walletBalance, setWalletBalance] = useState<number>(0);
-
+    const { formatPrice } = useCurrency()
     // دوال مساعدة للألوان
     const getTextColor = () => {
         return isDark ? '#ffffff' : '#1e2235';
@@ -249,7 +250,7 @@ const Dashboard: React.FC<DashboardProps> = ({ setActiveView }) => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <StatCard
                     title="رصيد المحفظة"
-                    value={`$${walletBalance.toFixed(2)}`}
+                    value={`${formatPrice(walletBalance)}`}
                     icon="wallet"
                 />
                 <StatCard title="إجمالي الطلبات" value={orderlength.toString()} icon="orders" />

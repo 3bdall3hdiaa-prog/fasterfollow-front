@@ -56,7 +56,7 @@ const Header: React.FC<HeaderProps> = ({ siteName, logoUrl, pages, color }) => {
         <>
             <header className={`fixed top-0 right-0 left-0 backdrop-blur-md border-b z-30 transition-colors duration-300 ${isDark
                 ? 'bg-gray-900/80 border-gray-700'
-                : 'bg-white/90 border-[#dfd7bb] shadow-sm'
+                : 'bg-white/70  '
                 }`}>
                 <div className="container mx-auto px-6">
                     <div className="flex justify-between items-center h-20">

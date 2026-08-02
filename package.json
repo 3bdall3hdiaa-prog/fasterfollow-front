@@ -10,13 +10,16 @@
   },
   "dependencies": {
     "@google/genai": "^1.25.0",
+    "@tailwindcss/vite": "^4.3.3",
     "axios": "^1.12.2",
     "bootstrap": "^5.3.8",
-    "lucide-react": "^1.26.0",
+    "lucide-react": "^1.28.0",
     "react": "^19.2.0",
     "react-bootstrap": "^2.10.10",
     "react-dom": "^19.2.0",
     "react-hot-toast": "^2.6.0",
+    "react-router-dom": "^7.18.2",
+    "tailwindcss": "^4.3.3",
     "zustand": "^5.0.14"
   },
   "devDependencies": {

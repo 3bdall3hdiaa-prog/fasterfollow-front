@@ -27,6 +27,11 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
         status: false,
         providerServiceId: 0,
         file: null as any,
+        discount_for_2000: '',
+        discount_for_3000: '',
+        discount_for_4000: '',
+        discount_for_greater_than_4000: '',
+        discount_for_greater_than_100000: '',
 
     });
     const [searchTerm, setSearchTerm] = useState('');
@@ -100,6 +105,11 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
             provider: { _id: '', name: '' },
             file: null as any,
             description: '',
+            discount_for_2000: '',
+            discount_for_3000: '',
+            discount_for_4000: '',
+            discount_for_greater_than_4000: '',
+            discount_for_greater_than_100000: '',
         });
         setIsModalOpen(true);
     };
@@ -137,6 +147,11 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
         data.append('min', formData.min.toString());
         data.append('max', formData.max.toString());
         data.append('status', formData.status.toString());
+        if (formData.discount_for_2000) data.append('discount_for_2000', formData.discount_for_2000);
+        if (formData.discount_for_3000) data.append('discount_for_3000', formData.discount_for_3000);
+        if (formData.discount_for_4000) data.append('discount_for_4000', formData.discount_for_4000);
+        if (formData.discount_for_greater_than_4000) data.append('discount_for_greater_than_4000', formData.discount_for_greater_than_4000);
+        if (formData.discount_for_greater_than_100000) data.append('discount_for_greater_than_100000', formData.discount_for_greater_than_100000);
         e.preventDefault();
         try {
             if (editingService) {
@@ -535,22 +550,7 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                                 ))}
                             </select>
 
-                            {/* <select
-                                name="provider"
-                                value={formData.provider || ''}
-                                onChange={(e) => { setFormData((prev: any) => ({ ...prev, provider: e.target.value })); }}
-                                className={`w-full p-2 rounded text-sm md:text-base transition-all duration-300 ${isDark
-                                    ? 'bg-gray-700 text-white'
-                                    : 'bg-gray-50 text-gray-800 border border-[#dfd7bb]'
-                                    }`}
-                            >
-                                <option value="">-- اختر المزود --</option>
-                                {providers.map(p => (
-                                    <option key={p.id} value={p.name}>
-                                        {p.name}
-                                    </option>
-                                ))}
-                            </select> */}
+
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <input
@@ -618,6 +618,61 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                                         : 'bg-gray-50 text-gray-800 border border-[#dfd7bb]'
                                         }`}
                                     required
+                                />
+                                <input
+                                    type="text"
+                                    value={formData.discount_for_2000 || ''}
+                                    onChange={(e) => { setFormData((prev: any) => ({ ...prev, discount_for_2000: e.target.value })); }}
+                                    placeholder="خصم للكميه 2000 "
+                                    className={`w-full p-2 rounded text-sm md:text-base transition-all duration-300 ${isDark
+                                        ? 'bg-gray-700 text-white'
+                                        : 'bg-gray-50 text-gray-800 border border-[#dfd7bb]'
+                                        }`}
+
+                                />
+                                <input
+                                    type="text"
+                                    value={formData.discount_for_3000 || ''}
+                                    onChange={(e) => { setFormData((prev: any) => ({ ...prev, discount_for_3000: e.target.value })); }}
+                                    placeholder="خصم للكميه 3000 "
+                                    className={`w-full p-2 rounded text-sm md:text-base transition-all duration-300 ${isDark
+                                        ? 'bg-gray-700 text-white'
+                                        : 'bg-gray-50 text-gray-800 border border-[#dfd7bb]'
+                                        }`}
+
+                                />
+                                <input
+                                    type="text"
+                                    value={formData.discount_for_4000 || ''}
+                                    onChange={(e) => { setFormData((prev: any) => ({ ...prev, discount_for_4000: e.target.value })); }}
+                                    placeholder="خصم للكميه 4000 "
+                                    className={`w-full p-2 rounded text-sm md:text-base transition-all duration-300 ${isDark
+                                        ? 'bg-gray-700 text-white'
+                                        : 'bg-gray-50 text-gray-800 border border-[#dfd7bb]'
+                                        }`}
+
+                                />
+                                <input
+                                    type="text"
+                                    value={formData.discount_for_greater_than_4000 || ''}
+                                    onChange={(e) => { setFormData((prev: any) => ({ ...prev, discount_for_greater_than_4000: e.target.value })); }}
+                                    placeholder="خصم للكميه فوق 4000 "
+                                    className={`w-full p-2 rounded text-sm md:text-base transition-all duration-300 ${isDark
+                                        ? 'bg-gray-700 text-white'
+                                        : 'bg-gray-50 text-gray-800 border border-[#dfd7bb]'
+                                        }`}
+
+                                />
+                                <input
+                                    type="text"
+                                    value={formData.discount_for_greater_than_100000 || ''}
+                                    onChange={(e) => { setFormData((prev: any) => ({ ...prev, discount_for_greater_than_100000: e.target.value })); }}
+                                    placeholder="خصم للكميه فوق 100000 "
+                                    className={`w-full p-2 rounded text-sm md:text-base transition-all duration-300 ${isDark
+                                        ? 'bg-gray-700 text-white'
+                                        : 'bg-gray-50 text-gray-800 border border-[#dfd7bb]'
+                                        }`}
+
                                 />
                             </div>
 

@@ -69,7 +69,7 @@ const CurrencyContext = createContext<CurrencyContextType | undefined>(
 export const CurrencyProvider: React.FC<{ children: ReactNode }> = ({
     children,
 }) => {
-    const [currency, setCurrency] = useState<string>("USD");
+    const [currency, setCurrency] = useState<string>("SAR");
 
     useEffect(() => {
         const storedCurrency = localStorage.getItem("currency");
@@ -117,8 +117,8 @@ export const CurrencyProvider: React.FC<{ children: ReactNode }> = ({
         ];
 
         return arabicCurrencies.includes(currency)
-            ? `${converted.toFixed(2)} ${symbol}`
-            : `${symbol}${converted.toFixed(2)}`;
+            ? `${converted.toFixed(1)} ${symbol}`
+            : `${symbol}${converted.toFixed(1)}`;
     };
 
     const currencies = Object.keys(conversionRates);

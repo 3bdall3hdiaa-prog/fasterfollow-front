@@ -16,8 +16,8 @@ const Footer: React.FC<FooterProps> = ({ siteName, pages, onNavigate }) => {
 
     return (
         <footer className={`border-t transition-colors duration-300 ${isDark
-                ? 'bg-gray-900/50 border-gray-700'
-                : 'bg-white border-[#dfd7bb] shadow-inner'
+            ? 'bg-gray-900/50 border-gray-700'
+            : 'bg-white border-[#dfd7bb] shadow-inner'
             }`}>
             <div className="container mx-auto px-6 py-8">
                 <div className="flex flex-col md:flex-row justify-between items-center text-center md:text-right">

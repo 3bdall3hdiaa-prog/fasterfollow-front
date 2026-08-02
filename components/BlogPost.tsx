@@ -32,7 +32,7 @@ const BlogPost: React.FC<BlogPostProps> = ({ post }) => {
     };
 
     return (
-        <div className={`min-h-screen pt-24 pb-20 transition-colors duration-300 ${isDark ? 'bg-gray-900' : 'bg-gray-50'
+        <div className={`min-h-screen pt-24 pb-20 transition-colors duration-300 ${isDark ? 'bg-gray-900' : ''
             }`}>
             <div className="container mx-auto px-4 sm:px-6 max-w-4xl">
                 <article className={`rounded-2xl shadow-xl overflow-hidden transition-colors duration-300 ${isDark ? 'bg-gray-800/80' : 'bg-white'

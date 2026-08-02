@@ -18,6 +18,7 @@ interface Review {
         _id: string;
     };
     rating: number;
+    isPublished: boolean; // إضافة هذا الحقل
     createdAt?: string;
 }
 
@@ -26,6 +27,7 @@ const ManageReviews = () => {
     const [reviews, setReviews] = useState<Review[]>([]);
     const [loading, setLoading] = useState(true);
     const [deletingId, setDeletingId] = useState<string | null>(null);
+    const [processingId, setProcessingId] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
 
     // جلب التقييمات
@@ -33,7 +35,7 @@ const ManageReviews = () => {
         try {
             setLoading(true);
             setError(null);
-            const response = await axios.get(`${import.meta.env.VITE_API_URL}/reviews`);
+            const response = await axios.get(`${import.meta.env.VITE_API_URL}/reviews/admin`);
             if (response.data.success) {
                 setReviews(response.data.data || response.data);
             } else {
@@ -48,7 +50,7 @@ const ManageReviews = () => {
         }
     };
 
-    // حذف تقييم
+    // حذف تقييم (للتقييمات المنشورة وغير المنشورة)
     const handleDelete = async (reviewId: string) => {
         if (!window.confirm('هل أنت متأكد من حذف هذا التقييم؟')) {
             return;
@@ -60,7 +62,6 @@ const ManageReviews = () => {
 
             if (response.data) {
                 toast.success('تم حذف التقييم بنجاح');
-                // إزالة التقييم من القائمة
                 setReviews(prev => prev.filter(review => review._id !== reviewId));
             } else {
                 toast.error(response.data.message || 'فشل في حذف التقييم');
@@ -71,6 +72,43 @@ const ManageReviews = () => {
         } finally {
             setDeletingId(null);
         }
+    };
+
+    // قبول التقييم (نشر التقييم)
+    const handleApprove = async (reviewId: string) => {
+        try {
+            setProcessingId(reviewId);
+            const response = await axios.patch(
+                `${import.meta.env.VITE_API_URL}/reviews/${reviewId}`,
+                { isPublished: true }
+            );
+
+            if (response.data) {
+                toast.success('تم نشر التقييم بنجاح');
+                // تحديث التقييم في القائمة
+                setReviews(prev => prev.map(review =>
+                    review._id === reviewId
+                        ? { ...review, isPublished: true }
+                        : review
+                ));
+            } else {
+                toast.error(response.data.message || 'فشل في نشر التقييم');
+            }
+        } catch (err: any) {
+            console.error('Error approving review:', err);
+            toast.error(err.response?.data?.message || 'فشل في نشر التقييم');
+        } finally {
+            setProcessingId(null);
+        }
+    };
+
+    // رفض التقييم (حذف التقييم)
+    const handleReject = async (reviewId: string) => {
+        if (!window.confirm('هل أنت متأكد من رفض هذا التقييم؟')) {
+            return;
+        }
+
+        await handleDelete(reviewId);
     };
 
     // جلب البيانات عند تحميل المكون
@@ -159,6 +197,10 @@ const ManageReviews = () => {
                         </h1>
                         <p className={`mt-2 transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                             إجمالي التقييمات: <span className="font-bold">{reviews.length}</span>
+                            {' | '}
+                            المنشورة: <span className="font-bold text-green-500">{reviews.filter(r => r.isPublished).length}</span>
+                            {' | '}
+                            قيد المراجعة: <span className="font-bold text-yellow-500">{reviews.filter(r => !r.isPublished).length}</span>
                         </p>
                     </div>
                     <button
@@ -190,6 +232,89 @@ const ManageReviews = () => {
                                     : 'bg-white border border-gray-200 hover:shadow-lg'
                                     }`}
                             >
+                                {/* حالة النشر */}
+                                <div className="flex justify-between items-start mb-3">
+                                    <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${review.isPublished
+                                        ? isDark
+                                            ? 'bg-green-900/30 text-green-400'
+                                            : 'bg-green-100 text-green-700'
+                                        : isDark
+                                            ? 'bg-yellow-900/30 text-yellow-400'
+                                            : 'bg-yellow-100 text-yellow-700'
+                                        }`}>
+                                        {review.isPublished ? '✅ منشور' : '⏳ قيد المراجعة'}
+                                    </span>
+
+                                    {/* أزرار الإجراءات حسب حالة النشر */}
+                                    {!review.isPublished ? (
+                                        // تقييم غير منشور: عرض قبول ورفض
+                                        <div className="flex gap-2">
+                                            <button
+                                                onClick={() => handleApprove(review._id)}
+                                                disabled={processingId === review._id}
+                                                className={`px-3 py-1 rounded-lg text-xs font-medium transition-all duration-300 ${processingId === review._id
+                                                    ? 'opacity-50 cursor-not-allowed'
+                                                    : isDark
+                                                        ? 'bg-green-900/30 text-green-400 hover:bg-green-900/50'
+                                                        : 'bg-green-100 text-green-700 hover:bg-green-200'
+                                                    }`}
+                                            >
+                                                {processingId === review._id ? (
+                                                    <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                    </svg>
+                                                ) : (
+                                                    'قبول'
+                                                )}
+                                            </button>
+                                            <button
+                                                onClick={() => handleReject(review._id)}
+                                                disabled={deletingId === review._id}
+                                                className={`px-3 py-1 rounded-lg text-xs font-medium transition-all duration-300 ${deletingId === review._id
+                                                    ? 'opacity-50 cursor-not-allowed'
+                                                    : isDark
+                                                        ? 'bg-red-900/30 text-red-400 hover:bg-red-900/50'
+                                                        : 'bg-red-100 text-red-700 hover:bg-red-200'
+                                                    }`}
+                                            >
+                                                {deletingId === review._id ? (
+                                                    <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                    </svg>
+                                                ) : (
+                                                    'رفض'
+                                                )}
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        // تقييم منشور: عرض زر حذف فقط
+                                        <button
+                                            onClick={() => handleDelete(review._id)}
+                                            disabled={deletingId === review._id}
+                                            className={`p-2 rounded-lg transition-all duration-300 ${deletingId === review._id
+                                                ? 'opacity-50 cursor-not-allowed'
+                                                : isDark
+                                                    ? 'hover:bg-red-900/20 text-red-400 hover:text-red-300'
+                                                    : 'hover:bg-red-50 text-red-500 hover:text-red-600'
+                                                }`}
+                                            title="حذف التقييم"
+                                        >
+                                            {deletingId === review._id ? (
+                                                <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                            ) : (
+                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            )}
+                                        </button>
+                                    )}
+                                </div>
+
                                 {/* رأس البطاقة - اسم المستخدم والخدمة */}
                                 <div className="flex items-start justify-between mb-4">
                                     <div className="flex items-center flex-1 min-w-0">
@@ -210,27 +335,6 @@ const ManageReviews = () => {
                                             </p>
                                         </div>
                                     </div>
-                                    <button
-                                        onClick={() => handleDelete(review._id)}
-                                        disabled={deletingId === review._id}
-                                        className={`p-2 rounded-lg transition-all duration-300 flex-shrink-0 ${isDark
-                                            ? 'hover:bg-red-900/20 text-red-400 hover:text-red-300'
-                                            : 'hover:bg-red-50 text-red-500 hover:text-red-600'
-                                            } ${deletingId === review._id ? 'opacity-50 cursor-not-allowed' : ''
-                                            }`}
-                                        title="حذف التقييم"
-                                    >
-                                        {deletingId === review._id ? (
-                                            <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                            </svg>
-                                        ) : (
-                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                            </svg>
-                                        )}
-                                    </button>
                                 </div>
 
                                 {/* اسم الخدمة */}

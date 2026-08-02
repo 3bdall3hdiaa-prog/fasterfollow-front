@@ -38,6 +38,11 @@ export interface ServiceForm {
     type?: string; // نوع الخدمة (اختياري)
     status: boolean; // الحالة (نشطة / موقوفة)
     file?: File;
+    discount_for_greater_than_100000?: string;
+    discount_for_greater_than_4000?: string;
+    discount_for_4000?: string;
+    discount_for_3000?: string;
+    discount_for_2000?: string;
 }
 export interface ServiceResponse {
     _id?: string; // 👈 ده الـ ID اللي بيجي من MongoDB
@@ -198,11 +203,14 @@ export interface BannerFormData {
 }
 
 export interface Platform {
-    _id?: string;
-    id: string;
+    _id: string;
     name: string;
-    iconUrl: string;
+    image?: {
+        url: string;
+        public_id: string;
+    }
     slug: string;
+
 }
 
 

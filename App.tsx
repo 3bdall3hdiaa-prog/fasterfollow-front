@@ -21,6 +21,9 @@ import { useSEO } from './hooks/useSEO';
 import { Page, BlogPost as BlogPostType, ServiceResponse, Provider, BannerResponse, SiteSettings, Platform } from './types';
 import axios from 'axios';
 import { useThemeStore } from './store/theme.store';
+import TiktokSection from './components/TiktokSection';
+import ServicesSection from './components/ServicesSection';
+import ServiceView from './components/ServiceView';
 
 // MOCK DATA - Placed here to avoid creating new files
 const mockServices: ServiceResponse[] = [
@@ -53,10 +56,11 @@ const Redirector: React.FC<{ message: string; to?: string }> = ({ message, to = 
     return <div className="text-center pt-40">{message}</div>;
 };
 
-type View = 'home' | 'page' | 'blog' | 'blogPost' | 'client' | 'admin';
+type View = 'home' | 'page' | 'blog' | 'blogPost' | 'client' | 'admin' | 'services';
 type AppView = {
     view: View;
     slug?: string;
+    id?: string;
 };
 
 const App: React.FC = () => {
@@ -64,11 +68,12 @@ const App: React.FC = () => {
     const [appView, setAppView] = useState<AppView>({ view: 'home' });
     const prevUser = useRef(user);
     const { isDark } = useThemeStore();
-
+    console.log("app view", appView);
     // Mock data state
     const [blogPosts, setBlogPosts] = useState<BlogPostType[]>([]);
     const [siteSettings, setSiteSettings] = useState<SiteSettings | null>(null);
     const [services, setServices] = useState<ServiceResponse[]>([]); // Empty array initially
+    const [filteredServices, setFilteredServices] = useState<any[]>([]);
     const [pages, setPages] = useState<Page[]>([]); // Empty array initially
     const [posts, setPosts] = useState<BlogPostType[]>([]);
     const [providers, setProviders] = useState<Provider[]>([]);
@@ -78,26 +83,26 @@ const App: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [reviews, setReviews] = useState<any[]>([]);
 
-    useEffect(() => {
-        const fetchPlatforms = async () => {
-            try {
-                const storedProviders = await axios.get(`${import.meta.env.VITE_API_URL}/manageplatforms`);
-                // const data = {
-                //     _id: storedProviders.data._id,
-                //     id: storedProviders.data.id,
-                //     name: storedProviders.data.name,
-                //     iconUrl: storedProviders.data.iconUrl
-                // };
-                // console.log(data);
+    // useEffect(() => {
+    //     const fetchPlatforms = async () => {
+    //         try {
+    //             const storedProviders = await axios.get(`${import.meta.env.VITE_API_URL}/manageplatforms`);
+    //             // const data = {
+    //             //     _id: storedProviders.data._id,
+    //             //     id: storedProviders.data.id,
+    //             //     name: storedProviders.data.name,
+    //             //     iconUrl: storedProviders.data.iconUrl
+    //             // };
+    //             // console.log(data);
 
-                setPlatforms(storedProviders.data);
-            } catch (error) {
-                console.error('Error fetching platforms:', error);
-            }
-        };
+    //             setPlatforms(storedProviders.data);
+    //         } catch (error) {
+    //             console.error('Error fetching platforms:', error);
+    //         }
+    //     };
 
-        fetchPlatforms();
-    }, []);
+    //     fetchPlatforms();
+    // }, []);
 
 
     // Function to fetch site settings from endpoint
@@ -351,6 +356,16 @@ const App: React.FC = () => {
             setError('فشل في تحميل قائمة المزودين. يرجى المحاولة مرة أخرى.');
         }
     }
+    const getPlatforms = async () => {
+        try {
+            const res = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/manageplatforms`);
+            if (res.data) {
+                setPlatforms(res.data);
+            }
+        } catch (error) {
+            console.error('Error fetching platforms:', error);
+        }
+    }
 
     // Effect for fetching data on component mount
     useEffect(() => {
@@ -359,10 +374,11 @@ const App: React.FC = () => {
             try {
                 await getProviders();
                 await getReviews();
+                await getPlatforms();
                 await fetchSiteSettingsFromEndpoint();
                 await fetchBlogsFromEndpoint();
                 await fetchPagesFromEndpoint();
-                await fetchServicesFromEndpoint();
+                // await fetchServicesFromEndpoint();
                 await fetchBannersFromEndpoint();
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -378,7 +394,7 @@ const App: React.FC = () => {
     useEffect(() => {
         const handleHashChange = () => {
             const hash = window.location.hash.replace('#/', '');
-            const [path, slug] = hash.split('/');
+            const [path, slug, id] = hash.split('/');
 
             switch (path) {
                 case 'admin':
@@ -400,6 +416,14 @@ const App: React.FC = () => {
                     break;
                 case 'blogPost':
                     setAppView({ view: 'blogPost', slug: slug || '' });
+                    break;
+                case 'services':
+                    if (slug) {
+                        setAppView({ view: 'services', slug, id });
+                    }
+                    else {
+                        setAppView({ view: 'services' });
+                    }
                     break;
                 default:
                     setAppView({ view: 'home' });
@@ -429,6 +453,20 @@ const App: React.FC = () => {
 
         prevUser.current = user;
     }, [user, appView.view]);
+
+
+    const handleGetServices = async (slug: any) => {
+        try {
+            const res = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/services-list/getOne/${slug}`);
+            console.log(res.data);
+            if (res.data) {
+                setFilteredServices(res.data.data);
+            }
+        } catch (error) {
+            console.error('Error fetching services:', error);
+        }
+    }
+
 
     const onNavigate = (view: 'page' | 'blogPost' | 'home' | 'blog', slug: string) => {
         window.location.hash = `/${view}${slug ? `/${slug}` : ''}`;
@@ -477,26 +515,48 @@ const App: React.FC = () => {
             case 'blogPost':
                 const post = blogPosts.find((p: any) => p.link === appView.slug && p.status === 'Published');
                 return post ? <BlogPost post={post} /> : <div className="text-center pt-40">المقال غير موجود</div>;
+
+            case 'services':
+                if (appView.id) {
+                    return <ServiceView id={appView.id} />
+                }
+                else {
+                    handleGetServices(appView.slug);
+                    return <Services services={filteredServices} length={filteredServices.length} />
+                }
+
             case 'home':
 
             default:
                 return (
                     <>
-                        <div className={`${isDark ? "bg-gray-900" : "bg-gradient-to-t from-[#dfd7bb] to-white"}`}>
+                        <div className={` ${isDark ? "bg-gray-900" : "bg-gradient-to-t from-[#dfd7bb] to-white"}`}>
 
-                            <Hero
-                                siteName={siteSettings.siteName}
-                                content={siteSettings.homepageContent.hero}
-                            />
-                            <Banners banners={banners.filter(b => b.isActive)} />
-                            <Features content={siteSettings.homepageContent.features} />
-                            <Services
-                                services={services}
-                                platforms={platforms}
-                                content={siteSettings.homepageContent.services}
-                            />
-                            <HowItWorks content={siteSettings.homepageContent.howItWorks} />
-                            <Testimonials content={reviews} />
+                            <Hero />
+                            <div className={`mx-4 sm:px-6 md:px-10 lg:px-16 xl:px-32 `}>
+                                <div className=''>
+
+                                    <div className='mt-6 sm:mt-8 md:mt-[35px]'>
+                                        <img
+                                            src='./assests/images/bitmap2.png'
+                                            className='w-full h-auto'
+                                            alt=''
+                                        />
+                                    </div>
+                                    <div className='rounded-2xl overflow-hidden mt-6 sm:mt-8 md:mt-[35px]'>
+                                        <img
+                                            src='./assests/images/b92164c9-7af4-45b6-94fb-95fdecf76609.webp'
+                                            className='w-full h-auto object-cover'
+                                            alt=''
+                                        />
+                                    </div>
+
+                                    <Testimonials content={reviews} />
+                                    {platforms?.map((platform: any) => (
+                                        <ServicesSection key={platform._id} platform={platform} />
+                                    ))}
+                                </div>
+                            </div>
                         </div>
                     </>
                 );
@@ -532,10 +592,10 @@ const App: React.FC = () => {
     }, [siteSettings?.primaryColor]);
 
     return (
-        <div className={`bg-gray-900 text-white min-h-screen font-sans" dir="rtl  ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
+        <div className={`bg-gray-900 text-white min-h-screen font-sans" dir="rtl  ${isDark ? 'bg-gray-900' : 'bg-gradient-to-t from-[#dfd7bb] to-white'}`}>
             <Header color={siteSettings?.primaryColor} siteName={siteSettings?.siteName || 'فاستر فولو'} logoUrl={siteSettings?.logo?.url} pages={pages} />
-            <main>{renderView()}</main>
-            {(appView.view === 'home' || appView.view === 'blog' || appView.view === 'blogPost' || appView.view === 'page') && <Footer siteName={siteSettings?.siteName || 'فاستر فولو'} pages={pages} onNavigate={onNavigate} />}
+            <main className=''>{renderView()}</main>
+            {(appView.view === 'home' || appView.view === 'blog' || appView.view === 'blogPost' || appView.view === 'page' || appView.view === 'services') && <Footer siteName={siteSettings?.siteName || 'فاستر فولو'} pages={pages} onNavigate={onNavigate} />}
             <Chatbot />
         </div>
     );

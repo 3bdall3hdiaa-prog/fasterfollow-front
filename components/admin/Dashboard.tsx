@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import StatCard from './StatCard';
 import { useThemeStore } from '@/store/theme.store';
+import { useCurrency } from '@/contexts/CurrencyContext';
 
 const Dashboard: React.FC = () => {
     const [orderlength, setOrderlength] = useState(0);
@@ -9,7 +10,7 @@ const Dashboard: React.FC = () => {
     const [totalRevenue, setTotalRevenue] = useState(0);
     const [loading, setLoading] = useState(true);
     const { isDark } = useThemeStore();
-
+    const { formatPrice } = useCurrency();
     useEffect(() => {
         const getdata = async () => {
             try {
@@ -94,7 +95,7 @@ const Dashboard: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <StatCard
                     title="إجمالي الإيرادات"
-                    value={formattedRevenue}
+                    value={formatPrice(totalRevenue)}
                     icon="revenue"
                 />
                 <StatCard
@@ -115,8 +116,8 @@ const Dashboard: React.FC = () => {
             </div>
 
             <div className={`rounded-lg p-6 transition-all duration-300 ${isDark
-                    ? 'bg-gray-800 border border-gray-700'
-                    : 'bg-white border border-[#dfd7bb] shadow-md'
+                ? 'bg-gray-800 border border-gray-700'
+                : 'bg-white border border-[#dfd7bb] shadow-md'
                 }`}>
                 <h2 className={`text-xl font-semibold transition-colors duration-300 ${isDark ? 'text-white' : 'text-gray-800'
                     }`}>
@@ -138,7 +139,7 @@ const Dashboard: React.FC = () => {
                     <p className={`transition-colors duration-300 ${isDark ? 'text-gray-300' : 'text-gray-600'
                         }`}>
                         إجمالي الإيرادات: <span className={`font-bold ${isDark ? 'text-green-400' : 'text-green-600'
-                            }`}>{formattedRevenue}</span>
+                            }`}>{formatPrice(totalRevenue)}</span>
                     </p>
                     <p className={`transition-colors duration-300 ${isDark ? 'text-gray-300' : 'text-gray-600'
                         }`}>

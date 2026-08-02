@@ -51,7 +51,7 @@ const ClientPanel: React.FC<ClientPanelProps> = ({ services, initialView = 'dash
     return (
         <div className={`pt-20 min-h-screen transition-colors duration-300 ${isDark
             ? 'bg-gray-900 text-gray-300'
-            : 'bg-gradient-to-b from-[#faf8f2] to-white text-gray-800'
+            : ' text-gray-800'
             }`}>
             <div className="flex">
                 <Sidebar activeView={activeView} setActiveView={setActiveView} isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
@@ -60,7 +60,7 @@ const ClientPanel: React.FC<ClientPanelProps> = ({ services, initialView = 'dash
                         {/* زر القائمة الثابت */}
                         <button
                             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                            className={`fixed md:hidden z-50 bottom-6 right-6 p-4 rounded-full text-white shadow-lg transition-all duration-300 hover:scale-110 ${isDark
+                            className={`fixed md:hidden z-50  top-[19px] right-2 px-1 py-2 rounded-xl text-white shadow-lg transition-all duration-300 hover:scale-110 ${isDark
                                 ? 'bg-primary-600 hover:bg-primary-700'
                                 : 'bg-[#c9a84c] hover:bg-[#b8973a]'
                                 }`}
