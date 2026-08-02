@@ -60,7 +60,7 @@ const ClientPanel: React.FC<ClientPanelProps> = ({ services, initialView = 'dash
                         {/* زر القائمة الثابت */}
                         <button
                             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                            className={`fixed md:hidden z-50  top-[19px] right-2 px-1 py-2 rounded-xl text-white shadow-lg transition-all duration-300 hover:scale-110 ${isDark
+                            className={`fixed md:hidden z-50 bottom-8 left-8 p-4 rounded-full text-white shadow-lg transition-all duration-300 hover:scale-110 ${isDark
                                 ? 'bg-primary-600 hover:bg-primary-700'
                                 : 'bg-[#c9a84c] hover:bg-[#b8973a]'
                                 }`}

@@ -597,7 +597,7 @@ const App: React.FC = () => {
             <Header color={siteSettings?.primaryColor} siteName={siteSettings?.siteName || 'فاستر فولو'} logoUrl={siteSettings?.logo?.url} pages={pages} />
             <main className=''>{renderView()}</main>
             {(appView.view === 'home' || appView.view === 'blog' || appView.view === 'blogPost' || appView.view === 'page' || appView.view === 'services') && <Footer siteName={siteSettings?.siteName || 'فاستر فولو'} pages={pages} onNavigate={onNavigate} />}
-            <Chatbot />
+            {/* <Chatbot /> */}
         </div>
     );
 };

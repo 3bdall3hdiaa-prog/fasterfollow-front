@@ -58,12 +58,12 @@ const Header: React.FC<HeaderProps> = ({ siteName, logoUrl, pages, color }) => {
                 ? 'bg-gray-900/80 border-gray-700'
                 : 'bg-white/70  '
                 }`}>
-                <div className="container mx-auto px-6">
-                    <div className="flex justify-between items-center h-20">
+                <div className="container mx-auto px-3 sm:px-6">
+                    <div className="flex justify-between items-center h-16 md:h-20 gap-2">
                         {/* Logo and Site Name */}
-                        <a href="#/" className="flex items-center space-x-3 space-x-reverse">
-                            {logoUrl && <img src={logoUrl} alt={siteName} className="h-10 w-10 object-contain" />}
-                            <span className="text-xl font-extrabold transition-colors duration-300">
+                        <a href="#/" className="flex items-center gap-2 sm:space-x-3 sm:space-x-reverse min-w-0 flex-shrink-0">
+                            {logoUrl && <img src={logoUrl} alt={siteName} className="h-8 w-8 md:h-10 md:w-10 object-contain flex-shrink-0" />}
+                            <span className="text-base sm:text-lg md:text-xl font-extrabold transition-colors duration-300 truncate max-w-[110px] xs:max-w-[150px] sm:max-w-none">
                                 <span className={isDark ? `text-[${color}]` : 'text-[#c9a84c]'}>
                                     {mainName}
                                 </span>
@@ -74,7 +74,7 @@ const Header: React.FC<HeaderProps> = ({ siteName, logoUrl, pages, color }) => {
                         </a>
 
                         {/* Desktop Navigation */}
-                        <nav className="hidden md:flex items-center space-x-6 space-x-reverse text-sm font-medium">
+                        <nav className="hidden md:flex items-center space-x-6 space-x-reverse text-sm font-medium flex-shrink-0">
                             <a href="#/" className={`transition-colors duration-300 ${isDark ? 'text-gray-300 hover:text-primary-400' : 'text-gray-600 hover:text-[#c9a84c]'
                                 }`}>الرئيسية</a>
                             <a href="#/blog" className={`transition-colors duration-300 ${isDark ? 'text-gray-300 hover:text-primary-400' : 'text-gray-600 hover:text-[#c9a84c]'
@@ -86,15 +86,15 @@ const Header: React.FC<HeaderProps> = ({ siteName, logoUrl, pages, color }) => {
                         </nav>
 
                         {/* Actions */}
-                        <div className="flex items-center space-x-2 space-x-reverse">
+                        <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
                             {/*theme */}
                             <ThemeButton />
 
-                            {/* Currency Selector */}
+                            {/* Currency Selector - hidden on very small screens, moved into mobile menu instead */}
                             <select
                                 value={currency}
                                 onChange={(e) => setCurrency(e.target.value)}
-                                className={`rounded-md py-1 px-2 text-xs focus:outline-none transition-colors duration-300 ${isDark
+                                className={`hidden xs:block rounded-md py-1 px-1.5 sm:px-2 text-xs focus:outline-none transition-colors duration-300 ${isDark
                                     ? 'bg-gray-800 text-gray-300 border border-gray-700'
                                     : 'bg-white text-gray-700 border border-[#dfd7bb]'
                                     }`}
@@ -103,14 +103,14 @@ const Header: React.FC<HeaderProps> = ({ siteName, logoUrl, pages, color }) => {
                             </select>
 
                             {user ? (
-                                <div className="relative flex items-center gap-4">
+                                <div className="relative flex items-center gap-2 sm:gap-4">
                                     <Notifications />
-                                    <button onClick={() => setIsUserMenuOpen(!isUserMenuOpen)} className="flex items-center space-x-2 space-x-reverse">
-                                        <span className={`font-semibold transition-colors duration-300 ${isDark ? 'text-white' : 'text-gray-800'
+                                    <button onClick={() => setIsUserMenuOpen(!isUserMenuOpen)} className="flex items-center gap-1.5 sm:space-x-2 sm:space-x-reverse">
+                                        <span className={`hidden sm:inline font-semibold transition-colors duration-300 ${isDark ? 'text-white' : 'text-gray-800'
                                             }`}>
                                             {getDisplayName()}
                                         </span>
-                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold transition-colors duration-300 ${isDark ? 'bg-primary-600' : 'bg-[#c9a84c]'
+                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold transition-colors duration-300 flex-shrink-0 ${isDark ? 'bg-primary-600' : 'bg-[#c9a84c]'
                                             }`}>
                                             {getInitial()}
                                         </div>
@@ -122,7 +122,7 @@ const Header: React.FC<HeaderProps> = ({ siteName, logoUrl, pages, color }) => {
                                             }`}>
                                             <a href="#" onClick={(e) => { e.preventDefault(); navigateToPanel(); }} className={`block px-4 py-2 text-sm transition-colors duration-300 ${isDark ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'
                                                 }`}>لوحة التحكم</a>
-                                            {userObject.role === 'client' ? (
+                                            {userObject?.role === 'client' ? (
                                                 <>
                                                     <a href="#/client/profile" onClick={() => setIsUserMenuOpen(false)} className={`block px-4 py-2 text-sm transition-colors duration-300 ${isDark ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'
                                                         }`}>الملف الشخصي</a>
@@ -162,7 +162,7 @@ const Header: React.FC<HeaderProps> = ({ siteName, logoUrl, pages, color }) => {
                 </div>
                 {/* Mobile Menu */}
                 {isMenuOpen && (
-                    <div className={`md:hidden border-t p-4 space-y-2 transition-colors duration-300 ${isDark
+                    <div className={`md:hidden border-t p-4 space-y-3 transition-colors duration-300 ${isDark
                         ? 'bg-gray-800 border-gray-700'
                         : 'bg-white border-[#dfd7bb]'
                         }`}>
@@ -174,6 +174,21 @@ const Header: React.FC<HeaderProps> = ({ siteName, logoUrl, pages, color }) => {
                             <a key={page.id} href={`#/page/${page.slug}`} onClick={() => setIsMenuOpen(false)} className={`block transition-colors duration-300 ${isDark ? 'text-gray-300 hover:text-primary-400' : 'text-gray-600 hover:text-[#c9a84c]'
                                 }`}>{page.title}</a>
                         ))}
+
+                        {/* Currency selector for very small screens, mirrored here since it's hidden in the top bar below `xs` */}
+                        <div className="xs:hidden pt-1">
+                            <select
+                                value={currency}
+                                onChange={(e) => setCurrency(e.target.value)}
+                                className={`w-full rounded-md py-2 px-2 text-sm focus:outline-none transition-colors duration-300 ${isDark
+                                    ? 'bg-gray-900 text-gray-300 border border-gray-700'
+                                    : 'bg-gray-50 text-gray-700 border border-[#dfd7bb]'
+                                    }`}
+                            >
+                                {currencies.map(c => <option key={c} value={c}>{c}</option>)}
+                            </select>
+                        </div>
+
                         {!user && (
                             <button onClick={() => { setIsAuthModalOpen(true); setIsMenuOpen(false); }} className={`w-full text-right font-bold py-2 px-4 rounded-lg text-sm transition-all duration-300 mt-2 ${isDark
                                 ? 'bg-primary-600 hover:bg-primary-700 text-white'
