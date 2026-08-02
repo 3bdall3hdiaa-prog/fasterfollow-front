@@ -1,7 +1,7 @@
 import React from 'react';
 import { SiteSettings } from '../types';
 import { useThemeStore } from '@/store/theme.store';
-
+import HeroImage from '../assests/images/البانر الرئيسي لمتجر متوفر 2.webp';
 interface HeroProps {
     siteName: string;
     content: SiteSettings['homepageContent']['hero'];
@@ -19,7 +19,7 @@ const Hero: React.FC = () => {
 
     return (
         <div className='xl:px-[120px] mt-[81px]'>
-            <img src='../assests/images/البانر الرئيسي لمتجر متوفر 2.webp' />
+            <img src={HeroImage} alt="Hero" />
         </div>
     );
 };
