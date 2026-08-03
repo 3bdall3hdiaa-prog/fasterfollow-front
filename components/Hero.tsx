@@ -18,7 +18,7 @@ const Hero: React.FC = () => {
     };
 
     return (
-        <div className='xl:px-[120px] mt-[81px]'>
+        <div className='xl:px-[120px]  mt-16 md:mt-20 xl:mt-[81px]'>
             <img src={HeroImage} alt="Hero" />
         </div>
     );

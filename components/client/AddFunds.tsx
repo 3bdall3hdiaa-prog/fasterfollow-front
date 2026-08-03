@@ -312,7 +312,7 @@ const AddFunds: React.FC = () => {
                             <label htmlFor="couponCode" className="block text-sm font-medium mb-2" style={{ color: getMutedTextColor() }}>
                                 لديك كوبون؟ أدخل كود الكوبون الخاص بك هنا لشحن الرصيد فورا
                             </label>
-                            <div className="flex gap-2">
+                            <div className="flex flex-col gap-y-4">
                                 <input
                                     type="text"
                                     id="couponCode"
@@ -329,7 +329,7 @@ const AddFunds: React.FC = () => {
                                     <button
                                         onClick={applyCoupon}
                                         disabled={loading}
-                                        className={`font-bold px-4 rounded-lg transition-all duration-300 disabled:opacity-50 ${isDark
+                                        className={`font-bold py-3 rounded-lg transition-all duration-300 disabled:opacity-50 ${isDark
                                             ? 'bg-primary-600 hover:bg-primary-700 text-white'
                                             : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
                                             }`}
@@ -339,7 +339,7 @@ const AddFunds: React.FC = () => {
                                 ) : (
                                     <button
                                         onClick={removeCoupon}
-                                        className="bg-red-600 hover:bg-red-700 text-white font-bold px-4 rounded-lg transition-colors"
+                                        className="bg-red-600 hover:bg-red-700 text-white font-bold  rounded-lg transition-colors"
                                         disabled={loading}
                                     >
                                         إزالة

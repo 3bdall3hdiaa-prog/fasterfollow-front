@@ -62,16 +62,16 @@ const Services = ({ services, length }: any) => {
                         {/* المحتوى النصي في الأسفل */}
                         <div className="p-2 sm:p-4 flex-1 flex flex-col justify-between">
                             {/* العنوان */}
-                            <h3 className={`text-center font-bold text-xs sm:text-sm md:text-base transition-colors duration-300 line-clamp-2 ${isDark ? 'text-gray-100' : 'text-gray-800'
+                            <h3 className={`text-center font-bold text-[14px] sm:text-sm md:text-base transition-colors duration-300 line-clamp-2 ${isDark ? 'text-gray-100' : 'text-gray-800'
                                 }`}>
                                 {service.title}
                             </h3>
 
                             {/* السعر /1000 */}
-                            <p className={`text-center text-sm sm:text-md md:text-lg mt-2 font-semibold transition-colors duration-300 ${isDark ? 'text-blue-400' : 'text-green-600'
+                            <p className={`text-center  text-md xl:text-lg sm:text-md md:text-lg mt-2 font-semibold transition-colors duration-300 ${isDark ? 'text-blue-400' : 'text-green-600'
                                 }`}>
                                 {formatPrice(service.price) || service.price_per_1000 || 0}
-                                <span className={`text-base sm:text-xl ${isDark ? 'text-blue-400' : 'text-green-600'
+                                <span className={`font-semibold xl:text-xl text-lg sm:text-sm ${isDark ? 'text-blue-400' : 'text-green-600'
                                     }`}>
                                     {' '}/ 1000
                                 </span>

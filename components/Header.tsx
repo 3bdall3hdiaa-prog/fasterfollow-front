@@ -94,7 +94,7 @@ const Header: React.FC<HeaderProps> = ({ siteName, logoUrl, pages, color }) => {
                             <select
                                 value={currency}
                                 onChange={(e) => setCurrency(e.target.value)}
-                                className={`hidden xs:block rounded-md py-1 px-1.5 sm:px-2 text-xs focus:outline-none transition-colors duration-300 ${isDark
+                                className={`xl:block hidden xs:block rounded-md py-1 px-1.5 sm:px-2 text-xs focus:outline-none transition-colors duration-300 ${isDark
                                     ? 'bg-gray-800 text-gray-300 border border-gray-700'
                                     : 'bg-white text-gray-700 border border-[#dfd7bb]'
                                     }`}

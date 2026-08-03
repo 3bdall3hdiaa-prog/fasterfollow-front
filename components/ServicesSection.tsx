@@ -136,7 +136,7 @@ const ServicesSection = ({ platform }: any) => {
                                         <h3
                                             className={`text-center 
                               font-bold 
-                              text-[10px] sm:text-xs md:text-sm lg:text-base 
+                              text-[14px] sm:text-xs md:text-sm lg:text-base 
                               transition-colors 
                               duration-300 
                               line-clamp-2 
@@ -149,16 +149,17 @@ const ServicesSection = ({ platform }: any) => {
                                         {/* السعر /1000 */}
                                         <p
                                             className={`text-center 
-                              text-xs sm:text-sm md:text-base 
+                              text-md sm:text-sm md:text-base 
                               mt-1 sm:mt-2 
+                              xl:text-md
                               font-semibold 
                               transition-colors 
                               duration-300 
                               ${isDark ? 'text-primary-400' : 'text-green-600'
                                                 }`}
                                         >
-                                            {formatPrice(service.price) || service.price_per_1000 || 0}
-                                            <span className={`text-xs sm:text-sm md:text-base ${isDark ? 'text-primary-400' : 'text-green-600'}`}>
+                                            {formatPrice(service.price) || 0}
+                                            <span className={`font-semibold xl:text-lg text-lg sm:text-sm md:text-base ${isDark ? 'text-primary-400' : 'text-green-600'}`}>
                                                 {' '}/ 1000
                                             </span>
                                         </p>
