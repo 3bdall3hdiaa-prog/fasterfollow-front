@@ -33,10 +33,10 @@ const ReviewModal = ({ isDark, showReviewModal, selectedOrder, reviewComment, se
 
                 <div className="mb-4 space-y-1">
                     <div className="text-sm" style={{ color: getMutedTextColor() }}>
-                        رقم الطلب: <span className="font-mono" style={{ color: getTextColor() }}>{selectedOrder.order_number}</span>
+                        رقم الطلب: <span className="font-mono" style={{ color: getTextColor() }}>{selectedOrder.serviceId._id}</span>
                     </div>
                     <div className="text-sm" style={{ color: getMutedTextColor() }}>
-                        الخدمة: <span style={{ color: getTextColor() }}>{selectedOrder.service?.title || 'خدمة غير معروفة'}</span>
+                        الخدمة: <span style={{ color: getTextColor() }}>{selectedOrder.serviceId?.title || 'خدمة غير معروفة'}</span>
                     </div>
                 </div>
 

@@ -69,7 +69,6 @@ export interface ServiceResponse {
 export interface Order {
     id: string;
     _id?: string;
-    order_number: string;
     selectedCategory: string;
     selectedServiceId: string;
     serviceTitle: string;
