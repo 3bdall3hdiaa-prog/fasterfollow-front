@@ -1,13 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Notification } from '../../types';
 import { useThemeStore } from '@/store/theme.store';
 
 // بيانات وهمية للإشعارات (كاحتياطي)
-const mockNotifications: Notification[] = [
-    { id: 1, text: '🎉 تم إكمال طلبك #ORD1004 بنجاح.', isRead: false, createdAt: 'قبل 5 دقائق' },
-    { id: 2, text: '💰 تم إضافة 50$ إلى رصيدك بنجاح.', isRead: true, createdAt: 'قبل ساعة' },
-    { id: 3, text: '⚠️ تم إلغاء طلبك #ORD1002.', isRead: true, createdAt: 'أمس' },
-];
+
 
 const Notifications: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -16,7 +11,7 @@ const Notifications: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const { isDark } = useThemeStore();
 
-    const unreadCount = notifications.filter(n => !n.isRead).length;
+    const unreadCount = notifications.filter((n: any) => !n.isRead).length;
 
     // جلب البيانات من الـ API
     const fetchNotifications = async () => {
@@ -37,7 +32,7 @@ const Notifications: React.FC = () => {
             const username = user.username;
             // فلترة الإشعارات حسب userName
             const userNotifications = allNotifications.filter(
-                notification => notification.userName === username
+                (notification: any) => notification.userName === username
             );
 
             setNotifications(userNotifications);
@@ -45,7 +40,9 @@ const Notifications: React.FC = () => {
             console.error('Error fetching notifications:', err);
             setError('فشل في جلب الإشعارات');
             // استخدام البيانات الوهمية في حالة الخطأ
-            setNotifications(mockNotifications);
+            setNotifications([
+                { id: 1, text: 'هذا إشعار وهمي 1', isRead: false, createdAt: '2023-10-01' },
+            ]);
         } finally {
             setLoading(false);
         }
@@ -66,7 +63,7 @@ const Notifications: React.FC = () => {
         try {
             // تحديث حالة القراءة محلياً
             setNotifications(
-                notifications.map(n => n.id === id ? { ...n, isRead: true } : n)
+                notifications.map((n: any) => n.id === id ? { ...n, isRead: true } : n)
             );
 
             // إرسال تحديث إلى السيرفر (اختياري)
@@ -140,7 +137,7 @@ const Notifications: React.FC = () => {
                             </div>
                         )}
 
-                        {notifications.map(notification => (
+                        {notifications.map((notification: any) => (
                             <div
                                 key={notification.id || notification._id}
                                 onClick={() => handleMarkAsRead(notification._id || notification.id)}

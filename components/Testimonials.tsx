@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { SiteSettings } from '../types';
 import { useThemeStore } from '@/store/theme.store';
 
 export interface TestimonialsProps {

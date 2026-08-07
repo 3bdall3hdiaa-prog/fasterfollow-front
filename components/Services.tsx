@@ -1,6 +1,5 @@
 import { useCurrency } from '@/contexts/CurrencyContext'
 import { useThemeStore } from '@/store/theme.store'
-import React from 'react'
 import followsInst from '../assests/images/EzRHFVSQOirAJd2cOs3W58iQGLHRMp9zcPkEn3e5.webp'
 import likesInst from '../assests/images/jifRUVNIaicl4pJ6qnFcGFNg5tiMsTn332WSXCwt.webp'
 import viewsInst from '../assests/images/hKTNSTbO20pNx6ZyJY7u0ItIFxxIEif5w5tnFiZs.webp'

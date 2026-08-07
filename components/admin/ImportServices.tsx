@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useThemeStore } from '@/store/theme.store';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
+import { useCurrency } from '@/contexts/CurrencyContext';
 
 interface Provider {
     _id: string;
@@ -42,6 +43,7 @@ const ImportServices = () => {
     const [totalItems, setTotalItems] = useState<number>(0);
     const [itemsPerPage] = useState<number>(10);
 
+    const { formatPrice } = useCurrency();
     // جلب المزودين
     const fetchProviders = async () => {
         try {
@@ -477,7 +479,7 @@ const ImportServices = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {services.map((service) => (
+                                        {services.map((service: any) => (
                                             <tr
                                                 key={service.service}
                                                 className={`border-b transition-colors ${isDark
@@ -503,7 +505,7 @@ const ImportServices = () => {
                                                     {service.category}
                                                 </td>
                                                 <td className={`py-3 px-4 text-sm font-mono ${isDark ? 'text-green-400' : 'text-green-600'}`}>
-                                                    ${service.rate}
+                                                    {formatPrice(service.rate || 0)}
                                                 </td>
                                                 <td className={`py-3 px-4 text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                                                     {service.min}

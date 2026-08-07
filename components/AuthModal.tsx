@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useUser } from '../contexts/UserContext';
 import { useThemeStore } from '@/store/theme.store';
+import axios from 'axios';
 
 interface AuthModalProps {
     onClose: () => void;
@@ -133,25 +134,21 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
         setIsLoading(true);
 
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/resetpassword/verify`, {
-                method: 'POST',
+            const response = await axios.post(`${import.meta.env.VITE_API_URL}/resetpassword/verify`, { verificationCode: resetCode }, {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ verificationCode: resetCode }),
             });
 
-            const data = await response.json();
-
-            if (response.ok) {
+            if (response.data) {
                 setResetMessage('تم التحقق من الرمز بنجاح.');
                 setTimeout(() => {
                     setView('newPassword');
                     setResetMessage('');
-                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('token', response.data.token);
                 }, 1500);
             } else {
-                setError(data.message || 'رمز التحقق غير صحيح.');
+                setError(response.data.message || 'رمز التحقق غير صحيح.');
             }
         } catch (error) {
             setError('حدث خطأ في الاتصال بالخادم.');
@@ -172,18 +169,15 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
         setIsLoading(true);
 
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/resetpassword/change-password`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                },
-                body: JSON.stringify({ email: email, password: newPassword }),
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
+            const response = await axios.post(`${import.meta.env.VITE_API_URL}/resetpassword/change-password`,
+                { email, password: newPassword }
+                , {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                    },
+                });
+            if (response.data) {
                 setResetMessage('تم تغيير كلمة المرور بنجاح.');
                 setTimeout(() => {
                     setView('login');
@@ -193,7 +187,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
                     setResetCode('');
                 }, 2000);
             } else {
-                setError(data.message || 'حدث خطأ أثناء تغيير كلمة المرور.');
+                setError(response.data.message || 'حدث خطأ أثناء تغيير كلمة المرور.');
             }
         } catch (error) {
             setError('حدث خطأ في الاتصال بالخادم.');
@@ -220,7 +214,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
             });
 
             const data = await response.json();
-
             if (response.ok && data.token) {
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('user', JSON.stringify(data.user));

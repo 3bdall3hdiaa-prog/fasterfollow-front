@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Table, Button, Container, Spinner, Modal, Card, Badge, Form, Alert, Toast } from "react-bootstrap";
 import axios from "axios";
 import { useThemeStore } from "@/store/theme.store";
+import { useCurrency } from "@/contexts/CurrencyContext";
 const OrdersManagement = () => {
     const [orders, setOrders] = useState<any>([]);
     const [loading, setLoading] = useState(true);
@@ -12,6 +13,7 @@ const OrdersManagement = () => {
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState("");
     const [searchTerm, setSearchTerm] = useState("");
+    const { formatPrice } = useCurrency();
     const workerPath = './orderStatusWorker.js';
     // تعديل الطلب
     const [showEditModal, setShowEditModal] = useState(false);
@@ -657,7 +659,7 @@ const OrdersManagement = () => {
                                                         <span className="fw-bold" style={{ color: getTextColor() }}>{order.quantity?.toLocaleString()}</span>
                                                     </td>
                                                     <td>
-                                                        <span className="fw-bold text-success">${order.totalCost}</span>
+                                                        <span className="fw-bold text-success">{formatPrice(order.totalCost || 0)}</span>
                                                     </td>
                                                     <td>
                                                         <div className="d-flex align-items-center">
@@ -834,7 +836,7 @@ const OrdersManagement = () => {
                                             </div>
                                             <div className="col-6">
                                                 <div style={{ color: getMutedTextColor(), fontSize: "0.875rem" }}>التكلفة</div>
-                                                <div className="fw-bold text-success">${order.totalCost}</div>
+                                                <div className="fw-bold text-success">{formatPrice(order.totalCost)}</div>
                                             </div>
                                         </div>
 
@@ -984,8 +986,8 @@ const OrdersManagement = () => {
                                     <p style={{ color: getTextColor() }}>{selectedOrder.quantity?.toLocaleString()}</p>
                                 </div>
                                 <div className="col-md-6 mb-3">
-                                    <strong>التكلفة:</strong>
-                                    <p className="text-success">${selectedOrder.totalCost}</p>
+                                    <strong>التكلفه:</strong>
+                                    <p className="text-success">{formatPrice(selectedOrder.totalCost || 0)}</p>
                                 </div>
                                 <div className="col-md-6 mb-3">
                                     <strong>تاريخ الإنشاء:</strong>
@@ -1074,7 +1076,7 @@ const OrdersManagement = () => {
                             />
                         </div>
                         <div className="mb-3">
-                            <label className="form-label" style={{ color: getTextColor() }}>التكلفة</label>
+                            <label className="form-label" style={{ color: getTextColor() }}>التكلفة($)</label>
                             <input
                                 type="number"
                                 name="totalCost"

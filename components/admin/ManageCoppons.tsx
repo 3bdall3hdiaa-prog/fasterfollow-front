@@ -1,3 +1,4 @@
+import { useCurrency } from '@/contexts/CurrencyContext';
 import { useThemeStore } from '@/store/theme.store';
 import React, { useState, useEffect } from 'react';
 
@@ -16,6 +17,7 @@ const ManageCoupons: React.FC = () => {
     const [editingCoupon, setEditingCoupon] = useState<Coupon | null>(null);
     const [loading, setLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
+    const { formatPrice } = useCurrency();
     const [formData, setFormData] = useState({
         code: '',
         amount: 0,
@@ -380,7 +382,7 @@ const ManageCoupons: React.FC = () => {
                                             <div className="font-bold text-lg" style={{ color: getTextColor() }}>{coupon.code}</div>
                                         </td>
                                         <td className="px-4 py-4">
-                                            <div className="text-green-400 font-bold text-lg">${coupon.amount}</div>
+                                            <div className="text-green-400 font-bold text-lg">{formatPrice(coupon.amount || 0)}</div>
                                         </td>
                                         <td className="px-4 py-4">
                                             <div style={{ color: getTextColor() }}>{formatDate(coupon.createdAt)}</div>
@@ -465,7 +467,7 @@ const ManageCoupons: React.FC = () => {
                                         <div className="flex justify-between items-start mb-3">
                                             <div>
                                                 <div className="font-bold text-xl mb-1" style={{ color: getTextColor() }}>{coupon.code}</div>
-                                                <div className="text-green-400 font-bold text-lg">${coupon.amount}</div>
+                                                <div className="text-green-400 font-bold text-lg">{formatPrice(coupon.amount)} </div>
                                             </div>
                                             <span className={`px-2 py-1 text-xs rounded-full ${getStatusClass(coupon.status)}`}>
                                                 {getStatusText(coupon.status)}

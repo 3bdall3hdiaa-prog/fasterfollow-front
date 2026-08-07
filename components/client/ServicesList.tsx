@@ -1,12 +1,12 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { ServicePackage } from '../../types';
+import { ServiceResponse } from '../../types';
 import axios from 'axios';
 import { useCurrency } from '../../contexts/CurrencyContext';
 import { useThemeStore } from '@/store/theme.store';
 
 const ServicesList: React.FC = () => {
     const { isDark } = useThemeStore();
-    const [services, setServices] = useState<any>([]);
+    const [services, setServices] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [searchTerm, setSearchTerm] = useState('');

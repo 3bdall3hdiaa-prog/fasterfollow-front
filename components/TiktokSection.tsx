@@ -12,9 +12,7 @@ const TiktokSection = () => {
     const [isError, setIsError] = React.useState(false);
     const { formatPrice } = useCurrency();
     const { isDark } = useThemeStore();
-    // const follows = '../assests/images/izT5j0fBqBTbCFLCilCb98k378E8wQRGZaxpofPN.webp'
-    // const likes = '../assests/images/Q1XSlPbHcQQctOyjxmGzylL0IWzEc4eJs074Hvnw.webp'
-    // const views = '../assests/images/xiR6lDonjc4xRr5MjbKhSqYZMhWQuZx66QREbxfw.webp'
+
     const getImage = (platform: string) => {
         if (platform.includes("متابعين")) return follows;
         if (platform.includes("اعجاب")) return likes;

@@ -1,7 +1,9 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Order, OrderStatus } from '../../types';
 import axios from 'axios';
 import { useThemeStore } from '@/store/theme.store';
+import ReviewModal from './ReviewModel';
+import { useCurrency } from '@/contexts/CurrencyContext';
 
 const statusClasses: Record<string, string> = {
     'pending': 'bg-yellow-900 text-yellow-300',
@@ -49,6 +51,15 @@ const OrdersHistory = () => {
     const [statusFilter, setStatusFilter] = useState<OrderStatus | 'all'>('all');
     const [currentUsername, setCurrentUsername] = useState<string>('');
 
+    // States for review modal
+    const [showReviewModal, setShowReviewModal] = useState(false);
+    const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+    const [reviewComment, setReviewComment] = useState<string>('');
+    const [reviewRating, setReviewRating] = useState(5);
+    const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+    const [reviewError, setReviewError] = useState('');
+    const [reviewSuccess, setReviewSuccess] = useState('');
+    const { formatPrice } = useCurrency()
     // دوال مساعدة للألوان
     const getTextColor = () => {
         return isDark ? '#ffffff' : '#1e2235';
@@ -74,22 +85,36 @@ const OrdersHistory = () => {
         return isDark ? '#374151' : '#dfd7bb';
     };
 
-    // دالة لاستخراج username من التوكن
-    const getUsernameFromToken = (): string => {
+
+    // دالة لاستخراج بيانات المستخدم كاملة
+    const getUserData = () => {
         try {
             const userData = localStorage.getItem('user') || sessionStorage.getItem('user');
-            if (!userData) {
-                console.warn('No user data found');
-                return '';
-            }
-
-            const user = JSON.parse(userData);
-            return user.username || user.name || '';
+            if (!userData) return null;
+            return JSON.parse(userData);
         } catch (error) {
             console.error('Error parsing user data:', error);
-            return '';
+            return null;
         }
     };
+    const handleRefill = async () => {
+        try {
+            const res = await axios.post(`${import.meta.env.VITE_API_URL}/services-list/refill`,
+                {
+                    order: selectedOrder?.providerOrderId || '',
+                    apiEndpoint: selectedOrder?.provider.apiEndpoint || '',
+                    key: selectedOrder?.provider.apiKey || '',
+                },);
+
+            if (res.status === 200 || res.status === 201 || res.data) {
+                setReviewSuccess('تم إرسال طلب إعادة التعبئة بنجاح! شكراً لك.');
+            }
+
+        } catch (error) {
+            console.error('Error refilling order:', error);
+            setReviewError('حدث خطأ أثناء إرسال طلب إعادة التعبئة. حاول مرة أخرى.');
+        }
+    }
 
     // جلب البيانات من السيرفر
     useEffect(() => {
@@ -98,17 +123,11 @@ const OrdersHistory = () => {
                 setLoading(true);
                 setError('');
 
-                const usernameFromToken = getUsernameFromToken();
-                setCurrentUsername(usernameFromToken);
-
-                if (!usernameFromToken) {
-                    setError('لا يوجد طلبات');
-                    setLoading(false);
-                    return;
-                }
-
-                console.log('Fetching orders for user:', usernameFromToken);
-                const response = await axios.get(`${import.meta.env.VITE_API_URL}/new-order`);
+                const response = await axios.get(`${import.meta.env.VITE_API_URL}/new-order`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                    },
+                });
                 console.log('API Response:', response.data);
 
                 if (!response.data || !Array.isArray(response.data)) {
@@ -118,33 +137,7 @@ const OrdersHistory = () => {
                     return;
                 }
 
-                const ordersData: any = response.data
-                    .filter((order: any) => {
-                        const matchesUsername = order && order.username === usernameFromToken;
-                        console.log(`Order ${order?._id} username: ${order?.username}, matches: ${matchesUsername}`);
-                        return matchesUsername;
-                    })
-                    .map((order: any, index: number) => {
-                        console.log('Processing order:', order);
-
-                        return {
-                            id: order._id || `ORD${Date.now()}_${index}`,
-                            order_number: order.order_number || `ORD${order._id?.substring(0, 8)}` || `ORDER_${index}`,
-                            user: {
-                                id: order.id_user || order._id,
-                                username: order.username || 'user'
-                            },
-                            service: {
-                                id: order.selectedServiceId || 0,
-                                title: order.serviceTitle || `${order.quantity} ${order.selectedCategory}`
-                            },
-                            link: order.link || '',
-                            quantity: order.quantity || 0,
-                            price: order.totalCost || 0,
-                            status: order.status,
-                            createdAt: order.createdAt || new Date().toISOString()
-                        };
-                    });
+                const ordersData: any = response.data;
 
                 const sortedOrders = ordersData.sort((a: any, b: any) =>
                     new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
@@ -175,8 +168,8 @@ const OrdersHistory = () => {
                 return statusFilter === 'all' || order.status === statusFilter;
             })
             .filter((order: Order) => {
-                const orderNumber = order.order_number?.toString() || '';
-                return orderNumber.toLowerCase().includes(searchTerm.toLowerCase());
+                const orderNumber = order._id?.toString() || '';
+                return orderNumber.toLowerCase().includes(searchTerm);
             });
 
         return filtered.sort((a: any, b: any) =>
@@ -251,6 +244,111 @@ const OrdersHistory = () => {
             </span>
         );
     };
+
+    // دالة فتح نافذة التقييم
+    const openReviewModal = (order: Order) => {
+        setSelectedOrder(order);
+        setReviewComment('');
+        setReviewRating(5);
+        setReviewError('');
+        setReviewSuccess('');
+        setShowReviewModal(true);
+    };
+
+    // دالة إغلاق نافذة التقييم
+    const closeReviewModal = () => {
+        setShowReviewModal(false);
+        setSelectedOrder(null);
+        setReviewComment('');
+        setReviewRating(5);
+        setReviewError('');
+        setReviewSuccess('');
+        setIsSubmittingReview(false);
+    };
+
+    // دالة إرسال التقييم
+    const handleSubmitReview = async () => {
+        if (!selectedOrder) return;
+
+        // التحقق من وجود تعليق
+        if (!reviewComment.trim()) {
+            setReviewError('الرجاء إدخال تعليق');
+            return;
+        }
+
+        try {
+            setIsSubmittingReview(true);
+            setReviewError('');
+            setReviewSuccess('');
+
+            const user = getUserData();
+            if (!user) {
+                setReviewError('لم يتم العثور على بيانات المستخدم');
+                setIsSubmittingReview(false);
+                return;
+            }
+
+            const serviceId = selectedOrder._id || selectedOrder.id;
+
+            const reviewData = {
+                userId: user._id || user.id,
+                username: user.username || user.name || 'مستخدم',
+                serviceId: serviceId,
+                rating: reviewRating,
+                comment: reviewComment.trim(),
+            };
+
+            console.log('Sending review data:', reviewData);
+
+            const res = await axios.post(`${import.meta.env.VITE_API_URL}/reviews`, reviewData);
+
+            if (res.status === 200 || res.status === 201) {
+                setReviewSuccess('تم إرسال التقييم بنجاح! شكراً لك.');
+                // إغلاق النافذة بعد 2 ثانية
+                setTimeout(() => {
+                    closeReviewModal();
+                }, 2000);
+            } else {
+                setReviewError('حدث خطأ أثناء إرسال التقييم. حاول مرة أخرى.');
+            }
+
+        } catch (err: any) {
+            console.error('Error submitting review:', err);
+            const errorMessage = err?.response?.data?.message || err?.message || 'حدث خطأ أثناء إرسال التقييم';
+            setReviewError(errorMessage);
+        } finally {
+            setIsSubmittingReview(false);
+        }
+    };
+
+    // دالة عرض نجوم التقييم
+    const renderStars = (rating: number, interactive: boolean = false) => {
+        return (
+            <div className="flex gap-1 justify-center">
+                {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                        key={star}
+                        type="button"
+                        onClick={() => interactive && setReviewRating(star)}
+                        className={`text-2xl md:text-3xl transition-all ${interactive ? 'cursor-pointer hover:scale-110' : 'cursor-default'
+                            } ${star <= rating
+                                ? 'text-yellow-400'
+                                : isDark
+                                    ? 'text-gray-600'
+                                    : 'text-gray-300'
+                            }`}
+                        disabled={!interactive}
+                        style={{ touchAction: 'manipulation' }}
+                    >
+                        ★
+                    </button>
+                ))}
+            </div>
+        );
+    };
+
+    // مكون نافذة التقييم المنبثقة المحسّن للموبايل
+
 
     if (loading) {
         return (
@@ -351,7 +449,7 @@ const OrdersHistory = () => {
                 </div>
             </div>
 
-            {/* ✅ جدول الطلبات - للشاشات الكبيرة */}
+            {/* ✅ جدول الطلبات - للشاشات الكبيرة مع زر تقييم */}
             <div className={`hidden md:block rounded-lg overflow-hidden transition-all duration-300 ${isDark
                 ? 'bg-gray-800 border border-gray-700'
                 : 'bg-white border border-[#dfd7bb] shadow-md'
@@ -373,22 +471,25 @@ const OrdersHistory = () => {
                                     <th className="px-4 py-3">الكمية</th>
                                     <th className="px-4 py-3">السعر</th>
                                     <th className="px-4 py-3">الحالة</th>
+                                    <th className={`px-4 py-3 text-center `}>
+                                        <span className="sr-only">الإجراءات</span>
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {filteredOrders.map((order) => (
+                                {filteredOrders.map((order: any) => (
                                     <tr key={order.id} className={`border-b transition-colors ${isDark
                                         ? 'border-gray-700 hover:bg-gray-700/50'
                                         : 'border-[#dfd7bb] hover:bg-gray-50'
                                         }`}>
                                         <td className="px-4 py-4 font-mono text-xs" style={{ color: getMutedTextColor() }}>
-                                            {order.order_number || 'N/A'}
+                                            {order._id || 'N/A'}
                                         </td>
                                         <td className="px-4 py-4 whitespace-nowrap" style={{ color: getMutedTextColor() }}>
                                             {formatDate(order.createdAt)}
                                         </td>
                                         <td className="px-4 py-4" style={{ color: getTextColor() }}>
-                                            {order.service?.title || 'خدمة غير معروفة'}
+                                            {order.provider?.title || 'خدمة غير معروفة'}
                                         </td>
                                         <td className="px-4 py-4 font-mono truncate max-w-xs" title={order.link} style={{ color: getMutedTextColor() }}>
                                             {order.link || 'لا يوجد رابط'}
@@ -397,10 +498,28 @@ const OrdersHistory = () => {
                                             {(order.quantity || 0).toLocaleString()}
                                         </td>
                                         <td className="px-4 py-4 text-green-400 font-semibold">
-                                            ${(order.price || 0).toFixed(3)}
+                                            {formatPrice(order.price || 0)}
                                         </td>
                                         <td className="px-4 py-4">
                                             {renderStatus(order.status)}
+                                        </td>
+                                        <td className={`${order.status === 'completed' || order.status === 'Completed' ? '' : 'hidden'} px-4 py-4 flex flex-col gap-y-2 text-center`}>
+                                            <button
+                                                onClick={() => openReviewModal(order)}
+                                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${isDark
+                                                    ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
+                                                    : 'bg-yellow-500 hover:bg-yellow-600 text-white'
+                                                    }`}
+                                            >
+                                                تقييم
+                                            </button>
+                                            <button
+                                                onClick={() => { handleRefill() }}
+                                                className={`${order.serviceId?.refill ? '' : 'hidden'} cursor-pointer hover:opacity-80 transition-all flex-1 ${isDark ? 'text-white bg-[#60a5fa]' : 'text-white bg-[#60a5fa]'} rounded-lg p-2 text-center font-semibold text-sm`}
+                                                style={{ touchAction: 'manipulation' }}
+                                            >
+                                                تعويض
+                                            </button>
                                         </td>
                                     </tr>
                                 ))}
@@ -410,7 +529,7 @@ const OrdersHistory = () => {
                 )}
             </div>
 
-            {/* ✅ تصميم البطاقات للهواتف */}
+            {/* ✅ تصميم البطاقات للهواتف مع زر تقييم */}
             <div className="block md:hidden">
                 <div className={`rounded-lg overflow-hidden transition-all duration-300 ${isDark
                     ? 'bg-gray-800 border border-gray-700'
@@ -421,7 +540,7 @@ const OrdersHistory = () => {
                             {orders.length === 0 ? 'لا توجد طلبات حالياً' : 'لم يتم العثور على طلبات تطابق البحث'}
                         </div>
                     ) : (
-                        filteredOrders.map((order) => (
+                        filteredOrders.map((order: any) => (
                             <div key={order.id} className={`border-b p-4 transition-colors ${isDark
                                 ? 'border-gray-700 hover:bg-gray-700/50'
                                 : 'border-[#dfd7bb] hover:bg-gray-50'
@@ -429,8 +548,11 @@ const OrdersHistory = () => {
                                 {/* رأس البطاقة */}
                                 <div className="flex justify-between items-start mb-3">
                                     <div>
-                                        <div className="font-bold text-lg mb-1" style={{ color: getTextColor() }}>
-                                            #{order.order_number || 'N/A'}
+                                        <div>
+                                            <p>رقم الطلب</p>
+                                            <div className="font-bold text-lg mb-1" style={{ color: getTextColor() }}>
+                                                #{order._id || 'N/A'}
+                                            </div>
                                         </div>
                                         <div className="text-sm" style={{ color: getMutedTextColor() }}>
                                             {formatDate(order.createdAt)}
@@ -446,7 +568,7 @@ const OrdersHistory = () => {
                                     <div>
                                         <div className="text-xs mb-1" style={{ color: getMutedTextColor() }}>الخدمة</div>
                                         <div className="font-semibold" style={{ color: getTextColor() }}>
-                                            {order.service?.title || 'خدمة غير معروفة'}
+                                            {order.provider?.title || 'خدمة غير معروفة'}
                                         </div>
                                     </div>
 
@@ -467,25 +589,55 @@ const OrdersHistory = () => {
                                         <div>
                                             <div className="text-xs mb-1" style={{ color: getMutedTextColor() }}>السعر</div>
                                             <div className="text-green-400 font-bold text-lg">
-                                                ${(order.price || 0).toFixed(3)}
+                                                {formatPrice(order.totalCost || 0)}
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* معلومات إضافية */}
-                                <div className={`rounded-lg p-3 ${isDark ? 'bg-gray-700/50' : 'bg-gray-50'
-                                    }`}>
-                                    <div className="text-xs mb-1" style={{ color: getMutedTextColor() }}>رقم الطلب الكامل</div>
-                                    <div className="font-mono text-sm break-all" style={{ color: getTextColor() }}>
-                                        {order.id}
-                                    </div>
+
+
+                                {/* أزرار الإجراءات في الموبايل */}
+                                <div className={`flex mt-3 gap-2 ${order.status === 'completed' || order.status === 'Completed' ? '' : 'hidden'}`}>
+                                    <button
+                                        onClick={() => openReviewModal(order)}
+                                        className={`cursor-pointer hover:opacity-80 transition-all flex-1 ${isDark ? 'text-white bg-[#c9a84c]' : 'text-white bg-[#c9a84c]'} rounded-lg p-2 text-center font-semibold text-sm`}
+                                        style={{ touchAction: 'manipulation' }}
+                                    >
+                                        تقييم
+                                    </button>
+                                    <button
+                                        onClick={() => { handleRefill() }}
+                                        className={`${order.serviceId?.refill ? '' : 'hidden'} cursor-pointer hover:opacity-80 transition-all flex-1 ${isDark ? 'text-white bg-[#60a5fa]' : 'text-white bg-[#60a5fa]'} rounded-lg p-2 text-center font-semibold text-sm`}
+                                        style={{ touchAction: 'manipulation' }}
+                                    >
+                                        تعويض
+                                    </button>
                                 </div>
                             </div>
                         ))
                     )}
                 </div>
             </div>
+
+            {/* نافذة التقييم المنبثقة */}
+            <ReviewModal
+                isDark={isDark}
+                showReviewModal={showReviewModal}
+                selectedOrder={selectedOrder}
+                reviewComment={reviewComment}
+                setReviewComment={setReviewComment}
+                reviewRating={reviewRating}
+                setReviewRating={setReviewRating}
+                reviewError={reviewError}
+                reviewSuccess={reviewSuccess}
+                isSubmittingReview={isSubmittingReview}
+                closeReviewModal={closeReviewModal}
+                handleSubmitReview={handleSubmitReview}
+                renderStars={renderStars}
+                getTextColor={getTextColor}
+                getMutedTextColor={getMutedTextColor}
+            />
         </div>
     );
 };

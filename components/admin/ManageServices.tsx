@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { ServiceForm, ServiceResponse, Provider, Platform } from '../../types';
 import { useThemeStore } from '@/store/theme.store';
+import { useCurrency } from '@/contexts/CurrencyContext';
 
 interface ManageServicesProps {
     services: ServiceResponse[];
@@ -15,6 +16,7 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [editingService, setEditingService] = useState<ServiceResponse | null>(null);
     const [viewingService, setViewingService] = useState<ServiceResponse | null>(null);
+    const { formatPrice } = useCurrency();
     const [formData, setFormData] = useState<ServiceForm>({
         title: '',
         description: '',
@@ -290,7 +292,7 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                                     <td className="px-4 py-4">{service.providerServiceId}</td>
                                     <td className="px-4 py-4" style={{ color: getTextColor() }}>{service.title}</td>
                                     <td className="px-4 py-4" style={{ color: getTextColor() }}>{service.provider.name}</td>
-                                    <td className="px-4 py-4 text-green-400 font-semibold">${service.price.toFixed(2)}</td>
+                                    <td className="px-4 py-4 text-green-400 font-semibold">{formatPrice(service.price || 0)}</td>
                                     <td className="px-4 py-4">
                                         <span className={`px-2 py-1 rounded-full text-xs ${service.status
                                             ? isDark ? 'bg-green-500/20 text-green-400' : 'bg-green-100 text-green-700'
@@ -409,7 +411,7 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                                     </div>
                                     <div>
                                         <div className="text-xs mb-1" style={{ color: getMutedTextColor() }}>السعر / 1000</div>
-                                        <div className="text-green-400 font-semibold">${(service.price).toFixed(2)}</div>
+                                        <div className="text-green-400 font-semibold">{formatPrice(service.price || 0)}</div>
                                     </div>
                                     <div>
                                         <div className="text-xs mb-1" style={{ color: getMutedTextColor() }}>الحد الأدنى</div>
@@ -543,7 +545,7 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                                     : 'bg-gray-50 text-gray-800 border border-[#dfd7bb]'
                                     }`}
                             >
-                                {platforms.map(p => (
+                                {platforms.map((p: any) => (
                                     <option key={p.id} value={p.name}>
                                         {p.name}
                                     </option>
@@ -765,11 +767,11 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                                 </div>
                                 <div>
                                     <p className="text-sm" style={{ color: getMutedTextColor() }}>السعر / 1000:</p>
-                                    <p className="text-green-400 font-semibold">${(viewingService.price).toFixed(2)}</p>
+                                    <p className="text-green-400 font-semibold">{formatPrice(viewingService.price || 0)}</p>
                                 </div>
                                 <div>
                                     <p className="text-sm" style={{ color: getMutedTextColor() }}>سعر المزود:</p>
-                                    <p style={{ color: getTextColor() }}>${viewingService.providerRate}</p>
+                                    <p style={{ color: getTextColor() }}>{formatPrice(viewingService.providerRate || 0)}</p>
                                 </div>
                                 <div>
                                     <p className="text-sm" style={{ color: getMutedTextColor() }}>الحد الأدنى:</p>

@@ -68,22 +68,28 @@ export interface ServiceResponse {
 
 export interface Order {
     id: string;
+    _id?: string;
     order_number: string;
+    selectedCategory: string;
+    selectedServiceId: string;
     serviceTitle: string;
     providerOrderId: string;
-    user: {
+    id_user: {
         id: string;
         username: string;
     };
-    service: {
-        id: number;
+    provider: {
         title: string;
+        apiKey: string;
+        apiEndpoint: string;
     };
     link: string;
     quantity: number;
     price: number;
     status: OrderStatus;
     createdAt: string;
+    username: string
+    totalCost: number;
 }
 
 export interface Transaction {

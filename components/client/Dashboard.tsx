@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useUser } from '../../contexts/UserContext';
 import StatCard from './StatCard';
-import { Order, OrderStatus } from '../../types';
+import { Order } from '../../types';
 import { useThemeStore } from '@/store/theme.store';
 import { useCurrency } from '@/contexts/CurrencyContext';
 
@@ -221,9 +221,9 @@ const Dashboard: React.FC<DashboardProps> = ({ setActiveView }) => {
             {/* إجراءات سريعة */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                 <QuickActionButton
-                    onClick={() => setActiveView('new-order')}
-                    icon="➕"
-                    text="طلب جديد"
+                    onClick={() => window.location.href = '#/'}
+                    icon="🏠"
+                    text="الرئيسية"
                     isDark={isDark}
                 />
                 <QuickActionButton

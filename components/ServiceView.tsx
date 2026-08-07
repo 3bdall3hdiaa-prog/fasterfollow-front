@@ -174,7 +174,6 @@ const ServiceView = ({ id }: { id: string }) => {
             if (!x) {
                 throw new Error('فشل في خصم الرصيد');
             }
-
             const res = await axios.post(`${import.meta.env.VITE_API_URL}/new-order`, {
                 username: user.username,
                 id_user: user._id || user.id,
@@ -184,7 +183,8 @@ const ServiceView = ({ id }: { id: string }) => {
                 link,
                 quantity,
                 totalCost,
-                provider: Service?.provider.name
+                provider: Service?.provider._id,
+                providerOrderId: Service?.providerServiceId,
             });
 
             if (res.data) {

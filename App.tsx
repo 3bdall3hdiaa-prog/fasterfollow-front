@@ -1,54 +1,25 @@
 import React, { useState, useEffect, useRef } from 'react';
-// import 'bootstrap/dist/css/bootstrap.min.css';
-
 import Header from './components/Header';
 import Hero from './components/Hero';
 import image1 from './assests/images/bitmap2.png';
 import image2 from './assests/images/b92164c9-7af4-45b6-94fb-95fdecf76609.webp';
 import Services from './components/Services';
-import HowItWorks from './components/HowItWorks';
 import Testimonials from './components/Testimonials';
 import Footer from './components/Footer';
-import Chatbot from './components/Chatbot';
 import AdminPanel from './components/AdminPanel';
 import ClientPanel from './components/ClientPanel';
 import Blog from './components/Blog';
 import BlogPost from './components/BlogPost';
 import PageView from './components/PageView';
-import Banners from './components/Banners';
-
 import { useUser } from './contexts/UserContext';
 import { useSEO } from './hooks/useSEO';
 import { Page, BlogPost as BlogPostType, ServiceResponse, Provider, BannerResponse, SiteSettings, Platform } from './types';
 import axios from 'axios';
 import { useThemeStore } from './store/theme.store';
-import TiktokSection from './components/TiktokSection';
 import ServicesSection from './components/ServicesSection';
 import ServiceView from './components/ServiceView';
 
-// MOCK DATA - Placed here to avoid creating new files
-const mockServices: ServiceResponse[] = [
-];
 
-// const mockBlogPosts: BlogPostType[] = [
-//     { id: '1', title: '5 نصائح لزيادة متابعينك على انستغرام', slug: 'increase-instagram-followers', excerpt: 'تعلم أفضل الاستراتيجيات لزيادة عدد متابعينك بشكل طبيعي وفعال على منصة انستغرام.', content: '<h2>مقدمة</h2><p>هنا محتوى المقال الكامل...</p>', imageUrl: 'https://images.unsplash.com/photo-1611162617213-6d22e7a3c7ba?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1074&q=80', author: 'Admin', publishedAt: '2024-07-20', status: 'Published', metaTitle: 'نصائح لزيادة متابعين انستغرام', metaDescription: 'أفضل 5 نصائح لزيادة متابعينك على انستغرام في عام 2024.' },
-//     { id: '2', title: 'كيف تصبح مشهوراً على تيك توك؟', slug: 'become-famous-on-tiktok', excerpt: 'استكشف أسرار خوارزمية تيك توك وكيفية إنشاء محتوى ينتشر بسرعة البرق.', content: '<h2>مقدمة</h2><p>هنا محتوى المقال الكامل...</p>', imageUrl: 'https://images.unsplash.com/photo-1611605698335-8b1569810432?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1074&q=80', author: 'Admin', publishedAt: '2024-07-15', status: 'Published' },
-// ];
-
-// const mockProviders: Provider[] = [
-//     { id: 'prov_1', name: 'InstaBoost API', apiEndpoint: 'https://instaboost.com/api/v2', apiKey: 'key_12345', status: 'Active', balance: 1500.75 },
-//     { id: 'prov_2', name: 'TikFast Services', apiEndpoint: 'https://tikfast.net/api', apiKey: 'key_67890', status: 'Active', balance: 850.20 },
-//     { id: 'prov_3', name: 'TweetGrow API', apiEndpoint: 'https://tweetgrow.io/api', apiKey: 'key_abcde', status: 'Inactive' },
-//     { id: 'prov_4', name: 'TubeUp Services', apiEndpoint: 'https://tubeup.com/api', apiKey: 'key_fghij', status: 'Active', balance: 2100.00 },
-// ];
-
-// const mockPlatforms: Platform[] = [
-//     { id: '1', name: 'Instagram', iconUrl: '📸' },
-//     { id: '2', name: 'TikTok', iconUrl: '🎵' },
-//     { id: '3', name: 'Twitter', iconUrl: '🐦' },
-//     { id: '4', name: 'YouTube', iconUrl: '▶️' },
-//     { id: '5', name: 'Facebook', iconUrl: '👍' },
-// ]
 
 const Redirector: React.FC<{ message: string; to?: string }> = ({ message, to = '/' }) => {
     useEffect(() => {
@@ -84,29 +55,7 @@ const App: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [reviews, setReviews] = useState<any[]>([]);
 
-    // useEffect(() => {
-    //     const fetchPlatforms = async () => {
-    //         try {
-    //             const storedProviders = await axios.get(`${import.meta.env.VITE_API_URL}/manageplatforms`);
-    //             // const data = {
-    //             //     _id: storedProviders.data._id,
-    //             //     id: storedProviders.data.id,
-    //             //     name: storedProviders.data.name,
-    //             //     iconUrl: storedProviders.data.iconUrl
-    //             // };
-    //             // console.log(data);
 
-    //             setPlatforms(storedProviders.data);
-    //         } catch (error) {
-    //             console.error('Error fetching platforms:', error);
-    //         }
-    //     };
-
-    //     fetchPlatforms();
-    // }, []);
-
-
-    // Function to fetch site settings from endpoint
     const fetchSiteSettingsFromEndpoint = async () => {
         try {
             setError(null);
@@ -174,7 +123,6 @@ const App: React.FC = () => {
         } catch (error) {
             console.error('Error fetching site settings:', error);
             setError('فشل في تحميل إعدادات الموقع. يرجى المحاولة مرة أخرى.');
-            // Use default settings if fetch fails
             setSiteSettings(getDefaultSettings());
         }
     };
@@ -234,7 +182,6 @@ const App: React.FC = () => {
             }
         }
     });
-    // Function to fetch blogs from endpoint
     const fetchBlogsFromEndpoint = async () => {
         try {
             setError(null);
@@ -246,7 +193,6 @@ const App: React.FC = () => {
 
             const data = await response.json();
 
-            // Transform the API data to match the Blog type
             const formattedBlogs: any[] = data.map((blog: any) => ({
                 id: blog._id || blog.id?.toString() || Math.random().toString(),
                 title: blog.title || 'Untitled',
@@ -272,7 +218,6 @@ const App: React.FC = () => {
         }
     }
 
-    // Function to fetch pages from endpoint
     const fetchPagesFromEndpoint = async () => {
         try {
             setError(null);
@@ -284,7 +229,6 @@ const App: React.FC = () => {
 
             const data = await response.json();
 
-            // Transform the API data to match the Page type
             const formattedPages: Page[] = data.map((page: any) => ({
                 id: page._id || page.id?.toString() || Math.random().toString(),
                 title: page.title || 'Untitled',
@@ -300,23 +244,6 @@ const App: React.FC = () => {
             setError('فشل في تحميل الصفحات. يرجى المحاولة مرة أخرى.');
         }
     };
-
-    // Function to fetch services from endpoint
-    const fetchServicesFromEndpoint = async () => {
-        try {
-            setError(null);
-            const response = await axios.get(`${import.meta.env.VITE_API_URL}/services-list`);
-
-            if (response.data) {
-                setServices(response.data);
-            }
-
-        } catch (error) {
-            console.error('Error fetching services:', error);
-            setError('فشل في تحميل الخدمات. يرجى المحاولة مرة أخرى.');
-        }
-    };
-
     // Function to fetch banners from endpoint
     const fetchBannersFromEndpoint = async () => {
         try {
