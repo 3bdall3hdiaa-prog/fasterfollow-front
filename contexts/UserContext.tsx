@@ -52,7 +52,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                         }
                     }
                 );
-                alert(res.data)
+
                 if (res.data) {
                     setUser(res.data);
                 }
@@ -89,13 +89,11 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 username,
                 password,
             }, { withCredentials: true });
-            alert(res.data.message)
-
+            localStorage.setItem('token', res.data.token)
             return { success: true, message: res.data.message || "تم تسجيل الدخول بنجاح" };
 
         } catch (err: any) {
             console.log(err)
-            alert(err.response?.data?.message)
             return { success: false, message: err.response?.data?.message || 'خطأ في تسجيل الدخول.' };
         }
     };
