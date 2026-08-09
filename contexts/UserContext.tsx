@@ -85,6 +85,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 username,
                 password,
             }, { withCredentials: true });
+            console.log("data", res.data)
 
             return { success: true, message: res.data.message || "تم تسجيل الدخول بنجاح" };
 
