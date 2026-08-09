@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useThemeStore } from '@/store/theme.store';
+import { useAuthStore } from '@/store/auth.store';
 
 // بيانات وهمية للإشعارات (كاحتياطي)
 
@@ -10,7 +11,7 @@ const Notifications: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const { isDark } = useThemeStore();
-    const { user }: any = useThemeStore();
+    const { user }: any = useAuthStore();
     const unreadCount = notifications.filter((n: any) => !n.isRead).length;
 
     // جلب البيانات من الـ API

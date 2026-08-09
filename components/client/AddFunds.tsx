@@ -3,6 +3,7 @@ import { Transaction, TransactionStatus } from '../../types';
 import axios from 'axios';
 import { useThemeStore } from '@/store/theme.store';
 import { AnyCaaRecord } from 'dns';
+import { useAuthStore } from '@/store/auth.store';
 
 const statusClasses: Record<TransactionStatus, string> = {
     Completed: 'bg-green-900 text-green-300',
@@ -38,7 +39,7 @@ const AddFunds: React.FC = () => {
     const [couponApplied, setCouponApplied] = useState(false);
     const [couponDiscount, setCouponDiscount] = useState(0);
     const [couponMessage, setCouponMessage] = useState('');
-    const { user }: any = useThemeStore();
+    const { user }: any = useAuthStore();
     const [paymentMethods, setPaymentMethods] = useState([
         { id: 'paypal', name: 'PayPal', icon: '🅿️', paymentUrl: "", description: "" },
     ]);
