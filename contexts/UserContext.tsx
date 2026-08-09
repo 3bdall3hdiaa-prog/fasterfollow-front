@@ -1,6 +1,5 @@
 import React, { createContext, useState, useEffect, ReactNode, useContext } from 'react';
 import axios from 'axios';
-import { User } from '../types';
 import { useAuthStore } from '@/store/auth.store';
 
 interface AuthResult {
@@ -54,7 +53,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 }
             } catch (err: any) {
                 console.log(err);
-                // window.location.hash = '/';
+                window.location.hash = '/';
 
             }
         };
@@ -85,14 +84,8 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 username,
                 password,
             }, { withCredentials: true });
-            const me = await axios.get(
-                `${import.meta.env.VITE_API_URL}/auth/me`,
-                {
-                    withCredentials: true,
-                }
-            );
+            console.log("data", res.data)
 
-            setUser(me.data);
             return { success: true, message: res.data.message || "تم تسجيل الدخول بنجاح" };
 
         } catch (err: any) {
