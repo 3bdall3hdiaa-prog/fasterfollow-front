@@ -40,6 +40,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, setActiveView, isSidebarO
     const logout = async () => {
         try {
             console.log('Logging out...');
+            localStorage.removeItem('token');
             const res = await axios.get(`${import.meta.env.VITE_API_URL}/auth/logout`, { withCredentials: true });
             if (res.data) {
                 window.location.href = '/';

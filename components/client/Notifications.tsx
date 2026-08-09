@@ -21,7 +21,9 @@ const Notifications: React.FC = () => {
             setError(null);
 
             const response = await fetch(`${import.meta.env.VITE_API_URL}/notification`, {
-                credentials: 'include',
+                credentials: 'include', headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
             });
 
             if (!response.ok) {
@@ -71,7 +73,9 @@ const Notifications: React.FC = () => {
             // إرسال تحديث إلى السيرفر (اختياري)
             await fetch(`${import.meta.env.VITE_API_URL}/notification/${id}`, {
                 method: 'PUT',
-                credentials: 'include',
+                credentials: 'include', headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
 
             });
         } catch (err) {

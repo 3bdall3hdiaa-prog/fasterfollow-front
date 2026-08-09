@@ -19,13 +19,18 @@ const Dashboard: React.FC = () => {
                 // جلب بيانات الطلبات
                 const response = await fetch(`${import.meta.env.VITE_API_URL}/new-order`, {
                     credentials: 'include',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
                 });
                 const data = await response.json();
                 setOrderlength(data.length);
 
                 // جلب بيانات المستخدمين
                 const response2 = await fetch(`${import.meta.env.VITE_API_URL}/getallusers`, {
-                    credentials: 'include',
+                    credentials: 'include', headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
                 });
                 const data2 = await response2.json();
                 setUserslength(data2.length);
@@ -33,7 +38,9 @@ const Dashboard: React.FC = () => {
                 // جلب بيانات المزودين
                 const response3 = await fetch(`${import.meta.env.VITE_API_URL}/manage-providers`, {
 
-                    credentials: 'include',
+                    credentials: 'include', headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
                 });
                 const data3 = await response3.json();
                 const filteredProviders = data3.filter(provider => provider.status === 'Active');
@@ -41,7 +48,9 @@ const Dashboard: React.FC = () => {
 
                 // جلب بيانات PayPal وحساب الإيرادات
                 const response4 = await fetch(`${import.meta.env.VITE_API_URL}/paypal`, {
-                    credentials: 'include'
+                    credentials: 'include', headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
                 });
                 const paypalData = await response4.json();
 

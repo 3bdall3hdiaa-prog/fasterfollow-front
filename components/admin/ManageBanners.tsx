@@ -46,7 +46,9 @@ const ManageBanners: React.FC<ManageBannersProps> = ({ banners, setBanners }) =>
         try {
             const response = await fetch(`${API_BASE}/managepanners`, {
                 method: 'GET',
-                credentials: 'include',
+                credentials: 'include', headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
             });
             if (!response.ok) throw new Error('فشل في جلب البيانات');
             const data = await response.json();
@@ -126,7 +128,9 @@ const ManageBanners: React.FC<ManageBannersProps> = ({ banners, setBanners }) =>
             const response = await fetch(`${API_BASE}/managepanners/${bannerId}`, {
                 method: 'PUT',
                 credentials: 'include',
-                body: data,
+                body: data, headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
             });
 
             if (!response.ok) {
@@ -167,7 +171,9 @@ const ManageBanners: React.FC<ManageBannersProps> = ({ banners, setBanners }) =>
         try {
             const response = await fetch(`${API_BASE}/managepanners/${bannerId}`, {
                 method: 'DELETE',
-                credentials: 'include',
+                credentials: 'include', headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
             });
 
             if (!response.ok) throw new Error('فشل في حذف البانر');

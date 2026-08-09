@@ -71,7 +71,9 @@ const ManageBlog: React.FC = () => {
         try {
             setLoading(true);
             const response = await fetch(`${import.meta.env.VITE_API_URL}/blog`, {
-                credentials: 'include',
+                credentials: 'include', headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
             });
             if (!response.ok) {
                 throw new Error('فشل في جلب البيانات');
@@ -126,7 +128,9 @@ const ManageBlog: React.FC = () => {
                 const response = await fetch(`${import.meta.env.VITE_API_URL}/blog/${editingPost._id}`, {
                     method: 'PUT',
                     credentials: 'include',
-                    body: JSON.stringify(formData),
+                    body: JSON.stringify(formData), headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
                 });
 
                 if (!response.ok) {
@@ -140,7 +144,9 @@ const ManageBlog: React.FC = () => {
                 const response = await fetch(`${import.meta.env.VITE_API_URL}/blog`, {
                     method: 'POST',
                     credentials: 'include',
-                    body: JSON.stringify(formData),
+                    body: JSON.stringify(formData), headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
                 });
 
                 if (!response.ok) {
@@ -164,7 +170,9 @@ const ManageBlog: React.FC = () => {
             try {
                 const response = await fetch(`${import.meta.env.VITE_API_URL}/blog/${postId}`, {
                     method: 'DELETE',
-                    credentials: 'include',
+                    credentials: 'include', headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
                 });
 
                 if (!response.ok) {

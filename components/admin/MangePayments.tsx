@@ -75,7 +75,9 @@ const ManagePayments: React.FC = () => {
         try {
             setLoading(true);
             const response = await fetch(`${import.meta.env.VITE_API_URL}/mange-payments`, {
-                credentials: 'include',
+                credentials: 'include', headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
             });
             if (!response.ok) {
                 throw new Error('فشل في جلب البيانات');
@@ -159,7 +161,9 @@ const ManagePayments: React.FC = () => {
                 const response = await fetch(`${import.meta.env.VITE_API_URL}/mange-payments/${editingPayment._id}`, {
                     method: 'PUT',
                     credentials: 'include',
-                    body: JSON.stringify(updateData),
+                    body: JSON.stringify(updateData), headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
                 });
 
                 console.log('Response status:', response.status);
@@ -204,7 +208,9 @@ const ManagePayments: React.FC = () => {
                 const response = await fetch(`${import.meta.env.VITE_API_URL}/mange-payments`, {
                     method: 'POST',
                     credentials: 'include',
-                    body: JSON.stringify(newPaymentData),
+                    body: JSON.stringify(newPaymentData), headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
                 });
 
                 console.log('Response status:', response.status);
@@ -252,7 +258,9 @@ const ManagePayments: React.FC = () => {
                 // استخدام _id في الـ URL للحذف
                 const response = await fetch(`${import.meta.env.VITE_API_URL}/mange-payments/${paymentId}`, {
                     method: 'DELETE',
-                    credentials: 'include',
+                    credentials: 'include', headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
                 });
 
                 console.log('Delete response status:', response.status);

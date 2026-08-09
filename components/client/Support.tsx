@@ -72,7 +72,9 @@ const Support: React.FC = () => {
                 setLoading(true);
                 const response = await fetch(TICKETS_ENDPOINT, {
                     method: 'GET',
-                    credentials: 'include',
+                    credentials: 'include', headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
                 });
                 if (!response.ok) throw new Error(`خطأ في جلب البيانات: ${response.status}`);
 
@@ -130,7 +132,9 @@ const Support: React.FC = () => {
             const response = await fetch(TICKETS_ENDPOINT, {
                 method: 'POST',
                 credentials: 'include',
-                body: JSON.stringify(newTicketDataToSend),
+                body: JSON.stringify(newTicketDataToSend), headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
             });
 
             if (!response.ok) throw new Error('فشل في إنشاء التذكرة');
@@ -185,7 +189,9 @@ const Support: React.FC = () => {
             await fetch(`${TICKETS_ENDPOINT}/${selectedTicket.id}/reply`, {
                 method: 'POST',
                 credentials: 'include',
-                body: JSON.stringify(newMessage),
+                body: JSON.stringify(newMessage), headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
             });
         } catch (err) {
             console.error('Error sending reply:', err);

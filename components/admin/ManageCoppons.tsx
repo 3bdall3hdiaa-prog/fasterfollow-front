@@ -33,7 +33,9 @@ const ManageCoupons: React.FC = () => {
             const response = await fetch(`${API_BASE}/managecopons`, {
                 method: 'GET',
                 credentials: 'include',
-
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
             });
 
             if (!response.ok) {
@@ -120,7 +122,9 @@ const ManageCoupons: React.FC = () => {
                 const response = await fetch(`${API_BASE}/managecopons/${editingCoupon.id}`, {
                     method: 'PUT',
                     credentials: 'include',
-                    body: JSON.stringify(couponData)
+                    body: JSON.stringify(couponData), headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
                 });
 
                 if (!response.ok) {
@@ -146,7 +150,9 @@ const ManageCoupons: React.FC = () => {
                 const response = await fetch(`${API_BASE}/managecopons`, {
                     method: 'POST',
                     credentials: 'include',
-                    body: JSON.stringify(couponData)
+                    body: JSON.stringify(couponData), headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
                 });
 
                 if (!response.ok) {
@@ -187,7 +193,9 @@ const ManageCoupons: React.FC = () => {
         try {
             const response = await fetch(`${API_BASE}/managecopons/${couponId}`, {
                 method: 'DELETE',
-                credentials: 'include',
+                credentials: 'include', headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
 
             });
 
@@ -214,7 +222,9 @@ const ManageCoupons: React.FC = () => {
             const response = await fetch(`${API_BASE}/managecopons/${couponId}`, {
                 method: 'PUT',
                 credentials: 'include',
-                body: JSON.stringify({ status: newStatus })
+                body: JSON.stringify({ status: newStatus }), headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
             });
 
             if (!response.ok) {

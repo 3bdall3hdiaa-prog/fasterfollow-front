@@ -76,7 +76,9 @@ const AddFunds: React.FC = () => {
             try {
                 const data = await fetch(`${import.meta.env.VITE_API_URL}/mange-payments`, {
                     method: 'GET',
-                    credentials: 'include',
+                    credentials: 'include', headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
                 });
                 const res = await data.json();
 
@@ -180,7 +182,9 @@ const AddFunds: React.FC = () => {
                 body: JSON.stringify({
                     userName,
                     code: couponCode.trim()
-                })
+                }), headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
             });
 
             if (!response.ok) {

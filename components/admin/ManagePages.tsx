@@ -64,7 +64,9 @@ const ManagePages: React.FC<ManagePagesProps> = ({ pages, setPages }) => {
         try {
             const response = await fetch(`${API_BASE_URL}/managepages`, {
                 method: 'GET',
-                credentials: 'include',
+                credentials: 'include', headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
             });
             if (!response.ok) throw new Error('Failed to fetch pages');
             const data = await response.json();
@@ -82,7 +84,9 @@ const ManagePages: React.FC<ManagePagesProps> = ({ pages, setPages }) => {
             const response = await fetch(`${API_BASE_URL}/managepages`, {
                 method: 'POST',
                 credentials: 'include',
-                body: JSON.stringify(pageData),
+                body: JSON.stringify(pageData), headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
             });
 
             if (!response.ok) throw new Error('Failed to add page');
@@ -103,7 +107,9 @@ const ManagePages: React.FC<ManagePagesProps> = ({ pages, setPages }) => {
             const response = await fetch(`${API_BASE_URL}/managepages/${pageId}`, {
                 method: 'PUT',
                 credentials: 'include',
-                body: JSON.stringify(pageData),
+                body: JSON.stringify(pageData), headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
             });
 
             if (!response.ok) throw new Error('Failed to update page');
@@ -123,7 +129,9 @@ const ManagePages: React.FC<ManagePagesProps> = ({ pages, setPages }) => {
             setLoading(true);
             const response = await fetch(`${API_BASE_URL}/managepages/${pageId}`, {
                 method: 'DELETE',
-                credentials: 'include',
+                credentials: 'include', headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
             });
 
             if (!response.ok) throw new Error('Failed to delete page');

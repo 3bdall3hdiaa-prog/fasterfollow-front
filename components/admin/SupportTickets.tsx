@@ -57,7 +57,9 @@ const SupportTickets: React.FC = () => {
         try {
             setLoading(true);
             const response = await fetch(`${import.meta.env.VITE_API_URL}/technical-support`, {
-                credentials: 'include',
+                credentials: 'include', headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
             });
             const data = await response.json();
             setTickets(data);
@@ -112,7 +114,9 @@ const SupportTickets: React.FC = () => {
                 {
                     method: 'POST',
                     credentials: 'include',
-                    body: JSON.stringify({ sender: 'admin', text: replyText }),
+                    body: JSON.stringify({ sender: 'admin', text: replyText }), headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
                 }
             );
 

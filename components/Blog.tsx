@@ -34,7 +34,11 @@ const Blog: React.FC<BlogProps> = ({ onPostClick }) => {
     const fetchPosts = async () => {
         try {
             setLoading(true);
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/blog`);
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/blog`, {
+                credentials: 'include', headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
 
             if (!response.ok) {
                 throw new Error('فشل في جلب البيانات');

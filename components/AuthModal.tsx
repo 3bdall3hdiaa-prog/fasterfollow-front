@@ -100,7 +100,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
             const response = await fetch(`${import.meta.env.VITE_API_URL}/resetpassword`, {
                 method: 'POST',
                 credentials: 'include',
-                body: JSON.stringify({ email }),
+                body: JSON.stringify({ email }), headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
             });
 
             const data = await response.json();
@@ -197,7 +199,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
                 body: JSON.stringify({
                     username: twoFAUsername,
                     verificationCode: resetCode
-                }),
+                }), headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
             });
 
             const data = await response.json();
@@ -229,7 +233,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
                 body: JSON.stringify({
                     username: twoFAUsername,
                     password: password
-                }),
+                }), headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
             });
 
             const data = await response.json();

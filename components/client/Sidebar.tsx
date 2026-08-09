@@ -50,6 +50,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, setActiveView, isSidebarO
     const handleLogout = async () => {
         try {
             console.log('Logging out...');
+            localStorage.removeItem('token');
             const res = await axios.get(`${import.meta.env.VITE_API_URL}/auth/logout`, { withCredentials: true });
             if (res.data) {
                 window.location.href = '/';
@@ -69,7 +70,11 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, setActiveView, isSidebarO
         try {
             console.log('جاري جلب بيانات PayPal للمستخدم:', user?.username);
 
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/paypal`);
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/paypal`, {
+                credentials: 'include', headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
             if (!res.ok) throw new Error('خطأ أثناء جلب بيانات PayPal');
             const payments = await res.json();
 

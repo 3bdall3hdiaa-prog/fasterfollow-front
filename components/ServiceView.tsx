@@ -135,7 +135,11 @@ const ServiceView = ({ id }: { id: string }) => {
     const fetchUserBalance = async () => {
         try {
 
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/paypal`, { credentials: 'include' });
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/paypal`, {
+                credentials: 'include', headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
             if (!res.ok) throw new Error('خطأ أثناء جلب بيانات PayPal');
             const payments = await res.json();
 

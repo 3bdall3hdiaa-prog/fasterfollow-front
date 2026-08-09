@@ -60,7 +60,11 @@ const App: React.FC = () => {
     const fetchSiteSettingsFromEndpoint = async () => {
         try {
             setError(null);
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/manage-setting`, { credentials: 'include' });
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/manage-setting`, {
+                credentials: 'include', headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
 
             if (!response.ok) {
                 throw new Error(`Failed to fetch site settings: ${response.status} ${response.statusText}`);
@@ -186,7 +190,11 @@ const App: React.FC = () => {
     const fetchBlogsFromEndpoint = async () => {
         try {
             setError(null);
-            const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/blog`, { credentials: 'include' });
+            const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/blog`, {
+                credentials: 'include', headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
 
             if (!response.ok) {
                 throw new Error(`Failed to fetch blogs: ${response.status} ${response.statusText}`);
@@ -222,7 +230,11 @@ const App: React.FC = () => {
     const fetchPagesFromEndpoint = async () => {
         try {
             setError(null);
-            const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/managepages`, { credentials: 'include' });
+            const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/managepages`, {
+                credentials: 'include', headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
 
             if (!response.ok) {
                 throw new Error(`Failed to fetch pages: ${response.status} ${response.statusText}`);
@@ -249,7 +261,11 @@ const App: React.FC = () => {
     const fetchBannersFromEndpoint = async () => {
         try {
             setError(null);
-            const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/managepanners`, { credentials: 'include' });
+            const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/managepanners`, {
+                credentials: 'include', headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
 
             if (!response.ok) {
                 throw new Error(`Failed to fetch banners: ${response.status} ${response.statusText}`);
