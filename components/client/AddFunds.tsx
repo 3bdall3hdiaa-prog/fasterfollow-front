@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Transaction, TransactionStatus } from '../../types';
 import axios from 'axios';
 import { useThemeStore } from '@/store/theme.store';
+import { AnyCaaRecord } from 'dns';
 
 const statusClasses: Record<TransactionStatus, string> = {
     Completed: 'bg-green-900 text-green-300',
@@ -37,6 +38,7 @@ const AddFunds: React.FC = () => {
     const [couponApplied, setCouponApplied] = useState(false);
     const [couponDiscount, setCouponDiscount] = useState(0);
     const [couponMessage, setCouponMessage] = useState('');
+    const { user }: any = useThemeStore();
     const [paymentMethods, setPaymentMethods] = useState([
         { id: 'paypal', name: 'PayPal', icon: '🅿️', paymentUrl: "", description: "" },
     ]);
@@ -73,6 +75,7 @@ const AddFunds: React.FC = () => {
             try {
                 const data = await fetch(`${import.meta.env.VITE_API_URL}/mange-payments`, {
                     method: 'GET',
+                    credentials: 'include',
                 });
                 const res = await data.json();
 
@@ -122,9 +125,11 @@ const AddFunds: React.FC = () => {
         setLoading(true);
         setError('');
         try {
-            const user = JSON.parse(localStorage.getItem('user') || '{}');
+
             const userName = user.username;
-            const response = await axios.get(`${import.meta.env.VITE_API_URL}/paypal`);
+            const response = await axios.get(`${import.meta.env.VITE_API_URL}/paypal`, {
+                withCredentials: true
+            });
 
             const formattedTransactions: Transaction[] = response.data.filter((item: any) => {
                 return item.status && item.userName === userName;
@@ -161,7 +166,7 @@ const AddFunds: React.FC = () => {
 
         setLoading(true);
         try {
-            const user = JSON.parse(localStorage.getItem('user') || '{}');
+
             const userName = user.username;
 
             if (!userName) {
@@ -170,10 +175,7 @@ const AddFunds: React.FC = () => {
             }
             const response = await fetch(`${import.meta.env.VITE_API_URL}/managecopons/cheeckcoupon`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
+                credentials: 'include',
                 body: JSON.stringify({
                     userName,
                     code: couponCode.trim()
@@ -226,11 +228,13 @@ const AddFunds: React.FC = () => {
 
     const payPal_payment = async () => {
         try {
-            const user = JSON.parse(localStorage.getItem('user') || '{}');
+
             const userName = user.username;
             const response = await axios.post(`${import.meta.env.VITE_API_URL}/paypal/create-order`, {
                 amount,
                 userName
+            }, {
+                withCredentials: true
             });
 
             const approveLink = response.data.links.find((link: any) => link.rel === 'approve')?.href;
@@ -274,7 +278,7 @@ const AddFunds: React.FC = () => {
                 finalUrl += `?amount=${amount}`;
             }
 
-            const user = JSON.parse(localStorage.getItem('user') || '{}');
+
             if (user.username) {
                 finalUrl += `&username=${user.username}`;
             }

@@ -23,32 +23,32 @@ export interface User {
     };
 }
 
-export interface ServiceForm {
-    _id?: string; // 👈 ده الـ ID اللي بيجي من MongoDB
-    id?: number; // ID محلي في الواجهة فقط (اختياري)
-    providerServiceId: number; // رقم الخدمة عند المزود
-    provider: { _id: string; name: string }; // ID الخاص بالمزود
-    platform: string; // اسم المنصة (Instagram, YouTube...)
-    title: string; // اسم الخدمة
-    description?: string; // وصف الخدمة
-    providerRate: number; // سعر المزود
-    price: number; // سعر العميل
-    min: number; // الحد الأدنى
-    max: number; // الحد الأقصى
-    type?: string; // نوع الخدمة (اختياري)
-    status: boolean; // الحالة (نشطة / موقوفة)
-    file?: File;
-    discount_for_greater_than_100000?: string;
-    discount_for_greater_than_4000?: string;
-    discount_for_4000?: string;
-    discount_for_3000?: string;
-    discount_for_2000?: string;
-}
+// export interface ServiceForm {
+//     _id?: string; // 👈 ده الـ ID اللي بيجي من MongoDB
+//     id?: number; // ID محلي في الواجهة فقط (اختياري)
+//     providerServiceId: number; // رقم الخدمة عند المزود
+//     provider: { _id: string; name: string }; // ID الخاص بالمزود
+//     platform: string; // اسم المنصة (Instagram, YouTube...)
+//     title: string; // اسم الخدمة
+//     description?: string; // وصف الخدمة
+//     providerRate: number; // سعر المزود
+//     price: number; // سعر العميل
+//     min: number; // الحد الأدنى
+//     max: number; // الحد الأقصى
+//     type?: string; // نوع الخدمة (اختياري)
+//     status: boolean; // الحالة (نشطة / موقوفة)
+//    
+//     discount_for_greater_than_100000?: string;
+//     discount_for_greater_than_4000?: string;
+//     discount_for_4000?: string;
+//     discount_for_3000?: string;
+//     discount_for_2000?: string;
+// }
 export interface ServiceResponse {
     _id?: string; // 👈 ده الـ ID اللي بيجي من MongoDB
     id?: number; // ID محلي في الواجهة فقط (اختياري)
     providerServiceId: number; // رقم الخدمة عند المزود
-    provider: { _id: string; name: string }; // ID الخاص بالمزود
+    provider: { _id: string; name: string, apiKey: string, apiEndpoint: string }; // ID الخاص بالمزود
     platform: string; // اسم المنصة (Instagram, YouTube...)
     title: string; // اسم الخدمة
     description?: string; // وصف الخدمة
@@ -62,6 +62,11 @@ export interface ServiceResponse {
         url: string;
         public_id: string;
     };
+    discount_for_greater_than_100000?: string;
+    discount_for_greater_than_4000?: string;
+    discount_for_4000?: string;
+    discount_for_3000?: string;
+    discount_for_2000?: string;
 }
 
 

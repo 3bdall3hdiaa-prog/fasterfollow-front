@@ -10,8 +10,9 @@ import viewsInst from '../assests/images/hKTNSTbO20pNx6ZyJY7u0ItIFxxIEif5w5tnFiZ
 import followstiktok from '../assests/images/izT5j0fBqBTbCFLCilCb98k378E8wQRGZaxpofPN.webp'
 import likestiktok from '../assests/images/Q1XSlPbHcQQctOyjxmGzylL0IWzEc4eJs074Hvnw.webp'
 import viewstiktok from '../assests/images/xiR6lDonjc4xRr5MjbKhSqYZMhWQuZx66QREbxfw.webp'
+import { useAuthStore } from '@/store/auth.store';
 const ServiceView = ({ id }: { id: string }) => {
-
+    const { user } = useAuthStore();
     const [loading, setLoading] = React.useState(false);
     const [isError, setIsError] = React.useState(false);
     const [avrgRating, setAvrgRating] = React.useState(0);
@@ -91,9 +92,8 @@ const ServiceView = ({ id }: { id: string }) => {
     ];
 
 
-    const getuser = localStorage.getItem('user')
-    const user = getuser ? JSON.parse(getuser) : null;
-    const isDisabled = totalCost > walletBalance || quantity === 0;
+
+    const isDisabled = totalCost > walletBalance || quantity === 0 || !user.role;
     {/*handlers */ }
     const renderStars = (rating: number) => {
         const stars = [];
@@ -121,7 +121,7 @@ const ServiceView = ({ id }: { id: string }) => {
         try {
             setLoading(true);
             setIsError(false);
-            const res = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/services-list/${id}`)
+            const res = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/services-list/${id}`, { withCredentials: true });
             if (res.data) {
                 setService(res.data)
             }
@@ -134,8 +134,8 @@ const ServiceView = ({ id }: { id: string }) => {
     }
     const fetchUserBalance = async () => {
         try {
-            const user = JSON.parse(localStorage.getItem('user') || '{}');
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/paypal`);
+
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/paypal`, { credentials: 'include' });
             if (!res.ok) throw new Error('خطأ أثناء جلب بيانات PayPal');
             const payments = await res.json();
 
@@ -170,13 +170,13 @@ const ServiceView = ({ id }: { id: string }) => {
             const x = await axios.post(`${import.meta.env.VITE_API_URL}/balance-users`, {
                 userName: user?.username,
                 amount: -totalCost
-            })
+            }, { withCredentials: true })
             if (!x) {
                 throw new Error('فشل في خصم الرصيد');
             }
             const res = await axios.post(`${import.meta.env.VITE_API_URL}/new-order`, {
                 username: user.username,
-                id_user: user._id || user.id,
+                id_user: user._id,
                 serviceId: Service?._id,
                 selectedCategory: Service?.platform,
                 serviceTitle: Service?.title,
@@ -184,8 +184,8 @@ const ServiceView = ({ id }: { id: string }) => {
                 quantity,
                 totalCost,
                 provider: Service?.provider._id,
-                providerOrderId: Service?.providerServiceId,
-            });
+                // providerOrderId: Service?.providerServiceId,
+            }, { withCredentials: true });
 
             if (res.data) {
                 alert(`تم إرسال طلبك بنجاح! تم خصم ${totalCost.toFixed(2)}$ من رصيدك.`);
@@ -305,78 +305,80 @@ const ServiceView = ({ id }: { id: string }) => {
 
                             {/* checklist */}
                             <div className="rounded-xl border border-gray-200 bg-white p-4 sm:p-6">
-                                <ul className="flex flex-col gap-3">
-                                    {features.map((text) => (
-                                        <li key={text} className="flex items-start justify-end gap-2 text-right">
-                                            <span className="text-gray-800 text-sm leading-relaxed">{text}</span>
-                                            <Check className="w-4 h-4 text-green-500 mt-0.5 shrink-0" strokeWidth={3} />
-                                        </li>
-                                    ))}
-                                </ul>
+                                <p className="flex flex-col gap-3">
+
+                                    <li className="flex items-start justify-end gap-2 text-right">
+                                        <span className="text-gray-800 text-sm leading-relaxed">{Service?.description}</span>
+                                        {/* <Check className="w-4 h-4 text-green-500 mt-0.5 shrink-0" strokeWidth={3} /> */}
+                                    </li>
+
+                                </p>
                             </div>
                         </div>
                     </div>
-                    {/*quantity and link video */}
-                    <div className='flex flex-col gap-y-4'>
+                    <form onSubmit={handleSubmit}>
 
-                        {/* إدخال الكمية */}
-                        <div>
-                            <label className="text-sm font-medium mb-2 flex justify-between flex-wrap gap-2" style={{ color: getMutedTextColor() }}>
-                                <p className="text-lg font-semibold">الكمية</p>
-                                <div className="">
-                                    <span className="text-xl font-bold mr-2" style={{ color: isDark ? '#60a5fa' : '#c9a84c' }}>
-                                        {formatPrice(totalCost)}
-                                    </span>
-                                </div>
-                            </label>
-                            <input
-                                type="number"
-                                value={quantity || ''}
-                                onChange={e => {
-                                    const val = parseInt(e.target.value) || 0;
-                                    setQuantity(val);
-                                }}
-                                required
-                                min="1"
-                                max={Service?.max || 0}
-                                className={`w-full rounded-lg p-3 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 ${isDark
-                                    ? 'bg-gray-700 border border-gray-600 text-white'
-                                    : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
-                                    }`}
-                            />
-                            <span className='text-gray-400 text-sm'>الحد الادني لطلب الخدمه هو {Service?.min?.toLocaleString() || 0}</span>
+                        {/*quantity and link video */}
+                        <div className='flex flex-col gap-y-4'>
+                            {/* إدخال الكمية */}
+                            <div>
+                                <label className="text-sm font-medium mb-2 flex justify-between flex-wrap gap-2" style={{ color: getMutedTextColor() }}>
+                                    <p className="text-lg font-semibold">الكمية</p>
+                                    <div className="">
+                                        <span className="text-xl font-bold mr-2" style={{ color: isDark ? '#60a5fa' : '#c9a84c' }}>
+                                            {formatPrice(totalCost)}
+                                        </span>
+                                    </div>
+                                </label>
+                                <input
+                                    type="number"
+                                    value={quantity || ''}
+                                    onChange={e => {
+                                        const val = parseInt(e.target.value) || 0;
+                                        setQuantity(val);
+                                    }}
+                                    required
+                                    min="1"
+                                    max={Service?.max || 0}
+                                    className={`w-full rounded-lg p-3 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 ${isDark
+                                        ? 'bg-gray-700 border border-gray-600 text-white'
+                                        : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
+                                        }`}
+                                />
+                                <span className='text-gray-400 text-sm'>الحد الادني لطلب الخدمه هو {Service?.min?.toLocaleString() || 0}</span>
+                            </div>
+                            {/* إدخال الرابط */}
+                            <div>
+                                <label className="block mb-2 text-lg font-semibold" style={{ color: getMutedTextColor() }}>الرابط</label>
+                                <input
+                                    type="url"
+                                    value={link}
+                                    onChange={e => setLink(e.target.value)}
+                                    required
+                                    className={`w-full rounded-lg p-3 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 ${isDark
+                                        ? 'bg-gray-700 border border-gray-600 text-white'
+                                        : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
+                                        }`}
+                                    placeholder="ضع رابط هنا واتاكد انه عام"
+                                />
+                            </div>
                         </div>
-                        {/* إدخال الرابط */}
-                        <div>
-                            <label className="block mb-2 text-lg font-semibold" style={{ color: getMutedTextColor() }}>الرابط</label>
-                            <input
-                                type="text"
-                                value={link}
-                                onChange={e => setLink(e.target.value)}
-                                required
-                                className={`w-full rounded-lg p-3 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 ${isDark
-                                    ? 'bg-gray-700 border border-gray-600 text-white'
-                                    : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
-                                    }`}
-                                placeholder="ضع رابط هنا واتاكد انه عام"
-                            />
-                        </div>
-                    </div>
-                    <button
-                        type="submit"
-                        disabled={isDisabled}
-                        onClick={handleSubmit}
-                        className={`w-full sm:w-auto font-bold py-3 mt-4 px-8 rounded-lg transition-all duration-300 ${isDisabled
-                            ? isDark
-                                ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                                : 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                            : isDark
-                                ? 'bg-primary-600 hover:bg-primary-700 text-white'
-                                : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
-                            }`}
-                    >
-                        {totalCost > walletBalance ? 'رصيد غير كافي' : 'إرسال الطلب'}
-                    </button>
+                        <button
+                            type="submit"
+                            disabled={isDisabled}
+                            className={`w-full sm:w-auto font-bold py-3 mt-4 px-8 rounded-lg transition-all duration-300 ${isDisabled
+                                ? isDark
+                                    ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                                    : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                                : isDark
+                                    ? 'bg-primary-600 hover:bg-primary-700 text-white'
+                                    : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
+                                }`}
+                        >
+                            {!user.role ? "سجل الدخول للطلب" : totalCost > walletBalance ? 'رصيد غير كافي' : 'إرسال الطلب'}
+                        </button>
+                    </form>
+
                 </div>
 
             </div>

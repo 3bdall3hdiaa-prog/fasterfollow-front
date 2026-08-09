@@ -44,7 +44,10 @@ const ManageBanners: React.FC<ManageBannersProps> = ({ banners, setBanners }) =>
     // دالة لجلب كل البانرات
     const fetchBanners = async () => {
         try {
-            const response = await fetch(`${API_BASE}/managepanners`);
+            const response = await fetch(`${API_BASE}/managepanners`, {
+                method: 'GET',
+                credentials: 'include',
+            });
             if (!response.ok) throw new Error('فشل في جلب البيانات');
             const data = await response.json();
 
@@ -78,9 +81,7 @@ const ManageBanners: React.FC<ManageBannersProps> = ({ banners, setBanners }) =>
             if (bannerData.isActive) data.append('isActive', bannerData.isActive.toString());
             const response = await fetch(`${API_BASE}/managepanners`, {
                 method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
+                credentials: 'include',
                 body: data,
             });
 
@@ -124,9 +125,7 @@ const ManageBanners: React.FC<ManageBannersProps> = ({ banners, setBanners }) =>
             if (bannerData.isActive) data.append('isActive', bannerData.isActive.toString());
             const response = await fetch(`${API_BASE}/managepanners/${bannerId}`, {
                 method: 'PUT',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
+                credentials: 'include',
                 body: data,
             });
 
@@ -168,9 +167,7 @@ const ManageBanners: React.FC<ManageBannersProps> = ({ banners, setBanners }) =>
         try {
             const response = await fetch(`${API_BASE}/managepanners/${bannerId}`, {
                 method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
+                credentials: 'include',
             });
 
             if (!response.ok) throw new Error('فشل في حذف البانر');

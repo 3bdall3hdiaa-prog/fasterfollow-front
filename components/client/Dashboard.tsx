@@ -4,6 +4,7 @@ import StatCard from './StatCard';
 import { Order } from '../../types';
 import { useThemeStore } from '@/store/theme.store';
 import { useCurrency } from '@/contexts/CurrencyContext';
+import { useAuthStore } from '@/store/auth.store';
 
 const statusClasses: any = {
     'Pending': 'bg-yellow-900 text-yellow-300',
@@ -50,7 +51,7 @@ interface PayPalTransaction {
 }
 
 const Dashboard: React.FC<DashboardProps> = ({ setActiveView }) => {
-    const { user } = useUser();
+    const { user } = useAuthStore();
     const { isDark } = useThemeStore();
     const [completedOrders, setCompletedOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
@@ -88,7 +89,7 @@ const Dashboard: React.FC<DashboardProps> = ({ setActiveView }) => {
         try {
             console.log('جاري جلب بيانات PayPal للمستخدم:', user?.username);
 
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/paypal`);
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/paypal`, { credentials: 'include' });
             if (!res.ok) throw new Error('خطأ أثناء جلب بيانات PayPal');
             const payments = await res.json();
 
@@ -124,9 +125,8 @@ const Dashboard: React.FC<DashboardProps> = ({ setActiveView }) => {
             setError(null);
 
             const response = await fetch(`${import.meta.env.VITE_API_URL}/new-order`, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                },
+                method: 'GET',
+                credentials: 'include',
             });
 
             if (!response.ok) {
@@ -141,8 +141,7 @@ const Dashboard: React.FC<DashboardProps> = ({ setActiveView }) => {
 
             console.log('البيانات المستلمة:', ordersData);
             setOrderlength(ordersData.length);
-            const getdata = localStorage.getItem('user')
-            const username = JSON.parse(getdata || '{}').username
+            const username = user.username
             const completed = ordersData.filter((order: any) => {
                 return (
                     order && order.status === 'Completed' && order.username === username || order.status === 'completed' && order.username === username
@@ -164,9 +163,7 @@ const Dashboard: React.FC<DashboardProps> = ({ setActiveView }) => {
 
             const response = await fetch(`${import.meta.env.VITE_API_URL}/balance-users`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                credentials: 'include',
                 body: JSON.stringify({
                     username: user?.username,
                     balance: walletBalance

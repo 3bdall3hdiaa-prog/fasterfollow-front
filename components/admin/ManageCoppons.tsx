@@ -32,10 +32,8 @@ const ManageCoupons: React.FC = () => {
         try {
             const response = await fetch(`${API_BASE}/managecopons`, {
                 method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
+                credentials: 'include',
+
             });
 
             if (!response.ok) {
@@ -121,10 +119,7 @@ const ManageCoupons: React.FC = () => {
                 // تحديث كوبون موجود
                 const response = await fetch(`${API_BASE}/managecopons/${editingCoupon.id}`, {
                     method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    },
+                    credentials: 'include',
                     body: JSON.stringify(couponData)
                 });
 
@@ -150,10 +145,7 @@ const ManageCoupons: React.FC = () => {
                 // إضافة كوبون جديد
                 const response = await fetch(`${API_BASE}/managecopons`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    },
+                    credentials: 'include',
                     body: JSON.stringify(couponData)
                 });
 
@@ -195,10 +187,8 @@ const ManageCoupons: React.FC = () => {
         try {
             const response = await fetch(`${API_BASE}/managecopons/${couponId}`, {
                 method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
+                credentials: 'include',
+
             });
 
             if (!response.ok) {
@@ -223,10 +213,7 @@ const ManageCoupons: React.FC = () => {
 
             const response = await fetch(`${API_BASE}/managecopons/${couponId}`, {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
+                credentials: 'include',
                 body: JSON.stringify({ status: newStatus })
             });
 

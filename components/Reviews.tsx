@@ -1,3 +1,4 @@
+import { useAuthStore } from '@/store/auth.store'
 import { useThemeStore } from '@/store/theme.store'
 import axios from 'axios'
 import { useState, useEffect, useMemo } from 'react'
@@ -7,7 +8,7 @@ const Reviews = ({ serviceId, setAvrgRating, setNumReviews }: { serviceId: strin
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(false)
     const { isDark } = useThemeStore()
-
+    const { user } = useAuthStore()
     const avrgRating = useMemo(() => {
         if (reviews.length > 0) {
             const totalRating = reviews.reduce((acc, review) => acc + review.rating, 0);
@@ -29,7 +30,6 @@ const Reviews = ({ serviceId, setAvrgRating, setNumReviews }: { serviceId: strin
     const [submitSuccess, setSubmitSuccess] = useState(false)
 
     // Get user from localStorage
-    const user = JSON.parse(localStorage.getItem('user') || '{}')
 
     useEffect(() => {
         getReviews()
@@ -98,8 +98,8 @@ const Reviews = ({ serviceId, setAvrgRating, setNumReviews }: { serviceId: strin
 
         try {
             const reviewData = {
-                userId: user._id || user.id,
-                username: user.username || user.name || 'مستخدم',
+                userId: user._id,
+                username: user.username || 'مستخدم',
                 serviceId: serviceId,
                 rating: newReview.rating,
                 comment: newReview.comment.trim(),

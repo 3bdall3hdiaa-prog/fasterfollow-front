@@ -107,13 +107,9 @@ const ManagePlatforms: React.FC<ManagePlatformsProps> = ({ platforms, setPlatfor
 
     // دالة للإضافة عبر API باستخدام Axios و FormData
     const addPlatformToAPI = async (formData: FormData): Promise<PlatformResponse> => {
-        const token = localStorage.getItem('token');
 
         const response = await axios.post(`${API_URL}/manageplatforms`, formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-                'Authorization': `Bearer ${token}`
-            }
+            withCredentials: true,
         });
 
         return response.data;
@@ -121,13 +117,9 @@ const ManagePlatforms: React.FC<ManagePlatformsProps> = ({ platforms, setPlatfor
 
     // دالة للتعديل عبر API باستخدام Axios و FormData
     const updatePlatformInAPI = async (id: string, formData: FormData): Promise<PlatformResponse> => {
-        const token = localStorage.getItem('token');
 
         const response = await axios.put(`${API_URL}/manageplatforms/${id}`, formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-                'Authorization': `Bearer ${token}`
-            }
+            withCredentials: true
         });
 
         return response.data;
@@ -135,13 +127,9 @@ const ManagePlatforms: React.FC<ManagePlatformsProps> = ({ platforms, setPlatfor
 
     // دالة للتعديل بدون ملف (JSON)
     const updatePlatformWithoutFile = async (id: string, data: Partial<Platform>): Promise<PlatformResponse> => {
-        const token = localStorage.getItem('token');
 
         const response = await axios.put(`${API_URL}/manageplatforms/${id}`, data, {
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            }
+            withCredentials: true
         });
 
         return response.data;
@@ -149,12 +137,9 @@ const ManagePlatforms: React.FC<ManagePlatformsProps> = ({ platforms, setPlatfor
 
     // دالة للحذف عبر API باستخدام Axios
     const deletePlatformFromAPI = async (id: string): Promise<void> => {
-        const token = localStorage.getItem('token');
 
         await axios.delete(`${API_URL}/manageplatforms/${id}`, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
+            withCredentials: true
         });
     };
 

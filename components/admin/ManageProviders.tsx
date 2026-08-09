@@ -76,9 +76,7 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
         try {
             setLoading(true);
             const response = await fetch(`${import.meta.env.VITE_API_URL}/manage-providers`, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
+                credentials: 'include',
             });
             if (!response.ok) {
                 throw new Error('فشل في جلب البيانات');
@@ -144,10 +142,7 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
 
                 const response = await fetch(`${import.meta.env.VITE_API_URL}/manage-providers/${editingProvider.id}`, {
                     method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    },
+                    credentials: 'include',
                     body: JSON.stringify(updateData),
                 });
 
@@ -171,10 +166,7 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
             } else {
                 const response = await fetch(`${import.meta.env.VITE_API_URL}/manage-providers`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    },
+                    credentials: 'include',
                     body: JSON.stringify(formData),
                 });
 
@@ -212,9 +204,7 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
                 setLoading(true);
                 const response = await fetch(`${import.meta.env.VITE_API_URL}/manage-providers/${providerId}`, {
                     method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
+                    credentials: 'include',
                 });
 
                 if (!response.ok) {
@@ -238,10 +228,7 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
         try {
             const response = await fetch(`${import.meta.env.VITE_API_URL}/manage-providers/${providerId}/sync`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
+                credentials: 'include',
             });
 
             if (!response.ok) {

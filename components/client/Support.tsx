@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { SupportTicket, TicketStatus, TicketMessage } from '../../types';
 import { useThemeStore } from '@/store/theme.store';
+import { useAuthStore } from '@/store/auth.store';
 
 // عنوان الـ API
 const API_BASE_URL = import.meta.env.VITE_API_URL;
@@ -38,7 +39,7 @@ const Support: React.FC = () => {
     const [newTicketData, setNewTicketData] = useState({ subject: '', message: '' });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-
+    const { user } = useAuthStore()
     // دوال مساعدة للألوان
     const getTextColor = () => {
         return isDark ? '#ffffff' : '#1e2235';
@@ -69,7 +70,10 @@ const Support: React.FC = () => {
         const fetchTickets = async () => {
             try {
                 setLoading(true);
-                const response = await fetch(TICKETS_ENDPOINT);
+                const response = await fetch(TICKETS_ENDPOINT, {
+                    method: 'GET',
+                    credentials: 'include',
+                });
                 if (!response.ok) throw new Error(`خطأ في جلب البيانات: ${response.status}`);
 
                 const data = await response.json();
@@ -90,7 +94,7 @@ const Support: React.FC = () => {
                     ],
                 }));
 
-                const currentUser = JSON.parse(localStorage.getItem('user') || '{}').username;
+                const currentUser = user.username;
                 const filtered = formattedTickets.filter(
                     (ticket) => ticket.user.username === currentUser
                 );
@@ -113,7 +117,7 @@ const Support: React.FC = () => {
 
     const handleCreateTicket = async (e: React.FormEvent) => {
         e.preventDefault();
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
+
 
         try {
             const newTicketDataToSend = {
@@ -125,7 +129,7 @@ const Support: React.FC = () => {
 
             const response = await fetch(TICKETS_ENDPOINT, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
                 body: JSON.stringify(newTicketDataToSend),
             });
 
@@ -180,7 +184,7 @@ const Support: React.FC = () => {
 
             await fetch(`${TICKETS_ENDPOINT}/${selectedTicket.id}/reply`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
                 body: JSON.stringify(newMessage),
             });
         } catch (err) {

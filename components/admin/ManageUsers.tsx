@@ -133,6 +133,8 @@ const UsersManagement = () => {
             await axios.post(`${import.meta.env.VITE_API_URL}/managecopons/editbalance`, {
                 userName: balanceData.username,
                 amount: balanceData.amount
+            }, {
+                withCredentials: true
             });
 
             alert("تم تحديث الرصيد بنجاح ✅");
@@ -146,7 +148,9 @@ const UsersManagement = () => {
     // دالة لجلب الرصيد من endpoint البايبال
     const fetchUserBalance = async (userName: any) => {
         try {
-            const response = await axios.get(`${import.meta.env.VITE_API_URL}/paypal`);
+            const response = await axios.get(`${import.meta.env.VITE_API_URL}/paypal`, {
+                withCredentials: true
+            });
             const paypalData = response.data;
 
             // جمع الـ amount حيث userName يساوي الاسم المطلوب
@@ -186,11 +190,8 @@ const UsersManagement = () => {
 
     const handleAddUser = async () => {
         try {
-            const token = localStorage.getItem("token");
             const res = await axios.post(`${import.meta.env.VITE_API_URL}/signup`, newUser, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
+                withCredentials: true
             });
             alert("تم إضافة المستخدم بنجاح ✅");
 
@@ -220,9 +221,7 @@ const UsersManagement = () => {
                 email: editingUser.email,
                 status: editingUser.status
             }, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`
-                }
+                withCredentials: true
             });
 
             // تحديث البيانات في الـ state
@@ -252,6 +251,7 @@ const UsersManagement = () => {
             try {
 
                 const res = await axios.get(`${import.meta.env.VITE_API_URL}/getallusers`, {
+                    withCredentials: true
                 });
 
                 const formattedUsers = res.data.map((user: any) => ({

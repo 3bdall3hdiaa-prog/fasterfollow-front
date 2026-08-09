@@ -3,6 +3,8 @@ import { useUser } from '../../contexts/UserContext';
 import { useEffect, useState } from 'react';
 import { useThemeStore } from '@/store/theme.store';
 import { useCurrency } from '@/contexts/CurrencyContext';
+import { useAuthStore } from '@/store/auth.store';
+import axios from 'axios';
 
 interface SidebarProps {
     activeView: string;
@@ -34,7 +36,7 @@ const NavLink: React.FC<{ viewName: string, activeView: string, setActiveView: (
 };
 
 const Sidebar: React.FC<SidebarProps> = ({ activeView, setActiveView, isSidebarOpen, setIsSidebarOpen }) => {
-    const { user, logout } = useUser();
+    const { user } = useAuthStore();
     const { isDark } = useThemeStore();
     const { formatPrice } = useCurrency();
 
@@ -45,7 +47,17 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, setActiveView, isSidebarO
             setIsSidebarOpen(false);
         }
     };
-
+    const handleLogout = async () => {
+        try {
+            console.log('Logging out...');
+            const res = await axios.get(`${import.meta.env.VITE_API_URL}/auth/logout`, { withCredentials: true });
+            if (res.data) {
+                window.location.href = '/';
+            }
+        } catch (err: any) {
+            console.log(err);
+        }
+    }
     const [walletBalance, setWalletBalance] = useState(0);
     useEffect(() => {
         if (user) {
@@ -144,7 +156,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, setActiveView, isSidebarO
                     </nav>
                     <div className="mt-auto">
                         <button
-                            onClick={logout}
+                            onClick={handleLogout}
                             className={`flex items-center w-full px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-300 ${isDark
                                 ? 'text-red-400 hover:bg-red-900/50'
                                 : 'text-red-600 hover:bg-red-50'

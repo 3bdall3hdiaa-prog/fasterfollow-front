@@ -49,7 +49,7 @@ const ImportServices = () => {
         try {
             setLoading(prev => ({ ...prev, providers: true }));
             setError(null);
-            const response = await axios.get(`${import.meta.env.VITE_API_URL}/manage-providers`);
+            const response = await axios.get(`${import.meta.env.VITE_API_URL}/manage-providers`, { withCredentials: true });
 
             if (response.data.success) {
                 setProviders(response.data.data || response.data);
@@ -84,13 +84,14 @@ const ImportServices = () => {
             const response = await axios.get(
                 `${import.meta.env.VITE_API_URL}/services-list/getdata`,
                 {
+                    withCredentials: true,
                     params: {
                         apiEndpoint: provider.apiEndpoint,
                         key: provider.apiKey,
                         page: page,
                         limit: itemsPerPage
                     }
-                }
+                },
             );
 
             console.log('الرد من السيرفر:', response.data);
@@ -242,7 +243,7 @@ const ImportServices = () => {
             const response = await axios.post(`${import.meta.env.VITE_API_URL}/services-list`, {
                 provider: provider._id,
                 services: selectedServicesData
-            });
+            }, { withCredentials: true });
 
             if (response.data.message) {
                 toast.success(`تم استيراد ${selectedServicesData.length} خدمة بنجاح`);

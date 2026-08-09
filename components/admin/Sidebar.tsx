@@ -1,6 +1,7 @@
 import React from 'react';
 import { useUser } from '../../contexts/UserContext';
 import { useThemeStore } from '@/store/theme.store';
+import axios from 'axios';
 
 interface SidebarProps {
     activeView: string;
@@ -31,13 +32,22 @@ const NavLink: React.FC<{ viewName: string, activeView: string, setActiveView: (
 };
 
 const Sidebar: React.FC<SidebarProps> = ({ activeView, setActiveView, isSidebarOpen, setIsSidebarOpen }) => {
-    const { logout } = useUser();
     const { isDark } = useThemeStore();
 
     const closeSidebar = () => {
         if (window.innerWidth < 768) setIsSidebarOpen(false);
     };
-
+    const logout = async () => {
+        try {
+            console.log('Logging out...');
+            const res = await axios.get(`${import.meta.env.VITE_API_URL}/auth/logout`, { withCredentials: true });
+            if (res.data) {
+                window.location.href = '/';
+            }
+        } catch (err: any) {
+            console.log(err);
+        }
+    }
     const navItems = [
         { view: 'dashboard', label: 'لوحة التحكم', icon: '📊' },
         { view: 'users', label: 'إدارة المستخدمين', icon: '👥' },

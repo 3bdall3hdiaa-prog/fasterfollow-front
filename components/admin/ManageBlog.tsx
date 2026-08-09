@@ -70,7 +70,9 @@ const ManageBlog: React.FC = () => {
     const fetchPosts = async () => {
         try {
             setLoading(true);
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/blog`);
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/blog`, {
+                credentials: 'include',
+            });
             if (!response.ok) {
                 throw new Error('فشل في جلب البيانات');
             }
@@ -123,9 +125,7 @@ const ManageBlog: React.FC = () => {
             if (editingPost && editingPost._id) {
                 const response = await fetch(`${import.meta.env.VITE_API_URL}/blog/${editingPost._id}`, {
                     method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    credentials: 'include',
                     body: JSON.stringify(formData),
                 });
 
@@ -139,9 +139,7 @@ const ManageBlog: React.FC = () => {
             } else {
                 const response = await fetch(`${import.meta.env.VITE_API_URL}/blog`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    credentials: 'include',
                     body: JSON.stringify(formData),
                 });
 
@@ -166,6 +164,7 @@ const ManageBlog: React.FC = () => {
             try {
                 const response = await fetch(`${import.meta.env.VITE_API_URL}/blog/${postId}`, {
                     method: 'DELETE',
+                    credentials: 'include',
                 });
 
                 if (!response.ok) {

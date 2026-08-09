@@ -35,7 +35,7 @@ const ManageReviews = () => {
         try {
             setLoading(true);
             setError(null);
-            const response = await axios.get(`${import.meta.env.VITE_API_URL}/reviews/admin`);
+            const response = await axios.get(`${import.meta.env.VITE_API_URL}/reviews/admin`, { withCredentials: true });
             if (response.data.success) {
                 setReviews(response.data.data || response.data);
             } else {
@@ -58,7 +58,7 @@ const ManageReviews = () => {
 
         try {
             setDeletingId(reviewId);
-            const response = await axios.delete(`${import.meta.env.VITE_API_URL}/reviews/${reviewId}`);
+            const response = await axios.delete(`${import.meta.env.VITE_API_URL}/reviews/${reviewId}`, { withCredentials: true });
 
             if (response.data) {
                 toast.success('تم حذف التقييم بنجاح');
@@ -80,7 +80,8 @@ const ManageReviews = () => {
             setProcessingId(reviewId);
             const response = await axios.patch(
                 `${import.meta.env.VITE_API_URL}/reviews/${reviewId}`,
-                { isPublished: true }
+                { isPublished: true },
+                { withCredentials: true }
             );
 
             if (response.data) {

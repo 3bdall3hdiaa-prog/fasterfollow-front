@@ -10,7 +10,7 @@ const Notifications: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const { isDark } = useThemeStore();
-
+    const { user }: any = useThemeStore();
     const unreadCount = notifications.filter((n: any) => !n.isRead).length;
 
     // جلب البيانات من الـ API
@@ -19,7 +19,9 @@ const Notifications: React.FC = () => {
             setLoading(true);
             setError(null);
 
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/notification`);
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/notification`, {
+                credentials: 'include',
+            });
 
             if (!response.ok) {
                 throw new Error(`خطأ في جلب البيانات: ${response.status}`);
@@ -28,7 +30,6 @@ const Notifications: React.FC = () => {
             const allNotifications: any = await response.json();
 
             // الحصول على userName من localStorage أو أي مكان آخر
-            const user = JSON.parse(localStorage.getItem('user') || '{}');
             const username = user.username;
             // فلترة الإشعارات حسب userName
             const userNotifications = allNotifications.filter(
@@ -69,9 +70,7 @@ const Notifications: React.FC = () => {
             // إرسال تحديث إلى السيرفر (اختياري)
             await fetch(`${import.meta.env.VITE_API_URL}/notification/${id}`, {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                credentials: 'include',
 
             });
         } catch (err) {

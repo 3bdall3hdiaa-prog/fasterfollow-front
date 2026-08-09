@@ -62,7 +62,10 @@ const ManagePages: React.FC<ManagePagesProps> = ({ pages, setPages }) => {
     // دالة لجلب جميع الصفحات من الـ API
     const fetchPages = async () => {
         try {
-            const response = await fetch(`${API_BASE_URL}/managepages`);
+            const response = await fetch(`${API_BASE_URL}/managepages`, {
+                method: 'GET',
+                credentials: 'include',
+            });
             if (!response.ok) throw new Error('Failed to fetch pages');
             const data = await response.json();
             setPages(data);
@@ -78,10 +81,7 @@ const ManagePages: React.FC<ManagePagesProps> = ({ pages, setPages }) => {
             setLoading(true);
             const response = await fetch(`${API_BASE_URL}/managepages`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
+                credentials: 'include',
                 body: JSON.stringify(pageData),
             });
 
@@ -102,10 +102,7 @@ const ManagePages: React.FC<ManagePagesProps> = ({ pages, setPages }) => {
             setLoading(true);
             const response = await fetch(`${API_BASE_URL}/managepages/${pageId}`, {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
+                credentials: 'include',
                 body: JSON.stringify(pageData),
             });
 
@@ -126,9 +123,7 @@ const ManagePages: React.FC<ManagePagesProps> = ({ pages, setPages }) => {
             setLoading(true);
             const response = await fetch(`${API_BASE_URL}/managepages/${pageId}`, {
                 method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
+                credentials: 'include',
             });
 
             if (!response.ok) throw new Error('Failed to delete page');

@@ -74,7 +74,9 @@ const ManagePayments: React.FC = () => {
     const fetchPaymentMethods = async () => {
         try {
             setLoading(true);
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/mange-payments`);
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/mange-payments`, {
+                credentials: 'include',
+            });
             if (!response.ok) {
                 throw new Error('فشل في جلب البيانات');
             }
@@ -156,9 +158,7 @@ const ManagePayments: React.FC = () => {
 
                 const response = await fetch(`${import.meta.env.VITE_API_URL}/mange-payments/${editingPayment._id}`, {
                     method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    credentials: 'include',
                     body: JSON.stringify(updateData),
                 });
 
@@ -203,9 +203,7 @@ const ManagePayments: React.FC = () => {
 
                 const response = await fetch(`${import.meta.env.VITE_API_URL}/mange-payments`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    credentials: 'include',
                     body: JSON.stringify(newPaymentData),
                 });
 
@@ -254,6 +252,7 @@ const ManagePayments: React.FC = () => {
                 // استخدام _id في الـ URL للحذف
                 const response = await fetch(`${import.meta.env.VITE_API_URL}/mange-payments/${paymentId}`, {
                     method: 'DELETE',
+                    credentials: 'include',
                 });
 
                 console.log('Delete response status:', response.status);

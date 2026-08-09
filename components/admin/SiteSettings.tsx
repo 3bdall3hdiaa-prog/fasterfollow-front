@@ -128,9 +128,7 @@ const SiteSettingsComponent: React.FC<SiteSettingsProps> = ({ settings, setSetti
 
             const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/manage-setting`, {
                 method: 'PATCH',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
+                credentials: 'include',
                 body: data
             });
 

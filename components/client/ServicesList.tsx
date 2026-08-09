@@ -42,7 +42,7 @@ const ServicesList: React.FC = () => {
         const fetchServices = async () => {
             try {
                 setLoading(true);
-                const response = await axios.get(`${import.meta.env.VITE_API_URL}/services-list`);
+                const response = await axios.get(`${import.meta.env.VITE_API_URL}/services-list`, { withCredentials: true });
 
                 const servicesData = response.data.map((service: any) => ({
                     _id: service._id,

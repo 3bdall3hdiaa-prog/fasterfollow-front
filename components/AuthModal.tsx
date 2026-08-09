@@ -61,10 +61,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
 
             if (result.success) {
                 onClose();
-            } else if (result.needs2FA) {
-                setTwoFAUsername(username);
-                setResetMessage('تم إرسال كود التحقق إلى بريدك الإلكتروني');
-                setView('verify2FA');
+                window.location.reload();
             } else {
                 setError(result.message || 'حدث خطأ ما.');
             }
@@ -145,7 +142,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
                 setTimeout(() => {
                     setView('newPassword');
                     setResetMessage('');
-                    localStorage.setItem('token', response.data.token);
                 }, 1500);
             } else {
                 setError(response.data.message || 'رمز التحقق غير صحيح.');
@@ -172,10 +168,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
             const response = await axios.post(`${import.meta.env.VITE_API_URL}/resetpassword/change-password`,
                 { email, password: newPassword }
                 , {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                    },
+
                 });
             if (response.data) {
                 setResetMessage('تم تغيير كلمة المرور بنجاح.');
@@ -215,9 +208,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
 
             const data = await response.json();
             if (response.ok && data.token) {
-                localStorage.setItem('token', data.token);
-                localStorage.setItem('user', JSON.stringify(data.user));
-
                 setResetMessage('تم تسجيل الدخول بنجاح!');
                 setTimeout(() => {
                     onClose();

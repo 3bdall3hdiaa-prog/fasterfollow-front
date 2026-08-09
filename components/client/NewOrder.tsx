@@ -4,6 +4,7 @@ import { useUser } from '../../contexts/UserContext';
 import axios from 'axios';
 import { useCurrency } from '../../contexts/CurrencyContext';
 import { useThemeStore } from '@/store/theme.store';
+import { useAuthStore } from '@/store/auth.store';
 
 interface NewOrderProps {
     services: ServiceResponse[];
@@ -21,7 +22,7 @@ interface Review {
 }
 
 const NewOrder: React.FC<NewOrderProps> = ({ services }) => {
-    const { user } = useUser();
+    const { user } = useAuthStore();
     const { isDark } = useThemeStore();
     const [selectedPlatform, setSelectedPlatform] = useState<string>('');
     const [selectedServiceId, setSelectedServiceId] = useState<string>('');
@@ -61,7 +62,7 @@ const NewOrder: React.FC<NewOrderProps> = ({ services }) => {
 
     const fetchUserBalance = async () => {
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/paypal`);
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/paypal`, { credentials: 'include' });
             if (!res.ok) throw new Error('خطأ أثناء جلب بيانات PayPal');
             const payments = await res.json();
 
@@ -94,7 +95,7 @@ const NewOrder: React.FC<NewOrderProps> = ({ services }) => {
     const fetchServiceReviews = async (serviceId: string) => {
         try {
             setReviewLoading(true);
-            const response = await axios.get(`${import.meta.env.VITE_API_URL}/reviews/${serviceId}`);
+            const response = await axios.get(`${import.meta.env.VITE_API_URL}/reviews/${serviceId}`, { withCredentials: true });
             if (response.data) {
                 console.log("ascascacssac", response.data);
                 setReviews(response.data);
@@ -129,10 +130,10 @@ const NewOrder: React.FC<NewOrderProps> = ({ services }) => {
                 serviceId: selectedServiceId,
                 rating: newRating,
                 comment: newComment,
-                userId: user._id || user.id,
+                userId: user._id,
                 username: user.username
             }
-            const response = await axios.post(`${import.meta.env.VITE_API_URL}/reviews`, data);
+            const response = await axios.post(`${import.meta.env.VITE_API_URL}/reviews`, data, { withCredentials: true });
 
             if (response.data) {
                 setReviews(prev => [response.data, ...prev]);
@@ -154,7 +155,7 @@ const NewOrder: React.FC<NewOrderProps> = ({ services }) => {
         const fetchServices = async () => {
             try {
                 setLoading(true);
-                const response = await axios.get(`${import.meta.env.VITE_API_URL}/services-list`);
+                const response = await axios.get(`${import.meta.env.VITE_API_URL}/services-list`, { withCredentials: true });
                 const servicesData = response.data;
                 const filteredServices = servicesData.filter((service: any) => {
                     return service.status === true;
@@ -228,7 +229,7 @@ const NewOrder: React.FC<NewOrderProps> = ({ services }) => {
             const x = await axios.post(`${import.meta.env.VITE_API_URL}/balance-users`, {
                 userName: user?.username,
                 amount: -totalCost
-            })
+            }, { withCredentials: true })
             if (!x) {
                 throw new Error('فشل في خصم الرصيد');
             }
@@ -247,7 +248,7 @@ const NewOrder: React.FC<NewOrderProps> = ({ services }) => {
                 quantity,
                 totalCost,
                 provider: selectedService?.provider
-            });
+            }, { withCredentials: true });
 
             if (res.data) {
                 setSuccess(`تم إرسال طلبك بنجاح! تم خصم ${totalCost.toFixed(2)}$ من رصيدك.`);

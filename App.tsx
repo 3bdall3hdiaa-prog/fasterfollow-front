@@ -18,6 +18,7 @@ import axios from 'axios';
 import { useThemeStore } from './store/theme.store';
 import ServicesSection from './components/ServicesSection';
 import ServiceView from './components/ServiceView';
+import { useAuthStore } from './store/auth.store';
 
 
 
@@ -36,7 +37,7 @@ type AppView = {
 };
 
 const App: React.FC = () => {
-    const { user } = useUser();
+    const { user } = useAuthStore();
     const [appView, setAppView] = useState<AppView>({ view: 'home' });
     const prevUser = useRef(user);
     const { isDark } = useThemeStore();
@@ -59,7 +60,7 @@ const App: React.FC = () => {
     const fetchSiteSettingsFromEndpoint = async () => {
         try {
             setError(null);
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/manage-setting`);
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/manage-setting`, { credentials: 'include' });
 
             if (!response.ok) {
                 throw new Error(`Failed to fetch site settings: ${response.status} ${response.statusText}`);
@@ -128,7 +129,7 @@ const App: React.FC = () => {
     };
     const getReviews = async () => {
         try {
-            const response = await axios.get(`${import.meta.env.VITE_API_URL}/reviews`);
+            const response = await axios.get(`${import.meta.env.VITE_API_URL}/reviews`, { withCredentials: true });
             if (response.data) {
                 setReviews(response.data);
             }
@@ -185,7 +186,7 @@ const App: React.FC = () => {
     const fetchBlogsFromEndpoint = async () => {
         try {
             setError(null);
-            const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/blog`);
+            const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/blog`, { credentials: 'include' });
 
             if (!response.ok) {
                 throw new Error(`Failed to fetch blogs: ${response.status} ${response.statusText}`);
@@ -221,7 +222,7 @@ const App: React.FC = () => {
     const fetchPagesFromEndpoint = async () => {
         try {
             setError(null);
-            const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/managepages`);
+            const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/managepages`, { credentials: 'include' });
 
             if (!response.ok) {
                 throw new Error(`Failed to fetch pages: ${response.status} ${response.statusText}`);
@@ -248,7 +249,7 @@ const App: React.FC = () => {
     const fetchBannersFromEndpoint = async () => {
         try {
             setError(null);
-            const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/managepanners`);
+            const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/managepanners`, { credentials: 'include' });
 
             if (!response.ok) {
                 throw new Error(`Failed to fetch banners: ${response.status} ${response.statusText}`);
@@ -275,7 +276,7 @@ const App: React.FC = () => {
     const getProviders = async () => {
         try {
             setError(null);
-            const res = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/manage-providers`);
+            const res = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/manage-providers`, { withCredentials: true });
             if (res.data) {
                 setProviders(res.data);
             }
@@ -286,7 +287,7 @@ const App: React.FC = () => {
     }
     const getPlatforms = async () => {
         try {
-            const res = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/manageplatforms`);
+            const res = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/manageplatforms`, { withCredentials: true });
             if (res.data) {
                 setPlatforms(res.data);
             }
@@ -385,7 +386,7 @@ const App: React.FC = () => {
 
     const handleGetServices = async (slug: any) => {
         try {
-            const res = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/services-list/getOne/${slug}`);
+            const res = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/services-list/getOne/${slug}`, { withCredentials: true });
             console.log(res.data);
             if (res.data) {
                 setFilteredServices(res.data.data);

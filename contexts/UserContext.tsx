@@ -1,97 +1,61 @@
 import React, { createContext, useState, useEffect, ReactNode, useContext } from 'react';
 import axios from 'axios';
 import { User } from '../types';
+import { useAuthStore } from '@/store/auth.store';
 
 interface AuthResult {
     success: boolean;
     message?: string;
-    needs2FA?: boolean;
 }
 
 interface UserContextType {
-    user: User | null;
+    // user: User | null;
     login: (username: string, password: string) => Promise<AuthResult>;
     register: (username: string, email: string, password: string) => Promise<AuthResult>;
-    logout: () => void;
-    addBalance: (amount: number) => void;
-    deductBalance: (amount: number) => boolean;
+    // logout: () => void;
+    // addBalance: (amount: number) => void;
+    // deductBalance: (amount: number) => boolean;
     isProcessingGoogleAuth: boolean;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [user, setUser] = useState<User | null>(null);
+    const { setUser } = useAuthStore();
+    // const [user, setUser] = useState<User | null>(null);
     const [isProcessingGoogleAuth, setIsProcessingGoogleAuth] = useState(false);
 
     // ✅ دالة لمعالجة الـ Google callback
     const processGoogleCallback = () => {
-        const hash = window.location.hash.substring(1);
-        const urlParams = new URLSearchParams(hash.split('?')[1]);
-        const token = urlParams.get('token');
-        const userParam = urlParams.get('user');
+        setIsProcessingGoogleAuth(true);
+        try {
+            // توجيه للصفحة الرئيسية
+            window.location.href = '#/client';
 
-        if (token && userParam) {
-            setIsProcessingGoogleAuth(true);
-            try {
-                const userData = JSON.parse(decodeURIComponent(userParam));
-
-                // تنظيف البيانات ووحد الأسماء
-                const cleanedUserData = {
-                    ...userData,
-                    name: userData.name ? userData.name.replace(' undefined', '') : 'User',
-                    username: userData.username ? userData.username.replace(' undefined', '') : 'User', // أضف username
-                    email: userData.email,
-                    picture: userData.picture,
-                    accessToken: userData.access_token,
-                    balance: userData.balance || 0,
-                    role: userData.role || 'user'
-                };
-
-                localStorage.setItem('token', token);
-                localStorage.setItem('user', JSON.stringify(cleanedUserData));
-                setUser(cleanedUserData);
-
-                axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
-                // توجيه للصفحة الرئيسية
-                window.location.href = '#/client';
-
-            } catch (error) {
-                console.error('Error processing Google callback:', error);
-                window.location.href = '#/login?error=invalid_data';
-            } finally {
-                setIsProcessingGoogleAuth(false);
-            }
+        } catch (error) {
+            console.error('Error processing Google callback:', error);
+            window.location.href = '#/login?error=invalid_data';
+        } finally {
+            setIsProcessingGoogleAuth(false);
         }
-    };
+    }
+
     // ✅ تحميل المستخدم عند فتح الصفحة
     useEffect(() => {
-        const initializeUser = () => {
-            const token = localStorage.getItem('token');
-            const storedUser = localStorage.getItem('user');
+        const initializeUser = async () => {
+            try {
+                const res = await axios.get(
+                    `${import.meta.env.VITE_API_URL}/auth/me`,
+                    { withCredentials: true }
+                );
 
-            // اتأكد إننا مش في صفحة الـ callback
-            const currentHash = window.location.hash;
-            const isCallbackPage = currentHash.includes('/callback?token=');
-
-            if (isCallbackPage) {
-                console.log('Callback page detected, processing...');
-                processGoogleCallback();
-                return;
-            }
-
-            if (token && storedUser) {
-                try {
-                    const userData = JSON.parse(storedUser);
-                    setUser(userData);
-                    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-                    console.log('User loaded from localStorage:', userData);
-                } catch (error) {
-                    console.error('Error parsing stored user:', error);
-                    localStorage.removeItem('token');
-                    localStorage.removeItem('user');
+                if (res.data) {
+                    setUser(res.data);
                 }
+            } catch (err: any) {
+                console.log(err);
+                window.location.hash = '/';
+
             }
         };
 
@@ -102,7 +66,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     useEffect(() => {
         const handleHashChange = () => {
             const currentHash = window.location.hash;
-            if (currentHash.includes('/callback?token=')) {
+            if (currentHash.includes('/callback')) {
                 console.log('Hash changed to callback, processing...');
                 processGoogleCallback();
             }
@@ -116,31 +80,16 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     // في ملف contexts/UserContext.tsx
     const login = async (username: string, password: string): Promise<AuthResult> => {
         try {
+
             const res = await axios.post(`${import.meta.env.VITE_API_URL}/signin`, {
                 username,
                 password,
-            });
+            }, { withCredentials: true });
 
-            // حالة الـ 2FA
-            if (res.data.message === "2fa enabled") {
-                return {
-                    success: false,
-                    needs2FA: true,
-                    message: 'يرجى إدخال كود التحقق'
-                };
-            }
+            return { success: true, message: res.data.message || "تم تسجيل الدخول بنجاح" };
 
-            // حالة التسجيل العادي
-            if (res.data.token) {
-                localStorage.setItem('token', res.data.token);
-                localStorage.setItem('user', JSON.stringify(res.data.user));
-                setUser(res.data.user);
-                axios.defaults.headers.common['Authorization'] = `Bearer ${res.data.token}`;
-                return { success: true };
-            } else {
-                return { success: false, message: 'لم يتم استلام توكن من السيرفر.' };
-            }
         } catch (err: any) {
+            console.log(err)
             return { success: false, message: err.response?.data?.message || 'خطأ في تسجيل الدخول.' };
         }
     };
@@ -152,20 +101,10 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 username,
                 email,
                 password
-            });
+            }, { withCredentials: true });
+            return { success: true, message: res.data.message || "تم انشاء الحساب بنجاح" };
 
-            const token = res.data.token;
-            const userData = res.data.user;
 
-            if (token && userData) {
-                localStorage.setItem("token", token);
-                localStorage.setItem("user", JSON.stringify(userData));
-                setUser(userData);
-                axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-                return { success: true, message: "تم التسجيل بنجاح" };
-            } else {
-                return { success: false, message: "لم يتم استلام التوكن أو بيانات المستخدم من السيرڤر" };
-            }
         } catch (err: any) {
             return {
                 success: false,
@@ -174,43 +113,32 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
     };
 
-    // ✅ تسجيل الخروج
-    const logout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        setUser(null);
-        delete axios.defaults.headers.common['Authorization'];
-        window.location.href = '#/login';
-    };
+
 
     // ✅ إضافة رصيد
-    const addBalance = (amount: number) => {
-        if (user) {
-            const updatedUser = { ...user, balance: (user.balance || 0) + amount };
-            localStorage.setItem('user', JSON.stringify(updatedUser));
-            setUser(updatedUser);
-        }
-    };
+    // const addBalance = (amount: number) => {
+    //     if (user) {
+    //         const updatedUser = { ...user, balance: (user.balance || 0) + amount };
+    //         localStorage.setItem('user', JSON.stringify(updatedUser));
+    //         setUser(updatedUser);
+    //     }
+    // };
 
     // ✅ خصم رصيد
-    const deductBalance = (amount: number): boolean => {
-        if (user && user.balance >= amount) {
-            const updatedUser = { ...user, balance: user.balance - amount };
-            localStorage.setItem('user', JSON.stringify(updatedUser));
-            setUser(updatedUser);
-            return true;
-        }
-        return false;
-    };
+    // const deductBalance = (amount: number): boolean => {
+    //     if (user && user.balance >= amount) {
+    //         const updatedUser = { ...user, balance: user.balance - amount };
+    //         localStorage.setItem('user', JSON.stringify(updatedUser));
+    //         setUser(updatedUser);
+    //         return true;
+    //     }
+    //     return false;
+    // };
 
     return (
         <UserContext.Provider value={{
-            user,
             login,
             register,
-            logout,
-            addBalance,
-            deductBalance,
             isProcessingGoogleAuth
         }}>
             {children}

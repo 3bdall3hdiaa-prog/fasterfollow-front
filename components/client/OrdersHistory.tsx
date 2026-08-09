@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useThemeStore } from '@/store/theme.store';
 import ReviewModal from './ReviewModel';
 import { useCurrency } from '@/contexts/CurrencyContext';
+import { useAuthStore } from '@/store/auth.store';
 
 const statusClasses: Record<string, string> = {
     'pending': 'bg-yellow-900 text-yellow-300',
@@ -50,7 +51,7 @@ const OrdersHistory = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState<OrderStatus | 'all'>('all');
     const [currentUsername, setCurrentUsername] = useState<string>('');
-
+    const { user } = useAuthStore()
     // States for review modal
     const [showReviewModal, setShowReviewModal] = useState(false);
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -89,9 +90,8 @@ const OrdersHistory = () => {
     // دالة لاستخراج بيانات المستخدم كاملة
     const getUserData = () => {
         try {
-            const userData = localStorage.getItem('user') || sessionStorage.getItem('user');
-            if (!userData) return null;
-            return JSON.parse(userData);
+            if (!user) return null;
+            return user;
         } catch (error) {
             console.error('Error parsing user data:', error);
             return null;
@@ -99,12 +99,13 @@ const OrdersHistory = () => {
     };
     const handleRefill = async () => {
         try {
+            setLoading(true);
             const res = await axios.post(`${import.meta.env.VITE_API_URL}/services-list/refill`,
                 {
                     order: selectedOrder?.providerOrderId || '',
                     apiEndpoint: selectedOrder?.provider.apiEndpoint || '',
                     key: selectedOrder?.provider.apiKey || '',
-                },);
+                }, { withCredentials: true });
 
             if (res.status === 200 || res.status === 201 || res.data) {
                 setReviewSuccess('تم إرسال طلب إعادة التعبئة بنجاح! شكراً لك.');
@@ -113,6 +114,9 @@ const OrdersHistory = () => {
         } catch (error) {
             console.error('Error refilling order:', error);
             setReviewError('حدث خطأ أثناء إرسال طلب إعادة التعبئة. حاول مرة أخرى.');
+        } finally {
+            setLoading(false);
+
         }
     }
 
@@ -123,11 +127,7 @@ const OrdersHistory = () => {
                 setLoading(true);
                 setError('');
 
-                const response = await axios.get(`${import.meta.env.VITE_API_URL}/new-order`, {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                    },
-                });
+                const response = await axios.get(`${import.meta.env.VITE_API_URL}/new-order`, { withCredentials: true });
                 console.log('API Response:', response.data);
 
                 if (!response.data || !Array.isArray(response.data)) {
@@ -291,8 +291,8 @@ const OrdersHistory = () => {
             const serviceId = selectedOrder._id || selectedOrder.id;
 
             const reviewData = {
-                userId: user._id || user.id,
-                username: user.username || user.name || 'مستخدم',
+                userId: user._id,
+                username: user.username || 'مستخدم',
                 serviceId: serviceId,
                 rating: reviewRating,
                 comment: reviewComment.trim(),
@@ -300,7 +300,7 @@ const OrdersHistory = () => {
 
             console.log('Sending review data:', reviewData);
 
-            const res = await axios.post(`${import.meta.env.VITE_API_URL}/reviews`, reviewData);
+            const res = await axios.post(`${import.meta.env.VITE_API_URL}/reviews`, reviewData, { withCredentials: true });
 
             if (res.status === 200 || res.status === 201) {
                 setReviewSuccess('تم إرسال التقييم بنجاح! شكراً لك.');
@@ -478,7 +478,7 @@ const OrdersHistory = () => {
                             </thead>
                             <tbody>
                                 {filteredOrders.map((order: any) => (
-                                    <tr key={order.id} className={`border-b transition-colors ${isDark
+                                    <tr key={order._id} className={`border-b transition-colors ${isDark
                                         ? 'border-gray-700 hover:bg-gray-700/50'
                                         : 'border-[#dfd7bb] hover:bg-gray-50'
                                         }`}>
@@ -489,7 +489,7 @@ const OrdersHistory = () => {
                                             {formatDate(order.createdAt)}
                                         </td>
                                         <td className="px-4 py-4" style={{ color: getTextColor() }}>
-                                            {order.provider?.title || 'خدمة غير معروفة'}
+                                            {order.serviceId?.title || 'خدمة غير معروفة'}
                                         </td>
                                         <td className="px-4 py-4 font-mono truncate max-w-xs" title={order.link} style={{ color: getMutedTextColor() }}>
                                             {order.link || 'لا يوجد رابط'}
@@ -498,7 +498,7 @@ const OrdersHistory = () => {
                                             {(order.quantity || 0).toLocaleString()}
                                         </td>
                                         <td className="px-4 py-4 text-green-400 font-semibold">
-                                            {formatPrice(order.price || 0)}
+                                            {formatPrice(order.totalCost || 0)}
                                         </td>
                                         <td className="px-4 py-4">
                                             {renderStatus(order.status)}
@@ -514,9 +514,11 @@ const OrdersHistory = () => {
                                                 تقييم
                                             </button>
                                             <button
+
                                                 onClick={() => { handleRefill() }}
-                                                className={`${order.serviceId?.refill ? '' : 'hidden'} cursor-pointer hover:opacity-80 transition-all flex-1 ${isDark ? 'text-white bg-[#60a5fa]' : 'text-white bg-[#60a5fa]'} rounded-lg p-2 text-center font-semibold text-sm`}
-                                                style={{ touchAction: 'manipulation' }}
+
+                                                className={`       ${order.serviceId?.refill ? '' : 'hidden'} cursor-pointer hover:opacity-80 transition-all flex-1 ${isDark ? 'text-white bg-[#60a5fa]' : 'text-white bg-[#60a5fa]'} rounded-lg p-2 text-center font-semibold text-sm`}
+                                            // style={{ touchAction: 'manipulation' }}
                                             >
                                                 تعويض
                                             </button>

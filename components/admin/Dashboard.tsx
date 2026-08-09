@@ -18,34 +18,31 @@ const Dashboard: React.FC = () => {
 
                 // جلب بيانات الطلبات
                 const response = await fetch(`${import.meta.env.VITE_API_URL}/new-order`, {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                    },
+                    credentials: 'include',
                 });
                 const data = await response.json();
                 setOrderlength(data.length);
 
                 // جلب بيانات المستخدمين
                 const response2 = await fetch(`${import.meta.env.VITE_API_URL}/getallusers`, {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                    },
+                    credentials: 'include',
                 });
                 const data2 = await response2.json();
                 setUserslength(data2.length);
 
                 // جلب بيانات المزودين
                 const response3 = await fetch(`${import.meta.env.VITE_API_URL}/manage-providers`, {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                    },
+
+                    credentials: 'include',
                 });
                 const data3 = await response3.json();
                 const filteredProviders = data3.filter(provider => provider.status === 'Active');
                 setProviderslength(filteredProviders.length);
 
                 // جلب بيانات PayPal وحساب الإيرادات
-                const response4 = await fetch(`${import.meta.env.VITE_API_URL}/paypal`);
+                const response4 = await fetch(`${import.meta.env.VITE_API_URL}/paypal`, {
+                    credentials: 'include'
+                });
                 const paypalData = await response4.json();
 
                 // جمع جميع قيم amount

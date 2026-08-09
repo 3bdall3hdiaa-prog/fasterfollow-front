@@ -84,6 +84,8 @@ const OrdersManagement = () => {
                 status: editingOrder.status,
                 username: editingOrder.username,
                 serviceTitle: editingOrder.serviceTitle
+            }, {
+                withCredentials: true,
             });
 
             setOrders(orders.map((order: any) =>
@@ -113,7 +115,9 @@ const OrdersManagement = () => {
     useEffect(() => {
         const fetchOrders = async () => {
             try {
-                const res = await axios.get(`${import.meta.env.VITE_API_URL}/new-order`);
+                const res = await axios.get(`${import.meta.env.VITE_API_URL}/new-order`, {
+                    withCredentials: true
+                });
                 setOrders(res.data);
                 setLastUpdate(new Date());
             } catch (err) {
@@ -138,7 +142,9 @@ const OrdersManagement = () => {
     const handleDelete = async (id: any) => {
         if (window.confirm("هل أنت متأكد من حذف هذا الطلب؟")) {
             try {
-                await axios.delete(`${import.meta.env.VITE_API_URL}/new-order/${id}`);
+                await axios.delete(`${import.meta.env.VITE_API_URL}/new-order/${id}`, {
+                    withCredentials: true
+                });
                 setOrders(orders.filter((order: any) => order._id !== id));
                 showNotification("تم حذف الطلب بنجاح ✅");
             } catch (err) {
@@ -149,21 +155,25 @@ const OrdersManagement = () => {
     };
 
     // تحديث حالة طلب واحد
-    const handleUpdateSingleStatus = async (orderId: any, providerOrderId: any) => {
-        if (!providerOrderId) {
-            showNotification("لا يوجد providerOrderId لهذا الطلب ❌");
+    const handleUpdateSingleStatus = async (orderId: any, orderNumber: any) => {
+        if (!orderId) {
+            showNotification("لا يوجد orderNumber لهذا الطلب ❌");
             return;
         }
 
         setUpdatingOrders((prev: any) => ({ ...prev, [orderId]: true }));
 
         try {
-            const response = await axios.get(`${import.meta.env.VITE_API_URL}/new-order/status/${providerOrderId}`);
+            const response = await axios.get(`${import.meta.env.VITE_API_URL}/new-order/status/${orderId}`, {
+                withCredentials: true
+            });
             const newStatus = response.data.status;
 
             // تحديث الطلب في قاعدة البيانات
             await axios.patch(`${import.meta.env.VITE_API_URL}/new-order/${orderId}`, {
                 status: newStatus
+            }, {
+                withCredentials: true
             });
 
             // تحديث الواجهة فوراً
@@ -196,11 +206,15 @@ const OrdersManagement = () => {
                     if (!order.providerOrderId) return;
 
                     try {
-                        const response = await axios.get(`${import.meta.env.VITE_API_URL}/new-order/status/${order.providerOrderId}`);
+                        const response = await axios.get(`${import.meta.env.VITE_API_URL}/new-order/status/${order.providerOrderId}`, {
+                            withCredentials: true
+                        });
                         const newStatus = response.data.status;
 
                         await axios.patch(`${import.meta.env.VITE_API_URL}/new-order/${order._id}`, {
                             status: newStatus
+                        }, {
+                            withCredentials: true
                         });
 
                         return { orderId: order._id, newStatus };
@@ -1024,72 +1038,11 @@ const OrdersManagement = () => {
                         backgroundColor: getModalBodyBackground(),
                         color: getTextColor()
                     }}>
-                        <div className="mb-3">
-                            <label className="form-label" style={{ color: getTextColor() }}>المنصة</label>
-                            <select
-                                name="selectedCategory"
-                                className="form-select"
-                                value={editingOrder.selectedCategory}
-                                onChange={handleEditInputChange}
-                                style={{
-                                    backgroundColor: getInputBackground(),
-                                    color: getInputTextColor(),
-                                    border: isDark ? "1px solid #4a90e2" : "1px solid #c9a84c"
-                                }}
-                            >
-                                <option value="TikTok">TikTok</option>
-                                <option value="Instagram">Instagram</option>
-                                <option value="YouTube">YouTube</option>
-                                <option value="Facebook">Facebook</option>
-                                <option value="Twitter">Twitter</option>
-                                <option value="Telegram">Telegram</option>
-                            </select>
-                        </div>
-                        <div className="mb-3">
-                            <label className="form-label" style={{ color: getTextColor() }}>الرابط</label>
-                            <input
-                                type="text"
-                                name="link"
-                                className="form-control"
-                                value={editingOrder.link}
-                                onChange={handleEditInputChange}
-                                style={{
-                                    backgroundColor: getInputBackground(),
-                                    color: getInputTextColor(),
-                                    border: isDark ? "1px solid #4a90e2" : "1px solid #c9a84c"
-                                }}
-                            />
-                        </div>
-                        <div className="mb-3">
-                            <label className="form-label" style={{ color: getTextColor() }}>الكمية</label>
-                            <input
-                                type="number"
-                                name="quantity"
-                                className="form-control"
-                                value={editingOrder.quantity}
-                                onChange={handleEditInputChange}
-                                style={{
-                                    backgroundColor: getInputBackground(),
-                                    color: getInputTextColor(),
-                                    border: isDark ? "1px solid #4a90e2" : "1px solid #c9a84c"
-                                }}
-                            />
-                        </div>
-                        <div className="mb-3">
-                            <label className="form-label" style={{ color: getTextColor() }}>التكلفة($)</label>
-                            <input
-                                type="number"
-                                name="totalCost"
-                                className="form-control"
-                                value={editingOrder.totalCost}
-                                onChange={handleEditInputChange}
-                                style={{
-                                    backgroundColor: getInputBackground(),
-                                    color: getInputTextColor(),
-                                    border: isDark ? "1px solid #4a90e2" : "1px solid #c9a84c"
-                                }}
-                            />
-                        </div>
+
+
+
+
+
                         <div className="mb-3">
                             <label className="form-label" style={{ color: getTextColor() }}>الحالة</label>
                             <select
@@ -1110,36 +1063,6 @@ const OrdersManagement = () => {
                                 <option value="failed">failed</option>
                                 <option value="processing">processing</option>
                             </select>
-                        </div>
-                        <div className="mb-3">
-                            <label className="form-label" style={{ color: getTextColor() }}>المستخدم</label>
-                            <input
-                                type="text"
-                                name="username"
-                                className="form-control"
-                                value={editingOrder.username}
-                                onChange={handleEditInputChange}
-                                style={{
-                                    backgroundColor: getInputBackground(),
-                                    color: getInputTextColor(),
-                                    border: isDark ? "1px solid #4a90e2" : "1px solid #c9a84c"
-                                }}
-                            />
-                        </div>
-                        <div className="mb-3">
-                            <label className="form-label" style={{ color: getTextColor() }}>الخدمة</label>
-                            <input
-                                type="text"
-                                name="serviceTitle"
-                                className="form-control"
-                                value={editingOrder.serviceTitle}
-                                onChange={handleEditInputChange}
-                                style={{
-                                    backgroundColor: getInputBackground(),
-                                    color: getInputTextColor(),
-                                    border: isDark ? "1px solid #4a90e2" : "1px solid #c9a84c"
-                                }}
-                            />
                         </div>
                     </Modal.Body>
                     <Modal.Footer style={{

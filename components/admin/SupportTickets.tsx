@@ -56,7 +56,9 @@ const SupportTickets: React.FC = () => {
     const fetchTickets = async () => {
         try {
             setLoading(true);
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/technical-support`);
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/technical-support`, {
+                credentials: 'include',
+            });
             const data = await response.json();
             setTickets(data);
         } catch (error) {
@@ -109,7 +111,7 @@ const SupportTickets: React.FC = () => {
                 `${import.meta.env.VITE_API_URL}/technical-support/${selectedTicket._id}/reply`,
                 {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
                     body: JSON.stringify({ sender: 'admin', text: replyText }),
                 }
             );
@@ -146,16 +148,16 @@ const SupportTickets: React.FC = () => {
                 <button
                     onClick={() => setSelectedTicket(null)}
                     className={`py-2 px-4 rounded transition-colors ${isDark
-                            ? 'bg-gray-600 hover:bg-gray-500 text-white'
-                            : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
+                        ? 'bg-gray-600 hover:bg-gray-500 text-white'
+                        : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
                         }`}
                 >
                     ← العودة إلى التذاكر
                 </button>
 
                 <div className={`rounded-lg p-4 mt-4 transition-all duration-300 ${isDark
-                        ? 'bg-gray-800 border border-gray-700'
-                        : 'bg-white border border-[#dfd7bb] shadow-md'
+                    ? 'bg-gray-800 border border-gray-700'
+                    : 'bg-white border border-[#dfd7bb] shadow-md'
                     }`}>
                     <h2 className="text-2xl font-bold mb-2" style={{ color: getTextColor() }}>{selectedTicket.title}</h2>
                     <p className="mb-4" style={{ color: getMutedTextColor() }}>{selectedTicket.description}</p>
@@ -170,8 +172,8 @@ const SupportTickets: React.FC = () => {
                             >
                                 <div
                                     className={`max-w-lg p-3 rounded-lg ${msg.sender === 'admin'
-                                            ? isDark ? 'bg-blue-700 text-white' : 'bg-[#c9a84c] text-white'
-                                            : isDark ? 'bg-gray-700 text-gray-100' : 'bg-gray-200 text-gray-800'
+                                        ? isDark ? 'bg-blue-700 text-white' : 'bg-[#c9a84c] text-white'
+                                        : isDark ? 'bg-gray-700 text-gray-100' : 'bg-gray-200 text-gray-800'
                                         }`}
                                 >
                                     <p>{msg.text}</p>
@@ -192,15 +194,15 @@ const SupportTickets: React.FC = () => {
                                 rows={4}
                                 placeholder="اكتب ردك هنا..."
                                 className={`w-full rounded-md p-2 mb-2 transition-all duration-300 ${isDark
-                                        ? 'bg-gray-700 border border-gray-600 text-white'
-                                        : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
+                                    ? 'bg-gray-700 border border-gray-600 text-white'
+                                    : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
                                     }`}
                             ></textarea>
                             <button
                                 onClick={handleSendReply}
                                 className={`font-bold py-2 px-6 rounded-lg transition-all duration-300 ${isDark
-                                        ? 'bg-primary-600 hover:bg-primary-700 text-white'
-                                        : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
+                                    ? 'bg-primary-600 hover:bg-primary-700 text-white'
+                                    : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
                                     }`}
                             >
                                 إرسال الرد
@@ -222,8 +224,8 @@ const SupportTickets: React.FC = () => {
             <h1 className="text-3xl font-bold mb-6" style={{ color: getTextColor() }}>تذاكر الدعم الفني</h1>
 
             <div className={`rounded-lg overflow-hidden transition-all duration-300 ${isDark
-                    ? 'bg-gray-800 border border-gray-700'
-                    : 'bg-white border border-[#dfd7bb] shadow-md'
+                ? 'bg-gray-800 border border-gray-700'
+                : 'bg-white border border-[#dfd7bb] shadow-md'
                 }`}>
                 <table className="w-full text-sm text-right" style={{ color: getTextColor() }}>
                     <thead className={`text-xs uppercase ${isDark ? 'text-gray-400 bg-gray-700/50' : 'text-gray-500 bg-gray-50'
@@ -241,8 +243,8 @@ const SupportTickets: React.FC = () => {
                                 key={ticket._id}
                                 onClick={() => setSelectedTicket(ticket)}
                                 className={`border-b cursor-pointer transition-colors ${isDark
-                                        ? 'border-gray-700 hover:bg-gray-700/30'
-                                        : 'border-[#dfd7bb] hover:bg-gray-50'
+                                    ? 'border-gray-700 hover:bg-gray-700/30'
+                                    : 'border-[#dfd7bb] hover:bg-gray-50'
                                     }`}
                             >
                                 <td className="px-6 py-4 font-semibold" style={{ color: getTextColor() }}>
