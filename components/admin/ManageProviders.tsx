@@ -76,6 +76,7 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
         try {
             setLoading(true);
             const response = await fetch(`${import.meta.env.VITE_API_URL}/manage-providers`, {
+                method: 'GET',
                 credentials: 'include',
             });
             if (!response.ok) {
