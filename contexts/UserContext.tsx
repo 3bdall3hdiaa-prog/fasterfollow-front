@@ -45,9 +45,14 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             try {
                 const res = await axios.get(
                     `${import.meta.env.VITE_API_URL}/auth/me`,
-                    { withCredentials: true }
+                    {
+                        withCredentials: true, headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        }
+                    }
                 );
-
+                alert(res.data)
                 if (res.data) {
                     setUser(res.data);
                 }
@@ -84,12 +89,13 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 username,
                 password,
             }, { withCredentials: true });
-            console.log("data", res.data)
+            alert(res.data.message)
 
             return { success: true, message: res.data.message || "تم تسجيل الدخول بنجاح" };
 
         } catch (err: any) {
             console.log(err)
+            alert(err.response?.data?.message)
             return { success: false, message: err.response?.data?.message || 'خطأ في تسجيل الدخول.' };
         }
     };
