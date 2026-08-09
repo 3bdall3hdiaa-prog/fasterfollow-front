@@ -138,7 +138,7 @@ const Reviews = ({ serviceId, setAvrgRating, setNumReviews }: { serviceId: strin
                     <p className='text-md text-black font-bold'>{reviews.length} تقييم</p>
 
                     {/* ====== إضافة تقييم جديد ====== */}
-                    <div className={`
+                    <div className={` ${!user.role ? 'hidden' : ''}
                         rounded-xl p-6 mb-8
                         ${isDark
                             ? 'bg-gray-800/50 border border-gray-700/50'
