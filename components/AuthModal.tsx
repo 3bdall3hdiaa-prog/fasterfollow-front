@@ -99,9 +99,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
         try {
             const response = await fetch(`${import.meta.env.VITE_API_URL}/resetpassword`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                credentials: 'include',
                 body: JSON.stringify({ email }),
             });
 
@@ -132,9 +130,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
 
         try {
             const response = await axios.post(`${import.meta.env.VITE_API_URL}/resetpassword/verify`, { verificationCode: resetCode }, {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                withCredentials: true
             });
 
             if (response.data) {
@@ -168,7 +164,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
             const response = await axios.post(`${import.meta.env.VITE_API_URL}/resetpassword/change-password`,
                 { email, password: newPassword }
                 , {
-
+                    withCredentials: true
                 });
             if (response.data) {
                 setResetMessage('تم تغيير كلمة المرور بنجاح.');
@@ -197,9 +193,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
         try {
             const response = await fetch(`${import.meta.env.VITE_API_URL}/2FA/verify2fa`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                credentials: 'include',
                 body: JSON.stringify({
                     username: twoFAUsername,
                     verificationCode: resetCode
@@ -231,9 +225,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
         try {
             const response = await fetch(`${import.meta.env.VITE_API_URL}/signin`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                credentials: 'include',
                 body: JSON.stringify({
                     username: twoFAUsername,
                     password: password

@@ -54,7 +54,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 }
             } catch (err: any) {
                 console.log(err);
-                window.location.hash = '/';
+                // window.location.hash = '/';
 
             }
         };
@@ -85,8 +85,14 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 username,
                 password,
             }, { withCredentials: true });
-            console.log("data", res.data)
+            const me = await axios.get(
+                `${import.meta.env.VITE_API_URL}/auth/me`,
+                {
+                    withCredentials: true,
+                }
+            );
 
+            setUser(me.data);
             return { success: true, message: res.data.message || "تم تسجيل الدخول بنجاح" };
 
         } catch (err: any) {
