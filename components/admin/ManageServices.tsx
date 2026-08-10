@@ -30,11 +30,11 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
         providerServiceId: 0,
         file: null as any,
         refill: false,
-        discount_for_2000: '',
-        discount_for_3000: '',
-        discount_for_4000: '',
-        discount_for_greater_than_4000: '',
-        discount_for_greater_than_100000: '',
+        discount_for_2000: '0',
+        discount_for_3000: '0',
+        discount_for_4000: '0',
+        discount_for_greater_than_4000: '0',
+        discount_for_greater_than_100000: '0',
     });
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(true);

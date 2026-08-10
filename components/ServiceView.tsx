@@ -93,7 +93,7 @@ const ServiceView = ({ id }: { id: string }) => {
 
 
 
-    const isDisabled = totalCost > walletBalance || quantity === 0 || !user.role;
+    const isDisabled = user.role === 'admin' || totalCost > walletBalance || quantity === 0 || !user.role;
     {/*handlers */ }
     const renderStars = (rating: number) => {
         const stars = [];
@@ -308,13 +308,13 @@ const ServiceView = ({ id }: { id: string }) => {
                             </div>
 
                             {/* checklist */}
-                            <div className="rounded-xl border border-gray-200 bg-white p-4 sm:p-6">
+                            <div className="text-right rounded-xl border border-gray-200 bg-white p-4 sm:p-6">
                                 <p className="flex flex-col gap-3">
 
-                                    <li className="flex items-start justify-end gap-2 text-right">
-                                        <span className="text-gray-800 text-sm leading-relaxed">{Service?.description}</span>
-                                        {/* <Check className="w-4 h-4 text-green-500 mt-0.5 shrink-0" strokeWidth={3} /> */}
-                                    </li>
+                                    <span className="text-gray-800 text-sm leading-relaxed whitespace-pre-line">
+                                        {`${Service?.description || ''}`}
+                                    </span>
+
 
                                 </p>
                             </div>
@@ -379,7 +379,7 @@ const ServiceView = ({ id }: { id: string }) => {
                                     : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
                                 }`}
                         >
-                            {!user.role ? "سجل الدخول للطلب" : totalCost > walletBalance ? 'رصيد غير كافي' : 'إرسال الطلب'}
+                            {user.role === 'admin' ? "انت الادمن" : !user.role ? "سجل الدخول للطلب" : totalCost > walletBalance ? 'رصيد غير كافي' : 'إرسال الطلب'}
                         </button>
                     </form>
 

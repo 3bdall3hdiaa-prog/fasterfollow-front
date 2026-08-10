@@ -8,6 +8,7 @@ import ThemeButton from './ThemeButton';
 import { useThemeStore } from '@/store/theme.store';
 import { useAuthStore } from '@/store/auth.store';
 import axios from 'axios';
+import MenuImage from '../assests/images/Horizontal-Line-Transparent.png'
 
 interface HeaderProps {
     siteName: string;
@@ -153,7 +154,7 @@ const Header: React.FC<HeaderProps> = ({ siteName, logoUrl, pages, color }) => {
                             <div className="md:hidden">
                                 <button onClick={() => setIsMenuOpen(!isMenuOpen)} className={`transition-colors duration-300 ${isDark ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-gray-800'
                                     }`}>
-                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7" /></svg>
+                                    <img src={MenuImage} alt="Menu" className="w-6 h-6 mt-2 " />
                                 </button>
                             </div>
                         </div>
