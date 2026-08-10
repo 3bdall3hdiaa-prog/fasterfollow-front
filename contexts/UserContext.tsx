@@ -52,7 +52,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                         }
                     }
                 );
-
+                console.log(res.data)
                 if (res.data) {
                     setUser(res.data);
                 }

@@ -10,7 +10,7 @@ const Profile: React.FC = () => {
     const [activeTab, setActiveTab] = useState('account');
     const [successMessage, setSuccessMessage] = useState('');
     const [is2FAEnabled, setIs2FAEnabled] = useState(false);
-
+    console.log("the user is ", user)
     // دوال مساعدة للألوان
     const getTextColor = () => {
         return isDark ? '#ffffff' : '#1e2235';
@@ -63,9 +63,9 @@ const Profile: React.FC = () => {
         async function handleupdate() {
             try {
                 const res = await axios.patch(`${import.meta.env.VITE_API_URL}/user/update`, { email },
-                    { withCredentials: true });
+                    { withCredentials: true, headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } },);
                 if (res) {
-                    alert('تم حفظ تغييرات الحساب بنجاح!');
+                    alert('  تم حفظ تغييرات الحساب بنجاح ! أعد التسجيل لتري التحديث');
                 }
                 window.location.reload();
             } catch (err) {

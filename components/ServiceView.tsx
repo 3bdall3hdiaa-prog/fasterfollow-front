@@ -83,14 +83,6 @@ const ServiceView = ({ id }: { id: string }) => {
         },
     ];
 
-    const features = [
-        "المتابعين من جميع أنحاء العالم",
-        "خدمة آمنة 100% ويمكنك الاعتماد عليها.",
-        "ممتازة لتكبير الحساب وتفعيل الربح والبث المباشر",
-        "يوجد ضمان على هذه الخدمة واعادة تعبئة",
-        "لا تنس وضع التقييم الخاص بك بعد انتهاء الخدمة للحصول على الهدية الخاصة بك",
-    ];
-
 
 
     const isDisabled = user.role === 'admin' || totalCost > walletBalance || quantity === 0 || !user.role;
@@ -121,7 +113,7 @@ const ServiceView = ({ id }: { id: string }) => {
         try {
             setLoading(true);
             setIsError(false);
-            const res = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/services-list/${id}`, { withCredentials: true });
+            const res = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/services-list/${id}`, { withCredentials: true, headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
             if (res.data) {
                 setService(res.data)
             }
@@ -169,15 +161,6 @@ const ServiceView = ({ id }: { id: string }) => {
             return;
         }
         try {
-
-
-            const x = await axios.post(`${import.meta.env.VITE_API_URL}/balance-users`, {
-                userName: user?.username,
-                amount: -totalCost
-            }, { withCredentials: true })
-            if (!x) {
-                throw new Error('فشل في خصم الرصيد');
-            }
             const res = await axios.post(`${import.meta.env.VITE_API_URL}/new-order`, {
                 username: user.username,
                 id_user: user._id,
@@ -189,9 +172,16 @@ const ServiceView = ({ id }: { id: string }) => {
                 totalCost,
                 provider: Service?.provider._id,
                 // providerOrderId: Service?.providerServiceId,
-            }, { withCredentials: true });
+            }, { withCredentials: true, headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
 
-            if (res.data) {
+            if (res.data && res.data.success) {
+                const x = await axios.post(`${import.meta.env.VITE_API_URL}/balance-users`, {
+                    userName: user?.username,
+                    amount: -res.data.totalCost
+                }, { withCredentials: true, headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } })
+                if (!x) {
+                    throw new Error('فشل في خصم الرصيد');
+                }
                 alert(`تم إرسال طلبك بنجاح! تم خصم ${totalCost.toFixed(2)}$ من رصيدك.`);
                 setLink('');
                 setQuantity(0);

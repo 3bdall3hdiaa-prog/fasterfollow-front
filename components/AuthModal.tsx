@@ -101,6 +101,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
                 method: 'POST',
                 credentials: 'include',
                 body: JSON.stringify({ email }), headers: {
+                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
             });
@@ -136,6 +137,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
             });
 
             if (response.data) {
+                localStorage.setItem('token', response.data.token);
                 setResetMessage('تم التحقق من الرمز بنجاح.');
                 setTimeout(() => {
                     setView('newPassword');
@@ -166,7 +168,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
             const response = await axios.post(`${import.meta.env.VITE_API_URL}/resetpassword/change-password`,
                 { email, password: newPassword }
                 , {
-                    withCredentials: true
+                    withCredentials: true, headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
                 });
             if (response.data) {
                 setResetMessage('تم تغيير كلمة المرور بنجاح.');
