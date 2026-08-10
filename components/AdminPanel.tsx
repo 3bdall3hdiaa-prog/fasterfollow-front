@@ -77,7 +77,7 @@ const AdminPanel: React.FC<AdminPanelProps> = (props) => {
             <div className="flex">
                 <Sidebar activeView={activeView} setActiveView={setActiveView} isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
                 <main className="flex-1 transition-all duration-300 md:mr-64 ">
-                    <div className="p-4 md:p-8">
+                    <div className=" md:p-8">
                         <button
                             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                             className={`fixed md:hidden z-50 bottom-8 left-8 p-4 rounded-full text-white shadow-lg transition-all duration-300 hover:scale-110 ${isDark

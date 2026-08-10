@@ -25,6 +25,7 @@ const getStatusClasses = (isDark: boolean) => {
             'In Progress': 'bg-blue-900 text-blue-300',
             'In progress': 'bg-blue-900 text-blue-300',
             'completed': 'bg-green-900 text-green-300',
+            'Completed': 'bg-green-900 text-green-300',
             'cancelled': 'bg-gray-700 text-gray-300',
             'failed': 'bg-red-900 text-red-300',
         };
@@ -235,8 +236,8 @@ const OrdersHistory = () => {
         };
 
         const statusClassMap = getStatusClasses(isDark);
-        const statusClass = statusClassMap[status.toLowerCase()] || (isDark ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-600');
-        const statusText = statusTexts[status] || status;
+        const statusClass = statusClassMap[status.toLocaleLowerCase()] || (isDark ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-600');
+        const statusText = statusTexts[status.toLocaleLowerCase()] || status;
 
         return (
             <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusClass}`}>

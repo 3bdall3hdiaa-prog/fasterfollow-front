@@ -192,7 +192,22 @@ const OrdersManagement = () => {
             setUpdatingOrders((prev: any) => ({ ...prev, [orderId]: false }));
         }
     };
+    const renderStatus = (status: any) => {
+        const statusTexts: { [key: string]: string } = {
+            'pending': 'قيد الانتظار',
+            'completed': 'مكتمل',
+            'cancelled': 'ملغي',
+            'failed': 'فاشل',
+            'In Progress': 'جاري التنفيذ',
+        };
 
+        const statusText = statusTexts[status.toLocaleLowerCase()] || status;
+        return (
+            <span className={`px-2 py-1 rounded-full text-xs font-medium `}>
+                {statusText}
+            </span>
+        );
+    }
     // تحديث جميع الحالات مرة واحدة
     const handleUpdateAllStatuses = async () => {
         setUpdatingAll(true);
@@ -257,12 +272,13 @@ const OrdersManagement = () => {
     };
 
     const getStatusBadge = (status: any) => {
-        if (status === "completed") return "success";
-        if (status === "in progress") return "warning";
-        if (status === "pending") return "secondary";
-        if (status === "cancelled") return "danger";
-        if (status === "failed") return "danger";
-        if (status === "processing") return "warning";
+        const stat = status.toLowerCase();
+        if (stat === "completed") return "success";
+        if (stat === "in progress") return "warning";
+        if (stat === "pending") return "secondary";
+        if (stat === "cancelled") return "danger";
+        if (stat === "failed") return "danger";
+        if (stat === "processing") return "warning";
         return "secondary";
     };
 
@@ -695,7 +711,7 @@ const OrdersManagement = () => {
                                                     </td>
                                                     <td>
                                                         <Badge bg={getStatusBadge(order.status)}>
-                                                            {order.status}
+                                                            {renderStatus(order.status)}
                                                         </Badge>
                                                     </td>
                                                     <td>
@@ -823,20 +839,20 @@ const OrdersManagement = () => {
                                                 </div>
                                             </div>
                                             <Badge bg={getStatusBadge(order.status)}>
-                                                {order.status}
+                                                {renderStatus(order.status)}
                                             </Badge>
                                         </div>
 
                                         {/* معلومات الطلب */}
-                                        <div className="row mb-3">
+                                        <div className="row mb-3 flex flex-col gap-2">
                                             <div className="col-6">
                                                 <div style={{ color: getMutedTextColor(), fontSize: "0.875rem" }}>المستخدم</div>
                                                 <div className="fw-bold" style={{ color: getTextColor() }}>{order.username}</div>
                                             </div>
                                             <div className="col-6">
-                                                <div style={{ color: getMutedTextColor(), fontSize: "0.875rem" }}>المنصة</div>
+                                                <div className='' style={{ color: getMutedTextColor(), fontSize: "0.875rem" }}>المنصة</div>
                                                 <div>
-                                                    <Badge bg={getCategoryBadge(order.selectedCategory)}>
+                                                    <Badge className='' bg={getCategoryBadge(order.selectedCategory)}>
                                                         {order.selectedCategory}
                                                     </Badge>
                                                 </div>
