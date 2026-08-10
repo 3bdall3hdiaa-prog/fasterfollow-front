@@ -188,7 +188,7 @@ const Testimonials: React.FC<any> = ({ content }) => {
                     <div className="transition-all duration-500">
                         <div className={`grid ${itemsPerPage === 1 ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'} gap-4 sm:gap-6`}>
                             {currentItems.map((el: any, index: number) => {
-                                const userName = el.userId?.name || el.userId?.email || el.userId?.username || el.username || 'مستخدم';
+                                const userName = el.userId?.username || el.userId?.email || el.username || 'مستخدم';
 
                                 return (
                                     <div

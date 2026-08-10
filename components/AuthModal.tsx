@@ -204,6 +204,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
                     username: twoFAUsername,
                     verificationCode: resetCode
                 }), headers: {
+                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
             });
@@ -238,6 +239,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
                     username: twoFAUsername,
                     password: password
                 }), headers: {
+                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
             });

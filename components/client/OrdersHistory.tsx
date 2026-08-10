@@ -226,16 +226,16 @@ const OrdersHistory = () => {
 
     // دالة لعرض حالة الطلب بشكل آمن
     const renderStatus = (status: OrderStatus) => {
-        const statusTexts: Record<string, string> = {
-            'pending': 'pending',
-            'completed': 'completed',
-            'cancelled': 'cancelled',
-            'failed': 'failed',
-            'In Progress': 'In Progress'
+        const statusTexts: { [key: string]: string } = {
+            'pending': 'قيد الانتظار',
+            'completed': 'مكتمل',
+            'cancelled': 'ملغي',
+            'failed': 'فاشل',
+            'In Progress': 'جاري التنفيذ',
         };
 
         const statusClassMap = getStatusClasses(isDark);
-        const statusClass = statusClassMap[status] || (isDark ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-600');
+        const statusClass = statusClassMap[status.toLowerCase()] || (isDark ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-600');
         const statusText = statusTexts[status] || status;
 
         return (
@@ -379,7 +379,7 @@ const OrdersHistory = () => {
     }
 
     return (
-        <div className="p-4" style={{
+        <div className=" pt-4 md:p-4" style={{
             backgroundColor: isDark ? '#1e2235' : '#f8f6f0',
             minHeight: "100vh",
             transition: "all 0.3s ease"
@@ -450,7 +450,7 @@ const OrdersHistory = () => {
             </div>
 
             {/* ✅ جدول الطلبات - للشاشات الكبيرة مع زر تقييم */}
-            <div className={`hidden md:block rounded-lg overflow-hidden transition-all duration-300 ${isDark
+            <div className={`hidden  md:block rounded-lg overflow-hidden transition-all duration-300 ${isDark
                 ? 'bg-gray-800 border border-gray-700'
                 : 'bg-white border border-[#dfd7bb] shadow-md'
                 }`}>
@@ -498,7 +498,7 @@ const OrdersHistory = () => {
                                             {(order.quantity || 0).toLocaleString()}
                                         </td>
                                         <td className="px-4 py-4 text-green-400 font-semibold">
-                                            {formatPrice(order.totalCost || 0)}
+                                            {order.status === 'failed' || order.status === 'Failed' ? formatPrice(0) : formatPrice(order.totalCost || 0)}
                                         </td>
                                         <td className="px-4 py-4">
                                             {renderStatus(order.status)}
@@ -532,7 +532,7 @@ const OrdersHistory = () => {
             </div>
 
             {/* ✅ تصميم البطاقات للهواتف مع زر تقييم */}
-            <div className="block md:hidden">
+            <div className="block  md:hidden ">
                 <div className={`rounded-lg overflow-hidden transition-all duration-300 ${isDark
                     ? 'bg-gray-800 border border-gray-700'
                     : 'bg-white border border-[#dfd7bb] shadow-md'

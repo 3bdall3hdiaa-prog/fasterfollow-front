@@ -8,12 +8,9 @@ interface AuthResult {
 }
 
 interface UserContextType {
-    // user: User | null;
     login: (username: string, password: string) => Promise<AuthResult>;
     register: (username: string, email: string, password: string) => Promise<AuthResult>;
-    // logout: () => void;
-    // addBalance: (amount: number) => void;
-    // deductBalance: (amount: number) => boolean;
+
     isProcessingGoogleAuth: boolean;
 }
 
@@ -21,14 +18,12 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const { setUser } = useAuthStore();
-    // const [user, setUser] = useState<User | null>(null);
     const [isProcessingGoogleAuth, setIsProcessingGoogleAuth] = useState(false);
 
     // ✅ دالة لمعالجة الـ Google callback
     const processGoogleCallback = () => {
         setIsProcessingGoogleAuth(true);
         try {
-            // توجيه للصفحة الرئيسية
             window.location.href = '#/client';
 
         } catch (error) {
@@ -66,7 +61,6 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         initializeUser();
     }, []);
 
-    // ✅ استمع لتغييرات الـ hash علشان تمسك الـ callback
     useEffect(() => {
         const handleHashChange = () => {
             const currentHash = window.location.hash;
@@ -80,7 +74,6 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return () => window.removeEventListener('hashchange', handleHashChange);
     }, []);
 
-    // ✅ دالة تسجيل الدخول العادي
     // في ملف contexts/UserContext.tsx
     const login = async (username: string, password: string): Promise<AuthResult> => {
         try {
@@ -98,7 +91,6 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
     };
 
-    // ✅ دالة التسجيل
     const register = async (username: string, email: string, password: string): Promise<AuthResult> => {
         try {
             const res = await axios.post(`${import.meta.env.VITE_API_URL}/signup`, {

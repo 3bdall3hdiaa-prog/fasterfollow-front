@@ -48,14 +48,14 @@ const ClientPanel: React.FC<ClientPanelProps> = ({ services, initialView = 'dash
     };
 
     return (
-        <div className={`pt-20 min-h-screen transition-colors duration-300 ${isDark
+        <div className={`pt-16 min-h-screen transition-colors duration-300 ${isDark
             ? 'bg-gray-900 text-gray-300'
             : ' text-gray-800'
             }`}>
             <div className="flex">
                 <Sidebar activeView={activeView} setActiveView={setActiveView} isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
                 <main className="flex-1 transition-all duration-300 md:mr-64">
-                    <div className="p-4 md:p-8">
+                    <div className="  md:p-8">
                         {renderContent()}
                     </div>
                 </main>

@@ -174,6 +174,7 @@ const Dashboard: React.FC<DashboardProps> = ({ setActiveView }) => {
                     username: user?.username,
                     balance: walletBalance
                 }), headers: {
+                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
             });

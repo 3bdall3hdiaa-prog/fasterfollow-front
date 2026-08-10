@@ -183,6 +183,7 @@ const AddFunds: React.FC = () => {
                     userName,
                     code: couponCode.trim()
                 }), headers: {
+                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
             });

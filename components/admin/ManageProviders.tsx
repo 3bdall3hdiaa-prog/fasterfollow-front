@@ -147,6 +147,7 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
                     method: 'PUT',
                     credentials: 'include',
                     body: JSON.stringify(updateData), headers: {
+                        'Content-Type': 'application/json',
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
                     }
                 });
@@ -173,6 +174,7 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
                     method: 'POST',
                     credentials: 'include',
                     body: JSON.stringify(formData), headers: {
+                        'Content-Type': 'application/json',
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
                     }
                 });

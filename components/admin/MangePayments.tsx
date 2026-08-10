@@ -162,6 +162,7 @@ const ManagePayments: React.FC = () => {
                     method: 'PUT',
                     credentials: 'include',
                     body: JSON.stringify(updateData), headers: {
+                        'Content-Type': 'application/json',
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
                     }
                 });
@@ -209,6 +210,7 @@ const ManagePayments: React.FC = () => {
                     method: 'POST',
                     credentials: 'include',
                     body: JSON.stringify(newPaymentData), headers: {
+                        'Content-Type': 'application/json',
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
                     }
                 });

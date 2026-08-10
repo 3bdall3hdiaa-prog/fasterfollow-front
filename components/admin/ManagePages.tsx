@@ -85,6 +85,7 @@ const ManagePages: React.FC<ManagePagesProps> = ({ pages, setPages }) => {
                 method: 'POST',
                 credentials: 'include',
                 body: JSON.stringify(pageData), headers: {
+                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
             });
@@ -108,6 +109,7 @@ const ManagePages: React.FC<ManagePagesProps> = ({ pages, setPages }) => {
                 method: 'PUT',
                 credentials: 'include',
                 body: JSON.stringify(pageData), headers: {
+                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
             });

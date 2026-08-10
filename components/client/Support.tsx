@@ -133,6 +133,7 @@ const Support: React.FC = () => {
                 method: 'POST',
                 credentials: 'include',
                 body: JSON.stringify(newTicketDataToSend), headers: {
+                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
             });
@@ -190,6 +191,7 @@ const Support: React.FC = () => {
                 method: 'POST',
                 credentials: 'include',
                 body: JSON.stringify(newMessage), headers: {
+                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
             });

@@ -123,6 +123,7 @@ const ManageCoupons: React.FC = () => {
                     method: 'PUT',
                     credentials: 'include',
                     body: JSON.stringify(couponData), headers: {
+                        'Content-Type': 'application/json',
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
                     }
                 });
@@ -151,6 +152,7 @@ const ManageCoupons: React.FC = () => {
                     method: 'POST',
                     credentials: 'include',
                     body: JSON.stringify(couponData), headers: {
+                        'Content-Type': 'application/json',
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
                     }
                 });
@@ -223,6 +225,7 @@ const ManageCoupons: React.FC = () => {
                 method: 'PUT',
                 credentials: 'include',
                 body: JSON.stringify({ status: newStatus }), headers: {
+                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
             });

@@ -129,6 +129,7 @@ const ManageBlog: React.FC = () => {
                     method: 'PUT',
                     credentials: 'include',
                     body: JSON.stringify(formData), headers: {
+                        'Content-Type': 'application/json',
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
                     }
                 });
@@ -145,6 +146,7 @@ const ManageBlog: React.FC = () => {
                     method: 'POST',
                     credentials: 'include',
                     body: JSON.stringify(formData), headers: {
+                        'Content-Type': 'application/json',
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
                     }
                 });

@@ -85,6 +85,9 @@ const ManageBanners: React.FC<ManageBannersProps> = ({ banners, setBanners }) =>
                 method: 'POST',
                 credentials: 'include',
                 body: data,
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
             });
 
             if (!response.ok) throw new Error('فشل في إضافة البانر');

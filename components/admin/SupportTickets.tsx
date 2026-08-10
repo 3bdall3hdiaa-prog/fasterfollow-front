@@ -115,6 +115,7 @@ const SupportTickets: React.FC = () => {
                     method: 'POST',
                     credentials: 'include',
                     body: JSON.stringify({ sender: 'admin', text: replyText }), headers: {
+                        'Content-Type': 'application/json',
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
                     }
                 }
