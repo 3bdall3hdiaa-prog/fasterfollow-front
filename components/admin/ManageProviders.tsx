@@ -30,7 +30,7 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
         status: 'Active' as 'Active' | 'Inactive',
     });
 
-    // دوال مساعدة للألوان
+
     const getTextColor = () => {
         return isDark ? '#ffffff' : '#1e2235';
     };
@@ -55,7 +55,6 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
         return isDark ? '#374151' : '#dfd7bb';
     };
 
-    // دالة لتحويل البيانات من _id إلى id
     const transformProviderData = (data: any[]): Provider[] => {
         return data.map(provider => ({
             id: provider._id,
@@ -67,7 +66,6 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
         }));
     };
 
-    // جلب البيانات من الـ endpoint عند تحميل المكون
     useEffect(() => {
         fetchProviders();
     }, []);
@@ -393,7 +391,7 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
                 </div>
             </div>
 
-            {/* ✅ تصميم البطاقات للهواتف */}
+            {/* تصميم البطاقات للهواتف */}
             <div className="block md:hidden">
                 <div className={`rounded-lg overflow-hidden transition-all duration-300 ${isDark
                     ? 'bg-gray-800 border border-gray-700'

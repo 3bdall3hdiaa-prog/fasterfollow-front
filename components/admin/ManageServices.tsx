@@ -17,6 +17,28 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
     const [editingService, setEditingService] = useState<any | null>(null);
     const [viewingService, setViewingService] = useState<any | null>(null);
     const { formatPrice } = useCurrency();
+    const [discounts, setDiscounts] = useState([
+        {
+            from: "",
+            to: "",
+            discount: "",
+        },
+    ]);
+
+    const addDiscount = () => {
+        setDiscounts([
+            ...discounts,
+            {
+                from: "",
+                to: "",
+                discount: "",
+            },
+        ]);
+    };
+
+    const removeDiscount = (index: number) => {
+        setDiscounts(discounts.filter((_, i) => i !== index));
+    };
     const [formData, setFormData] = useState<any>({
         title: '',
         description: '',
@@ -30,11 +52,7 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
         providerServiceId: 0,
         file: null as any,
         refill: false,
-        discount_for_2000: '0',
-        discount_for_3000: '0',
-        discount_for_4000: '0',
-        discount_for_greater_than_4000: '0',
-        discount_for_greater_than_100000: '0',
+
     });
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(true);
@@ -93,7 +111,7 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
         fetchServices();
     }, [setServices]);
 
-    const handleOpenModal = (service: ServiceResponse | null) => {
+    const handleOpenModal = (service: any | null) => {
         setEditingService(service);
         setFormData(service || {
             platform: '',
@@ -107,13 +125,19 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
             provider: '',
             file: null as any,
             description: '',
-            refill: false, // ✅ إضافة refill هنا
+            refill: false,
             discount_for_2000: '',
             discount_for_3000: '',
             discount_for_4000: '',
             discount_for_greater_than_4000: '',
             discount_for_greater_than_100000: '',
         });
+        setDiscounts(
+            service?.discounts.map((discount: any) => ({
+                from: discount.from,
+                to: discount.to,
+                discount: discount.discount
+            })))
         setIsModalOpen(true);
     };
 
@@ -130,7 +154,7 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault(); // ✅ نقل e.preventDefault() إلى الأعلى
+        e.preventDefault();
         const data = new FormData();
         if (formData.file) {
             data.append('file', formData.file);
@@ -146,22 +170,15 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
         data.append('max', formData.max.toString());
         data.append('status', formData.status.toString());
         data.append('refill', formData.refill.toString()); // ✅ إضافة refill هنا
-        if (formData.discount_for_2000) data.append('discount_for_2000', formData.discount_for_2000);
-        if (formData.discount_for_3000) data.append('discount_for_3000', formData.discount_for_3000);
-        if (formData.discount_for_4000) data.append('discount_for_4000', formData.discount_for_4000);
-        if (formData.discount_for_greater_than_4000) data.append('discount_for_greater_than_4000', formData.discount_for_greater_than_4000);
-        if (formData.discount_for_greater_than_100000) data.append('discount_for_greater_than_100000', formData.discount_for_greater_than_100000);
-
+        data.append('discounts', JSON.stringify(discounts));
         try {
             if (editingService) {
-                // تعديل الخدمة
                 const response = await axios.put(`${import.meta.env.VITE_API_URL}/services-list/${editingService._id}`, data, { withCredentials: true });
                 if (response.data) {
                     setServices(prev => prev.map(s => s._id === editingService._id ? response.data : s));
                     handleCloseModal();
                 }
             } else {
-                // إضافة خدمة جديدة
                 const response = await axios.post(`${import.meta.env.VITE_API_URL}/services-list`, data, { withCredentials: true });
                 if (response.data) {
                     setServices(prev => [...prev, response.data]);
@@ -464,7 +481,7 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
             {/* ✅ نافذة الإضافة / التعديل */}
             {isModalOpen && (
                 <div
-                    className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+                    className="fixed flex-col inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
                     onClick={handleCloseModal}
                 >
                     <div
@@ -565,7 +582,7 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                                 ))}
                             </select>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
                                 <input
                                     type="number"
                                     name="providerServiceId"
@@ -608,7 +625,7 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                                     name="providerRate"
                                     value={formData.providerRate || ''}
                                     onChange={(e) => { setFormData((prev: any) => ({ ...prev, providerRate: e.target.value })); }}
-                                    placeholder="سعر المزود"
+                                    placeholder="سعر المزود لكل الف"
                                     className={`w-full p-2 rounded text-sm md:text-base transition-all duration-300 ${isDark
                                         ? 'bg-gray-700 text-white'
                                         : 'bg-gray-50 text-gray-800 border border-[#dfd7bb]'
@@ -622,7 +639,7 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                                     name="price"
                                     value={formData.price || ''}
                                     onChange={(e) => { setFormData((prev: any) => ({ ...prev, price: e.target.value })); }}
-                                    placeholder="سعرك للعميل"
+                                    placeholder="سعرك للعميل لكل الف"
                                     className={`w-full p-2 rounded text-sm md:text-base transition-all duration-300 ${isDark
                                         ? 'bg-gray-700 text-white'
                                         : 'bg-gray-50 text-gray-800 border border-[#dfd7bb]'
@@ -655,56 +672,106 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                                         }`}
                                     required
                                 />
-                                <input
-                                    type="text"
-                                    value={formData.discount_for_2000 || ''}
-                                    onChange={(e) => { setFormData((prev: any) => ({ ...prev, discount_for_2000: e.target.value })); }}
-                                    placeholder="خصم للكميه 2000 "
-                                    className={`w-full p-2 rounded text-sm md:text-base transition-all duration-300 ${isDark
-                                        ? 'bg-gray-700 text-white'
-                                        : 'bg-gray-50 text-gray-800 border border-[#dfd7bb]'
-                                        }`}
-                                />
-                                <input
-                                    type="text"
-                                    value={formData.discount_for_3000 || ''}
-                                    onChange={(e) => { setFormData((prev: any) => ({ ...prev, discount_for_3000: e.target.value })); }}
-                                    placeholder="خصم للكميه 3000 "
-                                    className={`w-full p-2 rounded text-sm md:text-base transition-all duration-300 ${isDark
-                                        ? 'bg-gray-700 text-white'
-                                        : 'bg-gray-50 text-gray-800 border border-[#dfd7bb]'
-                                        }`}
-                                />
-                                <input
-                                    type="text"
-                                    value={formData.discount_for_4000 || ''}
-                                    onChange={(e) => { setFormData((prev: any) => ({ ...prev, discount_for_4000: e.target.value })); }}
-                                    placeholder="خصم للكميه 4000 "
-                                    className={`w-full p-2 rounded text-sm md:text-base transition-all duration-300 ${isDark
-                                        ? 'bg-gray-700 text-white'
-                                        : 'bg-gray-50 text-gray-800 border border-[#dfd7bb]'
-                                        }`}
-                                />
-                                <input
-                                    type="text"
-                                    value={formData.discount_for_greater_than_4000 || ''}
-                                    onChange={(e) => { setFormData((prev: any) => ({ ...prev, discount_for_greater_than_4000: e.target.value })); }}
-                                    placeholder="خصم للكميه فوق 4000 "
-                                    className={`w-full p-2 rounded text-sm md:text-base transition-all duration-300 ${isDark
-                                        ? 'bg-gray-700 text-white'
-                                        : 'bg-gray-50 text-gray-800 border border-[#dfd7bb]'
-                                        }`}
-                                />
-                                <input
-                                    type="text"
-                                    value={formData.discount_for_greater_than_100000 || ''}
-                                    onChange={(e) => { setFormData((prev: any) => ({ ...prev, discount_for_greater_than_100000: e.target.value })); }}
-                                    placeholder="خصم للكميه فوق 100000 "
-                                    className={`w-full p-2 rounded text-sm md:text-base transition-all duration-300 ${isDark
-                                        ? 'bg-gray-700 text-white'
-                                        : 'bg-gray-50 text-gray-800 border border-[#dfd7bb]'
-                                        }`}
-                                />
+                                <div className=" space-y-4 ">
+
+                                    <h3 className="font-semibold text-lg">
+                                        خصومات الكميات
+                                    </h3>
+
+                                    {discounts.map((item, index) => (
+                                        <div
+                                            key={index}
+                                            className="flex items-end gap-3"
+                                        >
+
+                                            {/* من */}
+                                            <div className="flex-1">
+                                                <label className="block mb-1 text-sm">
+                                                    من كمية
+                                                </label>
+
+                                                <input
+                                                    type="number"
+                                                    value={item.from}
+                                                    onChange={(e) => {
+                                                        const newDiscounts = [...discounts];
+
+                                                        newDiscounts[index].from = e.target.value;
+
+                                                        setDiscounts(newDiscounts);
+                                                    }}
+                                                    placeholder="مثال: 1000"
+                                                    className="w-full border rounded-lg p-2"
+                                                />
+                                            </div>
+
+                                            {/* إلى */}
+                                            <div className="flex-1">
+                                                <label className="block mb-1 text-sm">
+                                                    إلى كمية
+                                                </label>
+
+                                                <input
+                                                    type="number"
+                                                    value={item.to}
+                                                    onChange={(e) => {
+                                                        const newDiscounts = [...discounts];
+
+                                                        newDiscounts[index].to = e.target.value;
+
+                                                        setDiscounts(newDiscounts);
+                                                    }}
+                                                    placeholder="مثال: 1999"
+                                                    className="w-full border rounded-lg p-2"
+                                                />
+                                            </div>
+
+                                            {/* الخصم */}
+                                            <div className="flex-1">
+                                                <label className="block mb-1 text-sm">
+                                                    الخصم %
+                                                </label>
+
+                                                <input
+                                                    type="number"
+                                                    max="100"
+                                                    value={item.discount}
+                                                    onChange={(e) => {
+                                                        const newDiscounts = [...discounts];
+
+                                                        newDiscounts[index].discount = e.target.value;
+
+                                                        setDiscounts(newDiscounts);
+                                                    }}
+                                                    placeholder="مثال: 10"
+                                                    className="w-full border rounded-lg p-2"
+                                                />
+                                            </div>
+
+                                            {/* حذف */}
+                                            {discounts.length > 1 && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeDiscount(index)}
+                                                    className="px-3 py-2 text-red-500"
+                                                >
+                                                    حذف
+                                                </button>
+                                            )}
+
+                                        </div>
+                                    ))}
+
+                                    {/* إضافة */}
+                                    <button
+                                        type="button"
+                                        onClick={addDiscount}
+                                        className="text-blue-600 font-medium"
+                                    >
+                                        + إضافة خصم
+                                    </button>
+
+                                </div>
                             </div>
 
                             <select

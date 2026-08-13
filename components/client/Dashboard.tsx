@@ -286,12 +286,12 @@ const Dashboard: React.FC<DashboardProps> = ({ setActiveView }) => {
                         <tbody>
                             {completedOrders.length > 0 ? (
                                 completedOrders.slice(0, 3).map((order: any) => (
-                                    <tr key={order.id} className={`border-b last:border-b-0 transition-colors ${isDark
+                                    <tr key={order._id} className={`border-b last:border-b-0 transition-colors ${isDark
                                         ? 'border-gray-700 hover:bg-gray-700/50'
                                         : 'border-[#dfd7bb] hover:bg-gray-50'
                                         }`}>
                                         <td className="px-4 py-4 font-mono" style={{ color: getMutedTextColor() }}>
-                                            {order.order_number || 'N/A'}
+                                            {order._id || 'N/A'}
                                         </td>
                                         <td className="px-4 py-4" style={{ color: getTextColor() }}>
                                             {order.serviceTitle || 'اسم الخدمة غير متوفر'}

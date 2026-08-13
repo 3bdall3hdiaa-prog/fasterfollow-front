@@ -7,7 +7,6 @@ import ManageOrders from './admin/ManageOrders';
 import ManageServices from './admin/ManageServices';
 import ManageProviders from './admin/ManageProviders';
 import SupportTickets from './admin/SupportTickets';
-import Announcements from './admin/Announcements';
 import SiteSettingsComponent from './admin/SiteSettings';
 import ManagePages from './admin/ManagePages';
 import ManageBlog from './admin/ManageBlog';
@@ -55,7 +54,6 @@ const AdminPanel: React.FC<AdminPanelProps> = (props) => {
             case 'services': return <ManageServices services={props.services} setServices={props.setServices} providers={props.providers} platforms={props.platforms} />;
             case 'providers': return <ManageProviders providers={props.providers} setProviders={props.setProviders} />;
             case 'support': return <SupportTickets />;
-            case 'announcements': return <Announcements />;
             case 'pages': return <ManagePages pages={props.pages} setPages={props.setPages} />;
             case 'blog': return <ManageBlog />;
             case 'banners': return <ManageBanners banners={props.banners} setBanners={props.setBanners} />;

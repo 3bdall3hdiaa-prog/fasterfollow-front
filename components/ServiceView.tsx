@@ -206,19 +206,8 @@ const ServiceView = ({ id }: { id: string }) => {
         getService()
 
     }, [id])
-    // const getTotalCost = async () => {
-    //     try {
-    //         const res = await axios.post(`${import.meta.env.VITE_API_URL}/services-list/total-price`, {
-    //             serviceId: Service?._id,
-    //             quantity
-    //         });
-    //         if (res.data) setTotalCost(res.data);
-    //     } catch (err) {
-    //         console.error('Error fetching total cost:', err);
-    //     }
-    // }
+
     React.useEffect(() => {
-        // getTotalCost();
         if (quantity <= 0) {
             setTotalCost(0);
             return;
@@ -226,22 +215,18 @@ const ServiceView = ({ id }: { id: string }) => {
 
         const cost = (quantity / 1000) * Service.price;
 
-        if (quantity === 1000 && Service.discount_for_1000) {
-            setTotalCost(cost * Service.discount_for_1000);
-        } else if (quantity === 2000 && Service.discount_for_2000) {
-            setTotalCost(cost * Service.discount_for_2000);
-        } else if (quantity === 3000 && Service.discount_for_3000) {
-            setTotalCost(cost * Service.discount_for_3000);
-        } else if (quantity === 4000 && Service.discount_for_4000) {
-            setTotalCost(cost * Service.discount_for_4000);
-        } else if (quantity > 4000 && quantity % 1000 === 0 && quantity < 100000 && Service.discount_for_greater_than_4000) {
-            setTotalCost(cost * Service.discount_for_greater_than_4000);
-        } else if (quantity >= 100000 && quantity % 1000 === 0 && Service.discount_for_greater_than_100000) {
-            setTotalCost(cost * Service.discount_for_greater_than_100000);
-        }
-        else {
+        const discountRule = Service.discounts?.find(
+            (item: any) =>
+                quantity >= item.from &&
+                quantity <= item.to
+        );
+
+        if (discountRule) {
+            setTotalCost(cost * discountRule.discount);
+        } else {
             setTotalCost(cost);
         }
+
     }, [quantity, Service]);
     return (
         <div className='pt-10 sm:pt-16 lg:pt-[120px]    sm:px-6   mx-4 lg:px-[120px] '>

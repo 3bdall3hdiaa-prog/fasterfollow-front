@@ -16,7 +16,6 @@ const Dashboard: React.FC = () => {
             try {
                 setLoading(true);
 
-                // جلب بيانات الطلبات
                 const response = await fetch(`${import.meta.env.VITE_API_URL}/new-order`, {
                     credentials: 'include',
                     headers: {
@@ -26,7 +25,6 @@ const Dashboard: React.FC = () => {
                 const data = await response.json();
                 setOrderlength(data.length);
 
-                // جلب بيانات المستخدمين
                 const response2 = await fetch(`${import.meta.env.VITE_API_URL}/getallusers`, {
                     credentials: 'include', headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -35,7 +33,6 @@ const Dashboard: React.FC = () => {
                 const data2 = await response2.json();
                 setUserslength(data2.length);
 
-                // جلب بيانات المزودين
                 const response3 = await fetch(`${import.meta.env.VITE_API_URL}/manage-providers`, {
 
                     credentials: 'include', headers: {
@@ -46,7 +43,6 @@ const Dashboard: React.FC = () => {
                 const filteredProviders = data3.filter(provider => provider.status === 'Active');
                 setProviderslength(filteredProviders.length);
 
-                // جلب بيانات PayPal وحساب الإيرادات
                 const response4 = await fetch(`${import.meta.env.VITE_API_URL}/paypal`, {
                     credentials: 'include', headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -54,9 +50,7 @@ const Dashboard: React.FC = () => {
                 });
                 const paypalData = await response4.json();
 
-                // جمع جميع قيم amount
                 const revenue = paypalData.reduce((total: number, item: any) => {
-                    // تحقق من وجود amount وتحويله إلى رقم
                     const amount = parseFloat(item.amount) || 0;
                     return total + amount;
                 }, 0);
@@ -73,7 +67,6 @@ const Dashboard: React.FC = () => {
         getdata();
     }, []);
 
-    // تنسيق الإيرادات كعملة
     const formattedRevenue = new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: 'USD'

@@ -26,7 +26,6 @@ const ManageCoupons: React.FC = () => {
 
     const API_BASE = import.meta.env.VITE_API_URL;
 
-    // دالة لجلب الكوبونات من API
     const fetchCoupons = async () => {
         setLoading(true);
         try {
@@ -44,7 +43,6 @@ const ManageCoupons: React.FC = () => {
 
             const data = await response.json();
 
-            // تحويل البيانات من API إلى الشكل المطلوب وفلترة الكوبونات التي تحتوي على code فقط
             const formattedCoupons: Coupon[] = data
                 .filter((coupon: any) => coupon.code && coupon.code.trim() !== '')
                 .map((coupon: any) => ({
@@ -106,7 +104,6 @@ const ManageCoupons: React.FC = () => {
         setLoading(true);
 
         try {
-            // التحقق من أن code غير فارغ
             if (!formData.code || formData.code.trim() === '') {
                 alert('يرجى إدخال كود الشحن');
                 return;
@@ -118,7 +115,6 @@ const ManageCoupons: React.FC = () => {
             };
 
             if (editingCoupon) {
-                // تحديث كوبون موجود
                 const response = await fetch(`${API_BASE}/managecopons/${editingCoupon.id}`, {
                     method: 'PUT',
                     credentials: 'include',
@@ -134,7 +130,6 @@ const ManageCoupons: React.FC = () => {
 
                 const updatedCoupon = await response.json();
 
-                // تحديث القائمة محلياً
                 setCoupons(coupons.map(c =>
                     c.id === editingCoupon.id
                         ? {
@@ -147,7 +142,6 @@ const ManageCoupons: React.FC = () => {
 
                 alert('تم تحديث الكوبون بنجاح');
             } else {
-                // إضافة كوبون جديد
                 const response = await fetch(`${API_BASE}/managecopons`, {
                     method: 'POST',
                     credentials: 'include',
@@ -163,7 +157,6 @@ const ManageCoupons: React.FC = () => {
 
                 const newCoupon = await response.json();
 
-                // إضافة الكوبون الجديد للقائمة فقط إذا كان يحتوي على code
                 if (newCoupon.code && newCoupon.code.trim() !== '') {
                     const formattedCoupon: Coupon = {
                         id: newCoupon._id || newCoupon.id,
@@ -205,7 +198,6 @@ const ManageCoupons: React.FC = () => {
                 throw new Error('فشل في حذف الكوبون');
             }
 
-            // حذف محلي من القائمة
             setCoupons(coupons.filter(c => c.id !== couponId));
             alert('تم حذف الكوبون بنجاح');
         } catch (error) {
@@ -277,9 +269,7 @@ const ManageCoupons: React.FC = () => {
 
 
     const { isDark } = useThemeStore();
-    // ... باقي الـ states
 
-    // دوال مساعدة للألوان
     const getTextColor = () => {
         return isDark ? '#ffffff' : '#1e2235';
     };

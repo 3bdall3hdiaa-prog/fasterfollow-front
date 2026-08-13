@@ -34,7 +34,6 @@ const ManagePlatforms: React.FC<ManagePlatformsProps> = ({ platforms, setPlatfor
 
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
-    // دوال مساعدة للألوان
     const getTextColor = () => {
         return isDark ? '#ffffff' : '#1e2235';
     };
@@ -67,7 +66,6 @@ const ManagePlatforms: React.FC<ManagePlatformsProps> = ({ platforms, setPlatfor
         setFormData((prev: any) => ({ ...prev, [name]: value }));
     };
 
-    // معالجة اختيار الملف
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
@@ -225,8 +223,8 @@ const ManagePlatforms: React.FC<ManagePlatformsProps> = ({ platforms, setPlatfor
                 <button
                     onClick={() => handleOpenModal(null)}
                     className={`w-full sm:w-auto font-bold py-2 px-4 sm:px-6 rounded-lg transition-all duration-300 text-sm sm:text-base ${isDark
-                            ? 'bg-primary-600 hover:bg-primary-700 text-white'
-                            : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
+                        ? 'bg-primary-600 hover:bg-primary-700 text-white'
+                        : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
                         }`}
                     disabled={loading}
                 >
@@ -236,8 +234,8 @@ const ManagePlatforms: React.FC<ManagePlatformsProps> = ({ platforms, setPlatfor
 
             {error && (
                 <div className={`mb-3 sm:mb-4 p-2 sm:p-3 rounded-lg text-sm ${isDark
-                        ? 'bg-red-600/20 border border-red-600 text-red-300'
-                        : 'bg-red-50 border border-red-200 text-red-700'
+                    ? 'bg-red-600/20 border border-red-600 text-red-300'
+                    : 'bg-red-50 border border-red-200 text-red-700'
                     }`}>
                     {error}
                 </div>
@@ -247,8 +245,8 @@ const ManagePlatforms: React.FC<ManagePlatformsProps> = ({ platforms, setPlatfor
             <div className="block lg:hidden space-y-3 sm:space-y-4">
                 {platforms.length === 0 ? (
                     <div className={`rounded-lg p-8 text-center ${isDark
-                            ? 'bg-gray-800 border border-gray-700'
-                            : 'bg-white border border-[#dfd7bb] shadow-md'
+                        ? 'bg-gray-800 border border-gray-700'
+                        : 'bg-white border border-[#dfd7bb] shadow-md'
                         }`}>
                         <p style={{ color: getMutedTextColor() }}>لا توجد منصات مضافة حتى الآن</p>
                     </div>
@@ -259,8 +257,8 @@ const ManagePlatforms: React.FC<ManagePlatformsProps> = ({ platforms, setPlatfor
                             <div
                                 key={platform._id}
                                 className={`rounded-lg p-3 sm:p-4 transition-all duration-300 ${isDark
-                                        ? 'bg-gray-800 border border-gray-700'
-                                        : 'bg-white border border-[#dfd7bb] shadow-sm'
+                                    ? 'bg-gray-800 border border-gray-700'
+                                    : 'bg-white border border-[#dfd7bb] shadow-sm'
                                     }`}
                             >
                                 <div className="flex items-center gap-3 sm:gap-4">
@@ -327,8 +325,8 @@ const ManagePlatforms: React.FC<ManagePlatformsProps> = ({ platforms, setPlatfor
             {/* قائمة المنصات - نسخة الكمبيوتر اللوحي والكمبيوتر (جدول) */}
             <div className="hidden lg:block">
                 <div className={`rounded-lg overflow-hidden transition-all duration-300 ${isDark
-                        ? 'bg-gray-800 border border-gray-700'
-                        : 'bg-white border border-[#dfd7bb] shadow-md'
+                    ? 'bg-gray-800 border border-gray-700'
+                    : 'bg-white border border-[#dfd7bb] shadow-md'
                     }`}>
                     {platforms.length === 0 ? (
                         <div className="text-center py-8" style={{ color: getMutedTextColor() }}>
@@ -351,8 +349,8 @@ const ManagePlatforms: React.FC<ManagePlatformsProps> = ({ platforms, setPlatfor
                                         const imageUrl = getImageUrl(platform);
                                         return (
                                             <tr key={platform._id} className={`border-b transition-colors ${isDark
-                                                    ? 'border-gray-700 hover:bg-gray-700/50'
-                                                    : 'border-[#dfd7bb] hover:bg-gray-50'
+                                                ? 'border-gray-700 hover:bg-gray-700/50'
+                                                : 'border-[#dfd7bb] hover:bg-gray-50'
                                                 }`}>
                                                 <td className="px-4 py-3">
                                                     {imageUrl ? (
@@ -433,8 +431,8 @@ const ManagePlatforms: React.FC<ManagePlatformsProps> = ({ platforms, setPlatfor
 
                             {error && (
                                 <div className={`p-2 rounded text-sm ${isDark
-                                        ? 'bg-red-600/20 border border-red-600 text-red-300'
-                                        : 'bg-red-50 border border-red-200 text-red-700'
+                                    ? 'bg-red-600/20 border border-red-600 text-red-300'
+                                    : 'bg-red-50 border border-red-200 text-red-700'
                                     }`}>
                                     {error}
                                 </div>
@@ -451,8 +449,8 @@ const ManagePlatforms: React.FC<ManagePlatformsProps> = ({ platforms, setPlatfor
                                     onChange={handleChange}
                                     placeholder="أدخل اسم المنصة"
                                     className={`w-full rounded-lg p-2 sm:p-3 text-sm sm:text-base focus:border-primary-500 focus:outline-none transition-all duration-300 ${isDark
-                                            ? 'bg-gray-700 border border-gray-600 text-white'
-                                            : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
+                                        ? 'bg-gray-700 border border-gray-600 text-white'
+                                        : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
                                         }`}
                                     required
                                     disabled={loading}
@@ -470,8 +468,8 @@ const ManagePlatforms: React.FC<ManagePlatformsProps> = ({ platforms, setPlatfor
                                     onChange={handleChange}
                                     placeholder="مثال: instagram"
                                     className={`w-full rounded-lg p-2 sm:p-3 text-sm sm:text-base focus:border-primary-500 focus:outline-none transition-all duration-300 ${isDark
-                                            ? 'bg-gray-700 border border-gray-600 text-white'
-                                            : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
+                                        ? 'bg-gray-700 border border-gray-600 text-white'
+                                        : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
                                         }`}
                                     required
                                     disabled={loading}
@@ -586,8 +584,8 @@ const ManagePlatforms: React.FC<ManagePlatformsProps> = ({ platforms, setPlatfor
                                     type="button"
                                     onClick={handleCloseModal}
                                     className={`w-full sm:w-auto py-2 px-4 sm:px-6 rounded-lg transition-colors text-sm sm:text-base ${isDark
-                                            ? 'bg-gray-600 hover:bg-gray-500 text-white'
-                                            : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
+                                        ? 'bg-gray-600 hover:bg-gray-500 text-white'
+                                        : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
                                         }`}
                                     disabled={loading}
                                 >
@@ -596,8 +594,8 @@ const ManagePlatforms: React.FC<ManagePlatformsProps> = ({ platforms, setPlatfor
                                 <button
                                     type="submit"
                                     className={`w-full sm:w-auto py-2 px-4 sm:px-6 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 text-sm sm:text-base ${isDark
-                                            ? 'bg-primary-600 hover:bg-primary-500 text-white'
-                                            : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
+                                        ? 'bg-primary-600 hover:bg-primary-500 text-white'
+                                        : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
                                         }`}
                                     disabled={loading}
                                 >

@@ -12,6 +12,18 @@ const statusClasses: Record<TicketStatus, string> = {
     Answered: 'bg-blue-900 text-blue-300',
     Closed: 'bg-gray-700 text-gray-300',
 };
+const handleStatusText = (status: TicketStatus) => {
+    switch (status) {
+        case 'Open':
+            return 'تم الفتح';
+        case 'Answered':
+            return 'تم الرد';
+        case 'Closed':
+            return 'تم الاغلاق';
+        default:
+            return 'غير معروف';
+    }
+}
 
 // تحديث statusClasses للوضع الفاتح
 const getStatusClasses = (isDark: boolean) => {
@@ -381,7 +393,7 @@ const Support: React.FC = () => {
                                         <span
                                             className={`px-2 py-1 text-xs rounded-full ${statusClassesMap[ticket.status]}`}
                                         >
-                                            {ticket.status}
+                                            {handleStatusText(ticket.status)}
                                         </span>
                                     </td>
                                 </tr>

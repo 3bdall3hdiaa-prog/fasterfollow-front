@@ -11,7 +11,6 @@ const statusClasses: Record<TransactionStatus, string> = {
     Failed: 'bg-red-900 text-red-300',
 };
 
-// تحديث statusClasses للوضع الفاتح
 const getStatusClasses = (isDark: boolean) => {
     if (isDark) {
         return {
@@ -45,7 +44,6 @@ const AddFunds: React.FC = () => {
     ]);
     const [selectedMethodDescription, setSelectedMethodDescription] = useState('');
 
-    // دوال مساعدة للألوان
     const getTextColor = () => {
         return isDark ? '#ffffff' : '#1e2235';
     };
@@ -114,7 +112,6 @@ const AddFunds: React.FC = () => {
         fetchdata();
     }, []);
 
-    // تحديث الـ description عند تغيير طريقة الدفع
     useEffect(() => {
         const selectedMethod = paymentMethods.find(m => m.id === paymentMethod);
         if (selectedMethod) {
@@ -160,7 +157,6 @@ const AddFunds: React.FC = () => {
         return statusMap[status.toLowerCase()] || 'Pending';
     };
 
-    // دالة لتطبيق الكوبون
     const applyCoupon = async () => {
         if (!couponCode.trim()) {
             setCouponMessage('يرجى إدخال كود الكوبون');

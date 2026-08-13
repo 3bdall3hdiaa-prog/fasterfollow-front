@@ -37,14 +37,12 @@ const ImportServices = () => {
     });
     const [error, setError] = useState<string | null>(null);
 
-    // Pagination states
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [totalPages, setTotalPages] = useState<number>(1);
     const [totalItems, setTotalItems] = useState<number>(0);
     const [itemsPerPage] = useState<number>(10);
 
     const { formatPrice } = useCurrency();
-    // جلب المزودين
     const fetchProviders = async () => {
         try {
             setLoading(prev => ({ ...prev, providers: true }));
@@ -65,7 +63,6 @@ const ImportServices = () => {
         }
     };
 
-    // جلب الخدمات من مزود معين مع pagination
     const fetchServices = async (providerId: string, page: number = 1) => {
         const provider = providers.find(p => p._id === providerId);
         console.log('جاري جلب الخدمات من المزود:', provider);
@@ -80,7 +77,6 @@ const ImportServices = () => {
             setError(null);
             setSelectedServices(new Set());
 
-            // إرسال الطلب مع page
             const response = await axios.get(
                 `${import.meta.env.VITE_API_URL}/services-list/getdata`,
                 {
@@ -96,36 +92,30 @@ const ImportServices = () => {
 
             console.log('الرد من السيرفر:', response.data);
 
-            // معالجة الرد - التأكد من أن services دائماً مصفوفة
             let servicesData: Service[] = [];
             let total = 0;
             let totalPagesCount = 1;
 
             if (response.data) {
-                // الحالة الأولى: data في result مع total
                 if (response.data) {
                     servicesData = response.data.data;
                     totalPagesCount = response.data.length;
                 }
-                // الحالة الثانية: result هو المصفوفة
                 else if (response.data.result && Array.isArray(response.data.result)) {
                     servicesData = response.data.result;
                     total = response.data.total || servicesData.length;
                     totalPagesCount = response.data.totalPages || Math.ceil(total / itemsPerPage);
                 }
-                // الحالة الثالثة: data نفسها مصفوفة
                 else if (Array.isArray(response.data)) {
                     servicesData = response.data;
                     total = servicesData.length;
                     totalPagesCount = Math.ceil(total / itemsPerPage);
                 }
-                // الحالة الرابعة: services في data
                 else if (response.data.services && Array.isArray(response.data.services)) {
                     servicesData = response.data.services;
                     total = response.data.total || servicesData.length;
                     totalPagesCount = response.data.totalPages || Math.ceil(total / itemsPerPage);
                 }
-                // الحالة الخامسة: محاولة البحث عن أي مصفوفة في الرد
                 else {
                     for (const key in response.data) {
                         if (Array.isArray(response.data[key]) && response.data[key].length > 0) {
@@ -142,7 +132,6 @@ const ImportServices = () => {
                 }
             }
 
-            // التأكد من أن servicesData مصفوفة
             if (!Array.isArray(servicesData)) {
                 servicesData = [];
             }
@@ -172,14 +161,12 @@ const ImportServices = () => {
         }
     };
 
-    // تغيير الصفحة
     const handlePageChange = (newPage: number) => {
         if (newPage < 1 || newPage > totalPages) return;
         setCurrentPage(newPage);
         fetchServices(selectedProvider, newPage);
     };
 
-    // اختيار/إلغاء اختيار خدمة
     const toggleService = (serviceId: number) => {
         setSelectedServices(prev => {
             const newSet = new Set(prev);
@@ -192,7 +179,6 @@ const ImportServices = () => {
         });
     };
 
-    // اختيار/إلغاء اختيار الكل في الصفحة الحالية
     const toggleAllServices = () => {
         if (!Array.isArray(services) || services.length === 0) return;
 
@@ -200,14 +186,12 @@ const ImportServices = () => {
         const allSelected = currentServiceIds.every(id => selectedServices.has(id));
 
         if (allSelected) {
-            // إلغاء اختيار كل الخدمات في الصفحة الحالية
             setSelectedServices(prev => {
                 const newSet = new Set(prev);
                 currentServiceIds.forEach(id => newSet.delete(id));
                 return newSet;
             });
         } else {
-            // اختيار كل الخدمات في الصفحة الحالية
             setSelectedServices(prev => {
                 const newSet = new Set(prev);
                 currentServiceIds.forEach(id => newSet.add(id));
@@ -216,7 +200,6 @@ const ImportServices = () => {
         }
     };
 
-    // استيراد الخدمات المختارة
     const handleImport = async () => {
         if (selectedServices.size === 0) {
             toast.error('يرجى اختيار خدمة واحدة على الأقل للاستيراد');
@@ -229,7 +212,6 @@ const ImportServices = () => {
             return;
         }
 
-        // التأكد من أن services مصفوفة قبل التصفية
         if (!Array.isArray(services)) {
             toast.error('حدث خطأ في بيانات الخدمات');
             return;
@@ -247,9 +229,7 @@ const ImportServices = () => {
 
             if (response.data.message) {
                 toast.success(`تم استيراد ${selectedServicesData.length} خدمة بنجاح`);
-                // إعادة تعيين الخدمات المختارة
                 setSelectedServices(new Set());
-                // إعادة تحميل الصفحة الحالية
                 fetchServices(selectedProvider, currentPage);
             } else {
                 toast.error(response.data.message || 'فشل في استيراد الخدمات');
@@ -262,12 +242,10 @@ const ImportServices = () => {
         }
     };
 
-    // تحميل المزودين عند تحميل الصفحة
     useEffect(() => {
         fetchProviders();
     }, []);
 
-    // عند تغيير المزود المختار
     useEffect(() => {
         if (selectedProvider) {
             setCurrentPage(1);
@@ -280,18 +258,15 @@ const ImportServices = () => {
         }
     }, [selectedProvider]);
 
-    // دالة لعرض أرقام الصفحات
     const renderPageNumbers = () => {
         const pages = [];
-        const maxVisible = 7; // عدد الأرقام المرئية في الباجنيشن
+        const maxVisible = 7;
 
         if (totalPages <= maxVisible) {
-            // إذا كان عدد الصفحات قليل، اعرض الكل
             for (let i = 1; i <= totalPages; i++) {
                 pages.push(i);
             }
         } else {
-            // إذا كان عدد الصفحات كبير، اعرض جزء مع علامات حذف
             if (currentPage <= 4) {
                 // في البداية
                 for (let i = 1; i <= 5; i++) {
@@ -324,7 +299,7 @@ const ImportServices = () => {
     return (
         <div className={`min-h-screen transition-colors duration-300 ${isDark ? 'bg-gray-900' : 'bg-gray-50'}`}>
             <div className="container mx-auto px-4 py-8">
-                {/* العنوان */}
+
                 <div className="mb-8">
                     <h1 className={`text-3xl font-bold transition-colors duration-300 ${isDark ? 'text-white' : 'text-gray-800'}`}>
                         استيراد الخدمات
@@ -334,7 +309,7 @@ const ImportServices = () => {
                     </p>
                 </div>
 
-                {/* اختيار المزود */}
+
                 <div className={`rounded-lg p-6 mb-8 transition-colors duration-300 ${isDark ? 'bg-gray-800' : 'bg-white shadow-md'}`}>
                     <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                         اختر المزود
@@ -372,10 +347,10 @@ const ImportServices = () => {
                     )}
                 </div>
 
-                {/* عرض الخدمات */}
+
                 {selectedProvider && (
                     <div className={`rounded-lg p-6 transition-colors duration-300 ${isDark ? 'bg-gray-800' : 'bg-white shadow-md'}`}>
-                        {/* رأس الجدول مع معلومات */}
+
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
                             <div>
                                 <h2 className={`text-xl font-bold transition-colors duration-300 ${isDark ? 'text-white' : 'text-gray-800'}`}>

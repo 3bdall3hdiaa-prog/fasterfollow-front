@@ -11,7 +11,6 @@ import ClientPanel from './components/ClientPanel';
 import Blog from './components/Blog';
 import BlogPost from './components/BlogPost';
 import PageView from './components/PageView';
-import { useUser } from './contexts/UserContext';
 import { useSEO } from './hooks/useSEO';
 import { Page, BlogPost as BlogPostType, ServiceResponse, Provider, BannerResponse, SiteSettings, Platform } from './types';
 import axios from 'axios';

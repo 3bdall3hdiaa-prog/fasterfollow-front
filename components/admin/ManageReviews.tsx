@@ -3,7 +3,6 @@ import { useThemeStore } from '@/store/theme.store';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
 
-// تعريف الـ Interface
 interface Review {
     _id: string;
     comment: string;
@@ -30,7 +29,6 @@ const ManageReviews = () => {
     const [processingId, setProcessingId] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
 
-    // جلب التقييمات
     const fetchReviews = async () => {
         try {
             setLoading(true);
@@ -50,7 +48,6 @@ const ManageReviews = () => {
         }
     };
 
-    // حذف تقييم (للتقييمات المنشورة وغير المنشورة)
     const handleDelete = async (reviewId: string) => {
         if (!window.confirm('هل أنت متأكد من حذف هذا التقييم؟')) {
             return;
@@ -74,7 +71,6 @@ const ManageReviews = () => {
         }
     };
 
-    // قبول التقييم (نشر التقييم)
     const handleApprove = async (reviewId: string) => {
         try {
             setProcessingId(reviewId);
@@ -86,7 +82,6 @@ const ManageReviews = () => {
 
             if (response.data) {
                 toast.success('تم نشر التقييم بنجاح');
-                // تحديث التقييم في القائمة
                 setReviews(prev => prev.map(review =>
                     review._id === reviewId
                         ? { ...review, isPublished: true }
@@ -103,7 +98,6 @@ const ManageReviews = () => {
         }
     };
 
-    // رفض التقييم (حذف التقييم)
     const handleReject = async (reviewId: string) => {
         if (!window.confirm('هل أنت متأكد من رفض هذا التقييم؟')) {
             return;
@@ -112,12 +106,10 @@ const ManageReviews = () => {
         await handleDelete(reviewId);
     };
 
-    // جلب البيانات عند تحميل المكون
     useEffect(() => {
         fetchReviews();
     }, []);
 
-    // دالة لعرض النجوم
     const renderStars = (rate: number) => {
         const stars = [];
         const fullStars = Math.floor(rate);
@@ -141,13 +133,11 @@ const ManageReviews = () => {
         return stars;
     };
 
-    // دالة للحصول على أول حرف من الاسم
     const getInitial = (name: string) => {
         if (!name) return '?';
         return name.trim().charAt(0).toUpperCase();
     };
 
-    // دالة لتوليد لون ثابت للـ Avatar
     const getColorFromName = (name: string) => {
         let hash = 0;
         for (let i = 0; i < name.length; i++) {

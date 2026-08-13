@@ -12,9 +12,7 @@ const UsersManagement = () => {
     const [userBalance, setUserBalance] = useState(0);
     const [searchTerm, setSearchTerm] = useState("");
     const { isDark } = useThemeStore();
-    // ... باقي الـ states
 
-    // دالة مساعدة للحصول على ألوان الخلفية حسب الوضع
     const getBackgroundColor = () => {
         return isDark ? '#1e2235' : '#f8f6f0';
     };
@@ -49,7 +47,7 @@ const UsersManagement = () => {
 
     const getModalBodyBackground = () => {
         return isDark ? '#1e2235' : '#f8f6f0';
-    };    // إضافة مستخدم جديد
+    };
     const [showAddModal, setShowAddModal] = useState(false);
     const [newUser, setNewUser] = useState({
         username: "",
@@ -59,7 +57,6 @@ const UsersManagement = () => {
         status: "active"
     });
 
-    // تعديل مستخدم
     const [showEditModal, setShowEditModal] = useState(false);
     const [editingUser, setEditingUser] = useState({
         _id: "",
@@ -69,7 +66,6 @@ const UsersManagement = () => {
         status: ""
     });
 
-    // التحكم في الرصيد
     const [showBalanceModal, setShowBalanceModal] = useState(false);
     const [balanceData, setBalanceData] = useState({
         username: "",
@@ -101,7 +97,6 @@ const UsersManagement = () => {
         });
     };
 
-    // دوال التحكم في الرصيد
     const handleShowBalanceModal = () => {
         setBalanceData({
             username: "",
@@ -145,7 +140,6 @@ const UsersManagement = () => {
         }
     };
 
-    // دالة لجلب الرصيد من endpoint البايبال
     const fetchUserBalance = async (userName: any) => {
         try {
             const response = await axios.get(`${import.meta.env.VITE_API_URL}/paypal`, {
@@ -153,7 +147,6 @@ const UsersManagement = () => {
             });
             const paypalData = response.data;
 
-            // جمع الـ amount حيث userName يساوي الاسم المطلوب
             const totalBalance = paypalData
                 .filter((transaction: any) => transaction.userName === userName)
                 .reduce((sum: number, transaction: any) => sum + (parseFloat(transaction.amount) || 0), 0);
@@ -168,14 +161,13 @@ const UsersManagement = () => {
     const handleView = async (user: any) => {
         setSelectedUser(user);
         setShowModal(true);
-        // جلب الرصيد عند فتح نافذة العرض
         await fetchUserBalance(user.name);
     };
 
     const handleCloseModal = () => {
         setShowModal(false);
         setSelectedUser(null);
-        setUserBalance(0); // إعادة تعيين الرصيد عند الإغلاق
+        setUserBalance(0);
     };
 
     const handleInputChange = (e: any) => {
@@ -214,7 +206,6 @@ const UsersManagement = () => {
 
     const handleEditUser = async () => {
         try {
-            // استدعاء endpoint التعديل مع ID في الباراميتر
             await axios.put(`${import.meta.env.VITE_API_URL}/getallusers/${editingUser._id}`, {
                 username: editingUser.username,
                 role: editingUser.role,
@@ -224,7 +215,6 @@ const UsersManagement = () => {
                 withCredentials: true
             });
 
-            // تحديث البيانات في الـ state
             setUsers(users.map((user: any) =>
                 user._id === editingUser._id
                     ? {
@@ -245,7 +235,6 @@ const UsersManagement = () => {
         }
     };
 
-    // تحميل المستخدمين من الـ API
     useEffect(() => {
         const fetchUsers = async () => {
             try {
@@ -272,32 +261,7 @@ const UsersManagement = () => {
         fetchUsers();
     }, []);
 
-    // const handleDelete = async (id) => {
-    //     if (window.confirm("هل أنت متأكد من حذف هذا المستخدم؟")) {
-    //         try {
-    //             await axios.delete(`${import.meta.env.VITE_API_URL}/deleteuser/${id}`);
-    //             setUsers(users.filter((u) => u._id !== id));
-    //         } catch (err) {
-    //             console.error("Delete error:", err);
-    //         }
-    //     }
-    // };
 
-    // const handleBlock = async (id) => {
-    //     if (window.confirm("هل تريد حظر هذا المستخدم؟")) {
-    //         try {
-    //             await axios.put(`${import.meta.env.VITE_API_URL}/blockuser/${id}`);
-    //             setUsers(users.map(user =>
-    //                 user._id === id
-    //                     ? { ...user, status: user.status === "active" ? "inactive" : "active" }
-    //                     : user
-    //             ));
-    //             alert("تم تغيير حالة المستخدم بنجاح");
-    //         } catch (err) {
-    //             console.error("Block error:", err);
-    //         }
-    //     }
-    // };
 
     const getStatusBadge = (status: string) => {
         if (status === "active") return "success";

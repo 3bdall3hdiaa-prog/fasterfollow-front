@@ -10,7 +10,6 @@ interface NewOrderProps {
     services: ServiceResponse[];
 }
 
-// ✅ Interface للتقييمات
 interface Review {
     _id: string;
     username: string;
@@ -44,7 +43,6 @@ const NewOrder: React.FC<NewOrderProps> = ({ services }) => {
     const [reviewLoading, setReviewLoading] = useState<boolean>(false);
     const [reviewError, setReviewError] = useState<string>('');
 
-    // دوال مساعدة للألوان
     const getTextColor = () => {
         return isDark ? '#ffffff' : '#1e2235';
     };
@@ -53,7 +51,6 @@ const NewOrder: React.FC<NewOrderProps> = ({ services }) => {
         return isDark ? '#8a8fa8' : '#6c757d';
     };
 
-    // جلب الرصيد الحالي للمستخدم
     useEffect(() => {
         if (user) {
             fetchUserBalance();
@@ -87,7 +84,6 @@ const NewOrder: React.FC<NewOrderProps> = ({ services }) => {
         }
     };
 
-    // ✅ جلب التقييمات للخدمة المختارة
     useEffect(() => {
         if (selectedServiceId) {
             fetchServiceReviews(selectedServiceId);

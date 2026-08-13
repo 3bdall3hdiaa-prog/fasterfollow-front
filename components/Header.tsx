@@ -190,7 +190,7 @@ const Header: React.FC<HeaderProps> = ({ siteName, logoUrl, pages, color }) => {
 
                             {user.role ? (
                                 <div className="relative flex items-center gap-2 sm:gap-4">
-                                    <Notifications />
+                                    {/* <Notifications /> */}
                                     <button onClick={() => setIsUserMenuOpen(!isUserMenuOpen)} className="flex items-center gap-1.5 sm:space-x-2 sm:space-x-reverse">
                                         <span className={`hidden sm:inline font-semibold transition-colors duration-300 ${isDark ? 'text-white' : 'text-gray-800'
                                             }`}>

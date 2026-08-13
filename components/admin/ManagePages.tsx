@@ -16,7 +16,6 @@ const ManagePages: React.FC<ManagePagesProps> = ({ pages, setPages }) => {
 
     const API_BASE_URL = import.meta.env.VITE_API_URL;
 
-    // دوال مساعدة للألوان
     const getTextColor = () => {
         return isDark ? '#ffffff' : '#1e2235';
     };
@@ -59,7 +58,6 @@ const ManagePages: React.FC<ManagePagesProps> = ({ pages, setPages }) => {
         setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
     };
 
-    // دالة لجلب جميع الصفحات من الـ API
     const fetchPages = async () => {
         try {
             const response = await fetch(`${API_BASE_URL}/managepages`, {
@@ -77,7 +75,6 @@ const ManagePages: React.FC<ManagePagesProps> = ({ pages, setPages }) => {
         }
     };
 
-    // دالة لإضافة صفحة جديدة
     const handleAddPage = async (pageData: Partial<Page>) => {
         try {
             setLoading(true);
@@ -101,7 +98,6 @@ const ManagePages: React.FC<ManagePagesProps> = ({ pages, setPages }) => {
         }
     };
 
-    // دالة لتعديل صفحة موجودة
     const handleUpdatePage = async (pageId: string, pageData: Partial<Page>) => {
         try {
             setLoading(true);
@@ -125,7 +121,6 @@ const ManagePages: React.FC<ManagePagesProps> = ({ pages, setPages }) => {
         }
     };
 
-    // دالة لحذف صفحة
     const handleDeletePage = async (pageId: string) => {
         try {
             setLoading(true);

@@ -16,7 +16,6 @@ const ManageBanners: React.FC<ManageBannersProps> = ({ banners, setBanners }) =>
 
     const API_BASE = import.meta.env.VITE_API_URL;
 
-    // دوال مساعدة للألوان
     const getTextColor = () => {
         return isDark ? '#ffffff' : '#1e2235';
     };
@@ -41,7 +40,6 @@ const ManageBanners: React.FC<ManageBannersProps> = ({ banners, setBanners }) =>
         return isDark ? '#374151' : '#dfd7bb';
     };
 
-    // دالة لجلب كل البانرات
     const fetchBanners = async () => {
         try {
             const response = await fetch(`${API_BASE}/managepanners`, {
@@ -70,7 +68,6 @@ const ManageBanners: React.FC<ManageBannersProps> = ({ banners, setBanners }) =>
         }
     };
 
-    // دالة لإضافة بانر جديد
     const addBanner = async (bannerData: Partial<BannerFormData>) => {
         setLoading(true);
         try {
@@ -104,7 +101,6 @@ const ManageBanners: React.FC<ManageBannersProps> = ({ banners, setBanners }) =>
         }
     };
 
-    // دالة لتعديل بانر موجود
     const updateBanner = async (bannerId: string, bannerData: Partial<BannerFormData>) => {
         if (!bannerId || bannerId === 'undefined' || bannerId === 'null') {
             console.error('Invalid banner ID:', bannerId);
@@ -153,7 +149,6 @@ const ManageBanners: React.FC<ManageBannersProps> = ({ banners, setBanners }) =>
         }
     };
 
-    // دالة لحذف بانر
     const deleteBanner = async (bannerId: string) => {
         if (!bannerId || bannerId === 'undefined' || bannerId === 'null') {
             console.error('Invalid banner ID:', bannerId);

@@ -16,7 +16,6 @@ const statusClasses: Record<string, string> = {
     'failed': 'bg-red-900 text-red-300',
 };
 
-// تحديث statusClasses للوضع الفاتح
 const getStatusClasses = (isDark: boolean) => {
     if (isDark) {
         return {
@@ -42,7 +41,6 @@ const getStatusClasses = (isDark: boolean) => {
     }
 };
 
-const allStatuses = ['pending', 'In Progress', 'completed', 'cancelled', 'failed'];
 
 const OrdersHistory = () => {
     const { isDark } = useThemeStore();
@@ -50,7 +48,6 @@ const OrdersHistory = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
-    const [statusFilter, setStatusFilter] = useState<OrderStatus | 'all'>('all');
     const [currentUsername, setCurrentUsername] = useState<string>('');
     const { user } = useAuthStore()
     // States for review modal
@@ -62,7 +59,6 @@ const OrdersHistory = () => {
     const [reviewError, setReviewError] = useState('');
     const [reviewSuccess, setReviewSuccess] = useState('');
     const { formatPrice } = useCurrency()
-    // دوال مساعدة للألوان
     const getTextColor = () => {
         return isDark ? '#ffffff' : '#1e2235';
     };
@@ -128,7 +124,7 @@ const OrdersHistory = () => {
                 setLoading(true);
                 setError('');
 
-                const response = await axios.get(`${import.meta.env.VITE_API_URL}/new-order`, { withCredentials: true });
+                const response = await axios.get(`${import.meta.env.VITE_API_URL}/new-order/me`, { withCredentials: true, headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
                 console.log('API Response:', response.data);
 
                 if (!response.data || !Array.isArray(response.data)) {
@@ -138,14 +134,7 @@ const OrdersHistory = () => {
                     return;
                 }
 
-                const ordersData: any = response.data;
-
-                const sortedOrders = ordersData.sort((a: any, b: any) =>
-                    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-                );
-
-                console.log('Transformed and sorted orders:', sortedOrders);
-                setOrders(sortedOrders);
+                setOrders(response.data);
 
             } catch (err: any) {
                 console.error('خطأ في جلب الطلبات:', err);
@@ -160,23 +149,7 @@ const OrdersHistory = () => {
     }, []);
 
     // تصفية الطلبات بشكل آمن مع الحفاظ على الترتيب
-    const filteredOrders = useMemo(() => {
-        if (!orders || !Array.isArray(orders)) return [];
 
-        const filtered = orders
-            .filter((order: Order) => {
-                if (!order) return false;
-                return statusFilter === 'all' || order.status === statusFilter;
-            })
-            .filter((order: Order) => {
-                const orderNumber = order._id?.toString() || '';
-                return orderNumber.toLowerCase().includes(searchTerm);
-            });
-
-        return filtered.sort((a: any, b: any) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        );
-    }, [orders, searchTerm, statusFilter]);
 
     // دالة لتنسيق التاريخ بشكل آمن
     const formatDate = (dateString: string) => {
@@ -414,30 +387,12 @@ const OrdersHistory = () => {
                             : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
                             }`}
                     />
-                    <select
-                        value={statusFilter}
-                        onChange={(e) => setStatusFilter(e.target.value as OrderStatus | 'all')}
-                        className={`rounded-md p-3 w-full md:w-48 text-sm md:text-base transition-all duration-300 ${isDark
-                            ? 'bg-gray-700 border border-gray-600 text-white'
-                            : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
-                            }`}
-                    >
-                        <option value="all">كل الحالات</option>
-                        {allStatuses.map(s => (
-                            <option key={s} value={s}>
-                                {s === 'pending' && 'قيد الانتظار'}
-                                {s === 'completed' && 'مكتمل'}
-                                {s === 'cancelled' && 'ملغي'}
-                                {s === 'failed' && 'فاشل'}
-                                {s === 'In Progress' && 'قيد التنفيذ'}
-                            </option>
-                        ))}
-                    </select>
+
                 </div>
 
                 <div className="mt-4 flex flex-wrap gap-3 text-sm justify-center md:justify-start" style={{ color: getMutedTextColor() }}>
                     <span>الإجمالي: {orderStats.total}</span>
-                    <span>المعروض: {filteredOrders.length}</span>
+                    <span>المعروض: {orders.length}</span>
                     <span>قيد الانتظار: {orderStats.pending}</span>
                     <span>مكتمل: {orderStats.completed}</span>
                     <span>قيد التنفيذ: {orderStats.inProgress}</span>
@@ -455,7 +410,7 @@ const OrdersHistory = () => {
                 ? 'bg-gray-800 border border-gray-700'
                 : 'bg-white border border-[#dfd7bb] shadow-md'
                 }`}>
-                {filteredOrders.length === 0 ? (
+                {orders.length === 0 ? (
                     <div className="text-center py-8" style={{ color: getMutedTextColor() }}>
                         {orders.length === 0 ? 'لا توجد طلبات حالياً' : 'لم يتم العثور على طلبات تطابق البحث'}
                     </div>
@@ -477,56 +432,62 @@ const OrdersHistory = () => {
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                {filteredOrders.map((order: any) => (
-                                    <tr key={order._id} className={`border-b transition-colors ${isDark
-                                        ? 'border-gray-700 hover:bg-gray-700/50'
-                                        : 'border-[#dfd7bb] hover:bg-gray-50'
-                                        }`}>
-                                        <td className="px-4 py-4 font-mono text-xs" style={{ color: getMutedTextColor() }}>
-                                            {order._id || 'N/A'}
-                                        </td>
-                                        <td className="px-4 py-4 whitespace-nowrap" style={{ color: getMutedTextColor() }}>
-                                            {formatDate(order.createdAt)}
-                                        </td>
-                                        <td className="px-4 py-4" style={{ color: getTextColor() }}>
-                                            {order.serviceId?.title || 'خدمة غير معروفة'}
-                                        </td>
-                                        <td className="px-4 py-4 font-mono truncate max-w-xs" title={order.link} style={{ color: getMutedTextColor() }}>
-                                            {order.link || 'لا يوجد رابط'}
-                                        </td>
-                                        <td className="px-4 py-4" style={{ color: getTextColor() }}>
-                                            {(order.quantity || 0).toLocaleString()}
-                                        </td>
-                                        <td className="px-4 py-4 text-green-400 font-semibold">
-                                            {order.status === 'failed' || order.status === 'Failed' ? formatPrice(0) : formatPrice(order.totalCost || 0)}
-                                        </td>
-                                        <td className="px-4 py-4">
-                                            {renderStatus(order.status)}
-                                        </td>
-                                        <td className={`${order.status === 'completed' || order.status === 'Completed' ? '' : 'hidden'} px-4 py-4 flex flex-col gap-y-2 text-center`}>
-                                            <button
-                                                onClick={() => openReviewModal(order)}
-                                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${isDark
-                                                    ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
-                                                    : 'bg-yellow-500 hover:bg-yellow-600 text-white'
-                                                    }`}
-                                            >
-                                                تقييم
-                                            </button>
-                                            <button
+                            {orders.length === 0 || !orders ?
+                                'لا توجد طلبات حالياً' :
+                                <tbody>
 
-                                                onClick={() => { handleRefill() }}
+                                    {
+                                        orders.map((order: any) => (
+                                            <tr key={order._id} className={`border-b transition-colors ${isDark
+                                                ? 'border-gray-700 hover:bg-gray-700/50'
+                                                : 'border-[#dfd7bb] hover:bg-gray-50'
+                                                }`}>
+                                                <td className="px-4 py-4 font-mono text-xs" style={{ color: getMutedTextColor() }}>
+                                                    {order._id || 'N/A'}
+                                                </td>
+                                                <td className="px-4 py-4 whitespace-nowrap" style={{ color: getMutedTextColor() }}>
+                                                    {formatDate(order.createdAt)}
+                                                </td>
+                                                <td className="px-4 py-4" style={{ color: getTextColor() }}>
+                                                    {order.serviceId?.title || 'خدمة غير معروفة'}
+                                                </td>
+                                                <td className="px-4 py-4 font-mono truncate max-w-xs" title={order.link} style={{ color: getMutedTextColor() }}>
+                                                    {order.link || 'لا يوجد رابط'}
+                                                </td>
+                                                <td className="px-4 py-4" style={{ color: getTextColor() }}>
+                                                    {(order.quantity || 0).toLocaleString()}
+                                                </td>
+                                                <td className="px-4 py-4 text-green-400 font-semibold">
+                                                    {order.status === 'failed' || order.status === 'Failed' ? formatPrice(0) : formatPrice(order.totalCost || 0)}
+                                                </td>
+                                                <td className="px-4 py-4">
+                                                    {renderStatus(order.status)}
+                                                </td>
+                                                <td className={`${order.status === 'completed' || order.status === 'Completed' ? '' : 'hidden'} px-4 py-4 flex flex-col gap-y-2 text-center`}>
+                                                    <button
+                                                        onClick={() => openReviewModal(order)}
+                                                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${isDark
+                                                            ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
+                                                            : 'bg-yellow-500 hover:bg-yellow-600 text-white'
+                                                            }`}
+                                                    >
+                                                        تقييم
+                                                    </button>
+                                                    <button
 
-                                                className={`       ${order.serviceId?.refill ? '' : 'hidden'} cursor-pointer hover:opacity-80 transition-all flex-1 ${isDark ? 'text-white bg-[#60a5fa]' : 'text-white bg-[#60a5fa]'} rounded-lg p-2 text-center font-semibold text-sm`}
-                                            // style={{ touchAction: 'manipulation' }}
-                                            >
-                                                تعويض
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
+                                                        onClick={() => { handleRefill() }}
+
+                                                        className={`       ${order.serviceId?.refill ? '' : 'hidden'} cursor-pointer hover:opacity-80 transition-all flex-1 ${isDark ? 'text-white bg-[#60a5fa]' : 'text-white bg-[#60a5fa]'} rounded-lg p-2 text-center font-semibold text-sm`}
+                                                    // style={{ touchAction: 'manipulation' }}
+                                                    >
+                                                        تعويض
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    }
+                                </tbody>
+                            }
                         </table>
                     </div>
                 )}
@@ -538,12 +499,12 @@ const OrdersHistory = () => {
                     ? 'bg-gray-800 border border-gray-700'
                     : 'bg-white border border-[#dfd7bb] shadow-md'
                     }`}>
-                    {filteredOrders.length === 0 ? (
+                    {orders.length === 0 ? (
                         <div className="text-center py-8" style={{ color: getMutedTextColor() }}>
                             {orders.length === 0 ? 'لا توجد طلبات حالياً' : 'لم يتم العثور على طلبات تطابق البحث'}
                         </div>
                     ) : (
-                        filteredOrders.map((order: any) => (
+                        orders.map((order: any) => (
                             <div key={order.id} className={`border-b p-4 transition-colors ${isDark
                                 ? 'border-gray-700 hover:bg-gray-700/50'
                                 : 'border-[#dfd7bb] hover:bg-gray-50'

@@ -37,7 +37,6 @@ const ManageBlog: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
 
-    // دوال مساعدة للألوان
     const getTextColor = () => {
         return isDark ? '#ffffff' : '#1e2235';
     };
@@ -62,7 +61,7 @@ const ManageBlog: React.FC = () => {
         return isDark ? '#374151' : '#dfd7bb';
     };
 
-    // جلب المقالات من الـ API
+
     useEffect(() => {
         fetchPosts();
     }, []);
@@ -206,7 +205,6 @@ const ManageBlog: React.FC = () => {
         }
     };
 
-    // فلترة المقالات حسب البحث
     const filteredPosts = posts.filter(post =>
         post.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         post.author?.toLowerCase().includes(searchTerm.toLowerCase()) ||

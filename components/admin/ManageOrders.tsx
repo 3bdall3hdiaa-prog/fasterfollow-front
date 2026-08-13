@@ -15,7 +15,6 @@ const OrdersManagement = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const { formatPrice } = useCurrency();
     const workerPath = './orderStatusWorker.js';
-    // تعديل الطلب
     const [showEditModal, setShowEditModal] = useState(false);
     const [editingOrder, setEditingOrder] = useState({
         _id: "",
@@ -29,7 +28,6 @@ const OrdersManagement = () => {
         order_number: ""
     });
 
-    // حالات التحميل
     const [updatingAll, setUpdatingAll] = useState(false);
     const [updatingOrders, setUpdatingOrders] = useState<any>({});
 
@@ -111,7 +109,6 @@ const OrdersManagement = () => {
         }
     };
 
-    // تحميل الطلبات من الـ API
     useEffect(() => {
         const fetchOrders = async () => {
             try {
@@ -154,7 +151,6 @@ const OrdersManagement = () => {
         }
     };
 
-    // تحديث حالة طلب واحد
     const handleUpdateSingleStatus = async (orderId: any, orderNumber: any) => {
         if (!orderId) {
             showNotification("لا يوجد orderNumber لهذا الطلب ❌");
@@ -169,14 +165,12 @@ const OrdersManagement = () => {
             });
             const newStatus = response.data.status;
 
-            // تحديث الطلب في قاعدة البيانات
             await axios.patch(`${import.meta.env.VITE_API_URL}/new-order/${orderId}`, {
                 status: newStatus
             }, {
                 withCredentials: true
             });
 
-            // تحديث الواجهة فوراً
             setOrders(orders.map((order: any) =>
                 order._id === orderId
                     ? { ...order, status: newStatus }
@@ -215,7 +209,6 @@ const OrdersManagement = () => {
         let errorCount = 0;
 
         try {
-            // استخدم Promise.allSettled لمعالجة جميع الطلبات حتى لو فشل بعضها
             const results = await Promise.allSettled(
                 orders.map(async (order: any) => {
                     if (!order.providerOrderId) return;
@@ -240,7 +233,6 @@ const OrdersManagement = () => {
                 })
             );
 
-            // تحديث الواجهة بناءً على النتائج
             const updatedOrders = [...orders];
             results.forEach((result, index) => {
                 if (result.status === 'fulfilled' && result.value) {
@@ -328,29 +320,13 @@ const OrdersManagement = () => {
         order.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         order.serviceTitle?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         order.selectedCategory?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.order_number?.toString().includes(searchTerm) ||
+        order._id?.toString().includes(searchTerm) ||
         order.status?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    // التحديث التلقائي كل 30 ثانية
-    // useEffect(() => {
-    //     const interval = setInterval(() => {
-    //         if (orders.length > 0) {
-    //             handleUpdateAllStatuses();
-    //         }
-    //     }, 20000);
-
-    //     return () => clearInterval(interval);
-    // }, [orders]);
-
-
-
-    // ... باقي الـ imports والإعدادات
 
     const { isDark } = useThemeStore();
-    // ... باقي الـ states
 
-    // دوال مساعدة للألوان
     const getBackgroundColor = () => {
         return isDark ? '#1e2235' : '#f8f6f0';
     };
@@ -482,7 +458,7 @@ const OrdersManagement = () => {
                                 <Form.Group>
                                     <Form.Control
                                         type="text"
-                                        placeholder="ابحث بالمستخدم، الخدمة، المنصة، رقم الطلب، أو الحالة..."
+                                        placeholder="ابحث بالمستخدم، الخدمة، المنصة، رقم الطلب،  ..."
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
                                         style={{
@@ -546,7 +522,7 @@ const OrdersManagement = () => {
                                 <div className="d-flex align-items-center justify-content-center mb-2">
                                     <i className="fas fa-check-circle fa-lg me-2"></i>
                                     <h4 className="mb-0 fw-bold">
-                                        {orders.filter((order: any) => order.status === "completed").length}
+                                        {orders.filter((order: any) => order.status === "completed" || order.status === "Completed").length}
                                     </h4>
                                 </div>
                                 <p className="mb-0 fw-bold" style={{ fontSize: "0.9rem" }}>الطلبات المكتملة</p>
@@ -570,7 +546,7 @@ const OrdersManagement = () => {
                                 <div className="d-flex align-items-center justify-content-center mb-2">
                                     <i className="fas fa-spinner fa-lg me-2"></i>
                                     <h4 className="mb-0 fw-bold">
-                                        {orders.filter((order: any) => order.status === "in progress").length}
+                                        {orders.filter((order: any) => order.status === "in progress" || order.status === "In Progress").length}
                                     </h4>
                                 </div>
                                 <p className="mb-0 fw-bold" style={{ fontSize: "0.9rem" }}>قيد التنفيذ</p>
@@ -594,7 +570,7 @@ const OrdersManagement = () => {
                                 <div className="d-flex align-items-center justify-content-center mb-2">
                                     <i className="fas fa-clock fa-lg me-2"></i>
                                     <h4 className="mb-0 fw-bold">
-                                        {orders.filter((order: any) => order.status === "pending").length}
+                                        {orders.filter((order: any) => order.status === "pending" || order.status === "Pending").length}
                                     </h4>
                                 </div>
                                 <p className="mb-0 fw-bold" style={{ fontSize: "0.9rem" }}>الطلبات المعلقة</p>
@@ -659,7 +635,7 @@ const OrdersManagement = () => {
                                                     <td>{index + 1}</td>
                                                     <td>
                                                         <Badge bg="light" text="dark">
-                                                            #{order.order_number}
+                                                            #{order._id}
                                                         </Badge>
                                                     </td>
                                                     <td>
