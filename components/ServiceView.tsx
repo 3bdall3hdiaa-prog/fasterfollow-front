@@ -222,7 +222,7 @@ const ServiceView = ({ id }: { id: string }) => {
         );
 
         if (discountRule) {
-            setTotalCost(cost * discountRule.discount);
+            setTotalCost(cost * ((100 - discountRule.discount) / 100));
         } else {
             setTotalCost(cost);
         }

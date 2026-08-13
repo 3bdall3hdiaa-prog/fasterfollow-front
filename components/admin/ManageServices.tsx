@@ -17,18 +17,23 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
     const [editingService, setEditingService] = useState<any | null>(null);
     const [viewingService, setViewingService] = useState<any | null>(null);
     const { formatPrice } = useCurrency();
+
+    // ✅ تعديل: إضافة _id فريد مع رقم عشوائي
     const [discounts, setDiscounts] = useState([
         {
+            _id: new Date().toISOString() + Math.random(),
             from: "",
             to: "",
             discount: "",
         },
     ]);
 
+    // ✅ تعديل: إضافة _id فريد مع رقم عشوائي
     const addDiscount = () => {
         setDiscounts([
             ...discounts,
             {
+                _id: new Date().toISOString() + Math.random(),
                 from: "",
                 to: "",
                 discount: "",
@@ -36,9 +41,18 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
         ]);
     };
 
-    const removeDiscount = (index: number) => {
-        setDiscounts(discounts.filter((_, i) => i !== index));
+    const removeDiscount = (id: string) => {
+        setDiscounts(prev => prev.filter(item => item._id !== id));
     };
+
+    const updateDiscount = (id: string, field: string, value: string) => {
+        setDiscounts(prev =>
+            prev.map(item =>
+                item._id === id ? { ...item, [field]: value } : item
+            )
+        );
+    };
+
     const [formData, setFormData] = useState<any>({
         title: '',
         description: '',
@@ -52,12 +66,11 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
         providerServiceId: 0,
         file: null as any,
         refill: false,
-
     });
+
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(true);
     const { isDark } = useThemeStore();
-    // ... باقي الـ states
 
     // دوال مساعدة للألوان
     const getBackgroundColor = () => {
@@ -95,6 +108,7 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
     const getModalBodyBackground = () => {
         return isDark ? '#1e2235' : '#f8f6f0';
     };
+
     // ✅ جلب البيانات من السيرفر عند تحميل الصفحة
     useEffect(() => {
         const fetchServices = async () => {
@@ -111,6 +125,7 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
         fetchServices();
     }, [setServices]);
 
+    // ✅ تعديل: إضافة _id للخصومات في حالة التعديل
     const handleOpenModal = (service: any | null) => {
         setEditingService(service);
         setFormData(service || {
@@ -132,12 +147,28 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
             discount_for_greater_than_4000: '',
             discount_for_greater_than_100000: '',
         });
-        setDiscounts(
-            service?.discounts.map((discount: any) => ({
-                from: discount.from,
-                to: discount.to,
-                discount: discount.discount
-            })))
+
+        // ✅ تأكد من وجود _id لكل خصم
+        if (service?.discounts && service.discounts.length > 0) {
+            setDiscounts(
+                service.discounts.map((discount: any) => ({
+                    _id: discount._id || new Date().toISOString() + Math.random(),
+                    from: discount.from || "",
+                    to: discount.to || "",
+                    discount: discount.discount || ""
+                }))
+            );
+        } else {
+            setDiscounts([
+                {
+                    _id: new Date().toISOString() + Math.random(),
+                    from: "",
+                    to: "",
+                    discount: "",
+                }
+            ]);
+        }
+
         setIsModalOpen(true);
     };
 
@@ -169,8 +200,12 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
         data.append('min', formData.min.toString());
         data.append('max', formData.max.toString());
         data.append('status', formData.status.toString());
-        data.append('refill', formData.refill.toString()); // ✅ إضافة refill هنا
-        data.append('discounts', JSON.stringify(discounts));
+        data.append('refill', formData.refill.toString());
+
+        // ✅ إزالة _id قبل الإرسال للسيرفر
+        const discountsToSend = discounts.map(({ _id, ...rest }) => rest);
+        data.append('discounts', JSON.stringify(discountsToSend));
+
         try {
             if (editingService) {
                 const response = await axios.put(`${import.meta.env.VITE_API_URL}/services-list/${editingService._id}`, data, { withCredentials: true });
@@ -302,7 +337,7 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                                             </div>
                                         )}
                                     </td>
-                                    <td className="px-4 py-4">{service.providerServiceId}</td>
+                                    <td className="px-4 py-4">{service._id}</td>
                                     <td className="px-4 py-4" style={{ color: getTextColor() }}>{service.title}</td>
                                     <td className="px-4 py-4" style={{ color: getTextColor() }}>{service.provider.name}</td>
                                     <td className="px-4 py-4 text-green-400 font-semibold">{formatPrice(service.price || 0)}</td>
@@ -672,34 +707,25 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                                         }`}
                                     required
                                 />
-                                <div className=" space-y-4 ">
 
+                                {/* ✅ قسم الخصومات */}
+                                <div className="space-y-4">
                                     <h3 className="font-semibold text-lg">
                                         خصومات الكميات
                                     </h3>
 
-                                    {discounts.map((item, index) => (
+                                    {discounts?.map((item) => (
                                         <div
-                                            key={index}
+                                            key={item._id}
                                             className="flex items-end gap-3"
                                         >
-
                                             {/* من */}
                                             <div className="flex-1">
-                                                <label className="block mb-1 text-sm">
-                                                    من كمية
-                                                </label>
-
+                                                <label className="block mb-1 text-sm">من كمية</label>
                                                 <input
                                                     type="number"
                                                     value={item.from}
-                                                    onChange={(e) => {
-                                                        const newDiscounts = [...discounts];
-
-                                                        newDiscounts[index].from = e.target.value;
-
-                                                        setDiscounts(newDiscounts);
-                                                    }}
+                                                    onChange={(e) => updateDiscount(item._id, 'from', e.target.value)}
                                                     placeholder="مثال: 1000"
                                                     className="w-full border rounded-lg p-2"
                                                 />
@@ -707,20 +733,11 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
 
                                             {/* إلى */}
                                             <div className="flex-1">
-                                                <label className="block mb-1 text-sm">
-                                                    إلى كمية
-                                                </label>
-
+                                                <label className="block mb-1 text-sm">إلى كمية</label>
                                                 <input
                                                     type="number"
                                                     value={item.to}
-                                                    onChange={(e) => {
-                                                        const newDiscounts = [...discounts];
-
-                                                        newDiscounts[index].to = e.target.value;
-
-                                                        setDiscounts(newDiscounts);
-                                                    }}
+                                                    onChange={(e) => updateDiscount(item._id, 'to', e.target.value)}
                                                     placeholder="مثال: 1999"
                                                     className="w-full border rounded-lg p-2"
                                                 />
@@ -728,21 +745,12 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
 
                                             {/* الخصم */}
                                             <div className="flex-1">
-                                                <label className="block mb-1 text-sm">
-                                                    الخصم %
-                                                </label>
-
+                                                <label className="block mb-1 text-sm">الخصم %</label>
                                                 <input
                                                     type="number"
                                                     max="100"
                                                     value={item.discount}
-                                                    onChange={(e) => {
-                                                        const newDiscounts = [...discounts];
-
-                                                        newDiscounts[index].discount = e.target.value;
-
-                                                        setDiscounts(newDiscounts);
-                                                    }}
+                                                    onChange={(e) => updateDiscount(item._id, 'discount', e.target.value)}
                                                     placeholder="مثال: 10"
                                                     className="w-full border rounded-lg p-2"
                                                 />
@@ -752,13 +760,12 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                                             {discounts.length > 1 && (
                                                 <button
                                                     type="button"
-                                                    onClick={() => removeDiscount(index)}
+                                                    onClick={() => removeDiscount(item._id)}
                                                     className="px-3 py-2 text-red-500"
                                                 >
                                                     حذف
                                                 </button>
                                             )}
-
                                         </div>
                                     ))}
 
@@ -770,7 +777,6 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                                     >
                                         + إضافة خصم
                                     </button>
-
                                 </div>
                             </div>
 
