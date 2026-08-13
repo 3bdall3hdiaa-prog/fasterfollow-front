@@ -286,7 +286,7 @@ const ServiceView = ({ id }: { id: string }) => {
                             <div className="text-right rounded-xl border border-gray-200 bg-white p-4 sm:p-6">
                                 <p className="flex flex-col gap-3">
 
-                                    <span className="text-gray-800 text-sm leading-relaxed whitespace-pre-line">
+                                    <span dir="rtl" className="text-gray-800 text-sm  leading-relaxed whitespace-pre-line">
                                         {`${Service?.description || ''}`}
                                     </span>
 
