@@ -20,7 +20,6 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const { setUser } = useAuthStore();
     const [isProcessingGoogleAuth, setIsProcessingGoogleAuth] = useState(false);
 
-    // ✅ دالة لمعالجة الـ Google callback
     const processGoogleCallback = () => {
         setIsProcessingGoogleAuth(true);
         try {
@@ -34,20 +33,16 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
     }
 
-    // ✅ تحميل المستخدم عند فتح الصفحة
     useEffect(() => {
         const initializeUser = async () => {
             try {
                 const res = await axios.get(
                     `${import.meta.env.VITE_API_URL}/auth/me`,
                     {
-                        withCredentials: true, headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${localStorage.getItem('token')}`
-                        }
+                        withCredentials: true, headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+
                     }
                 );
-                console.log(res.data)
                 if (res.data) {
                     setUser(res.data);
                 }
@@ -74,7 +69,6 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return () => window.removeEventListener('hashchange', handleHashChange);
     }, []);
 
-    // في ملف contexts/UserContext.tsx
     const login = async (username: string, password: string): Promise<AuthResult> => {
         try {
 
@@ -82,7 +76,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 username,
                 password,
             }, { withCredentials: true });
-            localStorage.setItem('token', res.data.token)
+            // localStorage.setItem('token', res.data.token)
             return { success: true, message: res.data.message || "تم تسجيل الدخول بنجاح" };
 
         } catch (err: any) {
@@ -111,7 +105,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
 
 
-    // ✅ إضافة رصيد
+    //  إضافة رصيد
     // const addBalance = (amount: number) => {
     //     if (user) {
     //         const updatedUser = { ...user, balance: (user.balance || 0) + amount };
@@ -120,7 +114,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     //     }
     // };
 
-    // ✅ خصم رصيد
+    //  خصم رصيد
     // const deductBalance = (amount: number): boolean => {
     //     if (user && user.balance >= amount) {
     //         const updatedUser = { ...user, balance: user.balance - amount };

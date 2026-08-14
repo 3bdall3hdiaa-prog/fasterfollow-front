@@ -125,7 +125,6 @@ const OrdersHistory = () => {
                 setError('');
 
                 const response = await axios.get(`${import.meta.env.VITE_API_URL}/new-order/me`, { withCredentials: true, headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
-                console.log('API Response:', response.data);
 
                 if (!response.data || !Array.isArray(response.data)) {
                     console.error('Invalid response data:', response.data);
@@ -272,7 +271,6 @@ const OrdersHistory = () => {
                 comment: reviewComment.trim(),
             };
 
-            console.log('Sending review data:', reviewData);
 
             const res = await axios.post(`${import.meta.env.VITE_API_URL}/reviews`, reviewData, { withCredentials: true });
 

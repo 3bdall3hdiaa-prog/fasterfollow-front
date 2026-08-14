@@ -54,7 +54,7 @@ const UsersManagement = () => {
         role: "",
         email: "",
         password: "",
-        status: "active"
+        status: "active",
     });
 
     const [showEditModal, setShowEditModal] = useState(false);
@@ -129,7 +129,10 @@ const UsersManagement = () => {
                 userName: balanceData.username,
                 amount: balanceData.amount
             }, {
-                withCredentials: true
+                withCredentials: true,
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
             });
 
             alert("تم تحديث الرصيد بنجاح ✅");
@@ -143,7 +146,9 @@ const UsersManagement = () => {
     const fetchUserBalance = async (userName: any) => {
         try {
             const response = await axios.get(`${import.meta.env.VITE_API_URL}/paypal`, {
-                withCredentials: true
+                withCredentials: true, headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
             });
             const paypalData = response.data;
 
@@ -182,8 +187,12 @@ const UsersManagement = () => {
 
     const handleAddUser = async () => {
         try {
-            const res = await axios.post(`${import.meta.env.VITE_API_URL}/signup`, newUser, {
-                withCredentials: true
+            const res = await axios.post(`${import.meta.env.VITE_API_URL}/signup`, { ...newUser, emailVerified: true }, {
+                withCredentials: true, headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+
             });
             alert("تم إضافة المستخدم بنجاح ✅");
 
@@ -212,7 +221,10 @@ const UsersManagement = () => {
                 email: editingUser.email,
                 status: editingUser.status
             }, {
-                withCredentials: true
+                withCredentials: true, headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
             });
 
             setUsers(users.map((user: any) =>
@@ -240,7 +252,9 @@ const UsersManagement = () => {
             try {
 
                 const res = await axios.get(`${import.meta.env.VITE_API_URL}/getallusers`, {
-                    withCredentials: true
+                    withCredentials: true, headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
                 });
 
                 const formattedUsers = res.data.map((user: any) => ({

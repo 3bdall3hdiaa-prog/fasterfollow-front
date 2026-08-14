@@ -31,7 +31,6 @@ const Header: React.FC<HeaderProps> = ({ siteName, logoUrl, pages, color }) => {
     const mainName = siteNameParts[0];
     const subName = siteNameParts.slice(1).join(' ');
     const [walletBalance, setWalletBalance] = useState(0);
-    console.log("userrrrrrrrrrrrrrrrrrrrr", user)
     useEffect(() => {
         if (user) {
             fetchPaypalPayments();
@@ -40,7 +39,6 @@ const Header: React.FC<HeaderProps> = ({ siteName, logoUrl, pages, color }) => {
 
     const fetchPaypalPayments = async () => {
         try {
-            console.log('جاري جلب بيانات PayPal للمستخدم:', user?.username);
 
             const res = await fetch(`${import.meta.env.VITE_API_URL}/paypal`, {
                 credentials: 'include', headers: {
@@ -50,10 +48,8 @@ const Header: React.FC<HeaderProps> = ({ siteName, logoUrl, pages, color }) => {
             if (!res.ok) throw new Error('خطأ أثناء جلب بيانات PayPal');
             const payments = await res.json();
 
-            console.log('بيانات PayPal المستلمة:', payments);
 
             if (!Array.isArray(payments)) {
-                console.log('البيانات ليست مصفوفة');
                 return;
             }
 
@@ -61,14 +57,12 @@ const Header: React.FC<HeaderProps> = ({ siteName, logoUrl, pages, color }) => {
                 (p: any) => p.userName === user?.username
             );
 
-            console.log('عمليات المستخدم المفلترة:', userPayments);
 
             const totalBalance = userPayments.reduce(
                 (sum: number, p: any) => sum + parseFloat(p.amount || 0),
                 0
             );
 
-            console.log('إجمالي الرصيد المحسوب:', totalBalance);
             setWalletBalance(totalBalance);
 
         } catch (err) {
@@ -113,7 +107,7 @@ const Header: React.FC<HeaderProps> = ({ siteName, logoUrl, pages, color }) => {
     const handleLogout = async () => {
         try {
             console.log('Logging out...');
-            localStorage.removeItem('token');
+            // localStorage.removeItem('token');
             const res = await axios.get(`${import.meta.env.VITE_API_URL}/auth/logout`, { withCredentials: true });
             if (res.data) {
                 window.location.href = '/';

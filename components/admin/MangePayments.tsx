@@ -55,7 +55,6 @@ const ManagePayments: React.FC = () => {
     };
     // دالة لتحويل البيانات من API إلى الشكل المطلوب
     const transformPaymentData = (data: any[]): PaymentMethod[] => {
-        console.log('Raw data from API:', data);
         return data.map(payment => ({
             _id: payment._id || payment.id,
             id: payment.id,
@@ -83,11 +82,9 @@ const ManagePayments: React.FC = () => {
                 throw new Error('فشل في جلب البيانات');
             }
             const data = await response.json();
-            console.log('Raw data from API:', data);
 
             // تحويل البيانات من API إلى الشكل المطلوب
             const transformedData = transformPaymentData(data);
-            console.log('Transformed data:', transformedData);
 
             setPaymentMethods(transformedData);
         } catch (error) {
@@ -144,8 +141,6 @@ const ManagePayments: React.FC = () => {
                     return;
                 }
 
-                console.log('Editing payment _id:', editingPayment._id);
-                console.log('Editing payment:', editingPayment);
 
                 // تعديل طريقة دفع موجودة - استخدام _id في الـ URL
                 const updateData: any = {
@@ -156,7 +151,6 @@ const ManagePayments: React.FC = () => {
                     description: formData.description,
                 };
 
-                console.log('Sending update data:', updateData);
 
                 const response = await fetch(`${import.meta.env.VITE_API_URL}/mange-payments/${editingPayment._id}`, {
                     method: 'PUT',
@@ -167,7 +161,6 @@ const ManagePayments: React.FC = () => {
                     }
                 });
 
-                console.log('Response status:', response.status);
 
                 if (!response.ok) {
                     const errorText = await response.text();
@@ -176,7 +169,6 @@ const ManagePayments: React.FC = () => {
                 }
 
                 const updatedPaymentData = await response.json();
-                console.log('Raw updated payment:', updatedPaymentData);
 
                 // تحويل البيانات المستلمة
                 const updatedPayment = {
@@ -188,13 +180,11 @@ const ManagePayments: React.FC = () => {
                     description: updatedPaymentData.description || '',
                 };
 
-                console.log('Transformed updated payment:', updatedPayment);
 
                 setPaymentMethods(prev => prev.map(p => p._id === editingPayment._id ? updatedPayment : p));
                 alert('تم تعديل طريقة الدفع بنجاح');
             } else {
                 // إضافة طريقة دفع جديدة
-                console.log('Sending new payment data:', formData);
 
                 const newPaymentData = {
                     id: formData.id,
@@ -204,7 +194,6 @@ const ManagePayments: React.FC = () => {
                     description: formData.description,
                 };
 
-                console.log('Sending data to API:', newPaymentData);
 
                 const response = await fetch(`${import.meta.env.VITE_API_URL}/mange-payments`, {
                     method: 'POST',
@@ -215,7 +204,6 @@ const ManagePayments: React.FC = () => {
                     }
                 });
 
-                console.log('Response status:', response.status);
 
                 if (!response.ok) {
                     const errorText = await response.text();
@@ -224,7 +212,6 @@ const ManagePayments: React.FC = () => {
                 }
 
                 const newPaymentResponse = await response.json();
-                console.log('Raw new payment:', newPaymentResponse);
 
                 // تحويل البيانات المستلمة
                 const newPayment = {
@@ -236,7 +223,6 @@ const ManagePayments: React.FC = () => {
                     description: newPaymentResponse.description || '',
                 };
 
-                console.log('Transformed new payment:', newPayment);
 
                 setPaymentMethods(prev => [...prev, newPayment]);
                 alert('تم إضافة طريقة الدفع بنجاح');
@@ -255,7 +241,6 @@ const ManagePayments: React.FC = () => {
         if (window.confirm('هل أنت متأكد من رغبتك في حذف طريقة الدفع هذه؟')) {
             try {
                 setLoading(true);
-                console.log('Deleting payment _id:', paymentId);
 
                 // استخدام _id في الـ URL للحذف
                 const response = await fetch(`${import.meta.env.VITE_API_URL}/mange-payments/${paymentId}`, {
@@ -265,7 +250,6 @@ const ManagePayments: React.FC = () => {
                     }
                 });
 
-                console.log('Delete response status:', response.status);
 
                 if (!response.ok) {
                     const errorText = await response.text();

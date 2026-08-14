@@ -80,7 +80,6 @@ const AddFunds: React.FC = () => {
                 });
                 const res = await data.json();
 
-                console.log('Data from API:', res);
 
                 const formattedMethods = res.map((item: any) => ({
                     id: item.id,
@@ -90,7 +89,6 @@ const AddFunds: React.FC = () => {
                     description: item.description || ''
                 }));
 
-                console.log('Formatted methods:', formattedMethods);
 
                 const defaultMethods = [
                     { id: 'paypal', name: 'PayPal', icon: '🅿️', description: 'الدفع عبر PayPal بشكل آمن' },
@@ -104,7 +102,6 @@ const AddFunds: React.FC = () => {
                     setSelectedMethodDescription(initialMethod.description);
                 }
 
-                console.log('All payment methods:', allMethods);
             } catch (error) {
                 console.error('Error fetching payment methods:', error);
             }
@@ -259,7 +256,6 @@ const AddFunds: React.FC = () => {
             return;
         }
 
-        console.log('Processing payment with:', selectedMethod);
 
         const specialCases: Record<string, () => void> = {
             'paypal': payPal_payment,
@@ -285,7 +281,6 @@ const AddFunds: React.FC = () => {
                 finalUrl += `&username=${user.username}`;
             }
 
-            console.log('Redirecting to payment URL:', finalUrl);
             window.location.href = finalUrl;
             return;
         }

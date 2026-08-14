@@ -97,7 +97,6 @@ const NewOrder: React.FC<NewOrderProps> = ({ services }) => {
             setReviewLoading(true);
             const response = await axios.get(`${import.meta.env.VITE_API_URL}/reviews/${serviceId}`, { withCredentials: true });
             if (response.data) {
-                console.log("ascascacssac", response.data);
                 setReviews(response.data);
             } else {
                 setReviews([]);

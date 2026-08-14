@@ -79,7 +79,6 @@ const SiteSettingsComponent: React.FC<SiteSettingsProps> = ({ settings, setSetti
         setSuccessMessage('');
 
         try {
-            console.log('🔄 جاري حفظ الإعدادات...', formData);
             const data = new FormData();
 
             if (formData.file instanceof File) {
@@ -140,7 +139,6 @@ const SiteSettingsComponent: React.FC<SiteSettingsProps> = ({ settings, setSetti
             }
 
             const result = await response.json();
-            console.log('✅ تم حفظ الإعدادات بنجاح:', result);
 
             setSettings(formData);
             setSuccessMessage('تم حفظ الإعدادات بنجاح!');

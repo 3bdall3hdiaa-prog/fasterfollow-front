@@ -9,7 +9,7 @@ interface AuthModalProps {
 
 const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
     const { isDark } = useThemeStore();
-    const [view, setView] = useState<'login' | 'register' | 'forgotPassword' | 'verifyCode' | 'newPassword' | 'verify2FA'>('login');
+    const [view, setView] = useState<'login' | 'register' | 'forgotPassword' | 'verifyCode' | 'newPassword' | 'verify2FA' | 'verifyOTP'>('login');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [email, setEmail] = useState('');
@@ -19,6 +19,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
     const [error, setError] = useState('');
     const [resetMessage, setResetMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [otpCode, setOtpCode] = useState('');
+    const [registeredEmail, setRegisteredEmail] = useState('');
 
     // states for 2FA
     const [twoFAUsername, setTwoFAUsername] = useState('');
@@ -77,18 +79,86 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
         setIsLoading(true);
 
         if (username.trim() && email.trim() && password.trim()) {
-            const result = await register(username, email, password);
-            setIsLoading(false);
-            if (result.success) {
-                onClose();
-            } else {
-                setError(result.message || 'حدث خطأ ما.');
+            try {
+                const response = await axios.post(
+                    `${import.meta.env.VITE_API_URL}/signup`,
+                    { username, email, password },
+                    { withCredentials: true }
+                );
+
+                if (response.data.success) {
+                    setRegisteredEmail(email);
+                    setResetMessage('تم إنشاء الحساب بنجاح! يرجى التحقق من بريدك الإلكتروني.');
+                    setTimeout(() => {
+                        setView('verifyOTP');
+                        setResetMessage('');
+                    }, 1500);
+                } else {
+                    setError(response.data.message || 'حدث خطأ أثناء إنشاء الحساب.');
+                }
+            } catch (error: any) {
+                setError(error.response?.data?.message || 'حدث خطأ في الاتصال بالخادم.');
+            } finally {
+                setIsLoading(false);
             }
         } else {
             setError("يرجى ملء جميع الحقول.");
             setIsLoading(false);
         }
     };
+
+    const handleVerifyOTP = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError('');
+        setIsLoading(true);
+
+        try {
+            const response = await axios.post(
+                `${import.meta.env.VITE_API_URL}/signup/verifyOtp`,
+                {
+                    email: registeredEmail,
+                    code: otpCode
+                },
+                { withCredentials: true }
+            );
+
+            if (response.data.success) {
+                setResetMessage('تم التحقق من البريد الإلكتروني بنجاح!');
+                // localStorage.setItem('token', response.data.token);
+                onClose();
+                window.location.reload();
+            } else {
+                setError(response.data.message || 'رمز التحقق غير صحيح.');
+            }
+        } catch (error: any) {
+            setError(error.response?.data?.message || 'حدث خطأ في التحقق من الرمز.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // const handleResendOTP = async () => {
+    //     setError('');
+    //     setIsLoading(true);
+
+    //     try {
+    //         const response = await axios.post(
+    //             `${import.meta.env.VITE_API_URL}/auth/resend-otp`,
+    //             { email: registeredEmail },
+    //             { withCredentials: true }
+    //         );
+
+    //         if (response.data.success) {
+    //             setResetMessage('تم إعادة إرسال رمز التحقق إلى بريدك الإلكتروني');
+    //         } else {
+    //             setError(response.data.message || 'حدث خطأ أثناء إعادة الإرسال');
+    //         }
+    //     } catch (error: any) {
+    //         setError(error.response?.data?.message || 'حدث خطأ في الاتصال بالخادم.');
+    //     } finally {
+    //         setIsLoading(false);
+    //     }
+    // };
 
     const handlePasswordReset = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -132,12 +202,11 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
         setIsLoading(true);
 
         try {
-            const response = await axios.post(`${import.meta.env.VITE_API_URL}/resetpassword/verify`, { verificationCode: resetCode }, {
+            const response = await axios.post(`${import.meta.env.VITE_API_URL}/signup/verifyOtp`, { email: email, code: resetCode }, {
                 withCredentials: true
             });
-
-            if (response.data) {
-                localStorage.setItem('token', response.data.token);
+            if (response.data.success) {
+                // localStorage.setItem('token', response.data.token);
                 setResetMessage('تم التحقق من الرمز بنجاح.');
                 setTimeout(() => {
                     setView('newPassword');
@@ -148,6 +217,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
             }
         } catch (error) {
             setError('حدث خطأ في الاتصال بالخادم.');
+            console.error(error);
         } finally {
             setIsLoading(false);
         }
@@ -259,6 +329,84 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
     };
 
     const renderContent = () => {
+        // ✅ واجهة التحقق من OTP
+        if (view === 'verifyOTP') {
+            return (
+                <>
+                    <h2 className="text-2xl font-bold text-center mb-6" style={{ color: getTextColor() }}>
+                        التحقق من البريد الإلكتروني
+                    </h2>
+                    <form onSubmit={handleVerifyOTP}>
+                        {resetMessage && (
+                            <p className={`text-center text-sm p-3 rounded-md mb-4 ${isDark
+                                ? 'bg-green-900/50 text-green-300'
+                                : 'bg-green-50 text-green-700 border border-green-200'
+                                }`}>
+                                {resetMessage}
+                            </p>
+                        )}
+                        {error && (
+                            <p className={`text-center text-sm p-3 rounded-md mb-4 ${isDark
+                                ? 'bg-red-900/50 text-red-300'
+                                : 'bg-red-50 text-red-700 border border-red-200'
+                                }`}>
+                                {error}
+                            </p>
+                        )}
+                        <p className="text-center mb-4 text-sm" style={{ color: getMutedTextColor() }}>
+                            تم إرسال رمز التحقق إلى <strong style={{ color: getTextColor() }}>{registeredEmail}</strong>
+                            <br />
+                            يرجى إدخاله أدناه لتفعيل حسابك.
+                        </p>
+                        <div className="mb-4">
+                            <label htmlFor="otp-code" className="block mb-2 text-sm font-medium" style={{ color: getMutedTextColor() }}>
+                                رمز التحقق
+                            </label>
+                            <input
+                                type="text"
+                                id="otp-code"
+                                value={otpCode}
+                                onChange={(e) => setOtpCode(e.target.value)}
+                                className={`text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 text-center transition-all duration-300 ${isDark
+                                    ? 'bg-gray-700 border border-gray-600 text-white'
+                                    : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
+                                    }`}
+                                placeholder="أدخل الكود المكون من 6 أرقام"
+                                required
+                                maxLength={6}
+                                autoFocus
+                            />
+                        </div>
+                        <button
+                            type="submit"
+                            disabled={isLoading}
+                            className={`w-full font-bold py-3 px-6 rounded-lg transition-all duration-300 disabled:opacity-50 ${isDark
+                                ? 'bg-primary-600 hover:bg-primary-700 text-white'
+                                : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
+                                }`}
+                        >
+                            {isLoading ? 'جاري التحقق...' : 'تحقق من الرمز'}
+                        </button>
+                    </form>
+
+                    <div className="mt-4 text-center">
+                        <button
+                            onClick={() => {
+                                setView('login');
+                                setError('');
+                                setResetMessage('');
+                                setOtpCode('');
+                            }}
+                            className={`text-sm hover:underline transition-colors ${isDark ? 'text-gray-400' : 'text-gray-500'
+                                }`}
+                        >
+                            العودة إلى تسجيل الدخول
+                        </button>
+                    </div>
+                </>
+            );
+        }
+
         if (view === 'verify2FA') {
             return (
                 <>
@@ -302,17 +450,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
                             {isLoading ? 'جاري التحقق...' : 'تحقق وتسجيل الدخول'}
                         </button>
                     </form>
-                    <div className="mt-4 text-center">
-                        <button
-                            type="button"
-                            onClick={handleResend2FACode}
-                            disabled={isLoading}
-                            className={`text-sm hover:underline disabled:opacity-50 transition-colors ${isDark ? 'text-primary-400' : 'text-[#c9a84c]'
-                                }`}
-                        >
-                            لم تستلم الكود؟ إعادة الإرسال
-                        </button>
-                    </div>
                     <div className="mt-4 text-center">
                         <button
                             onClick={() => {

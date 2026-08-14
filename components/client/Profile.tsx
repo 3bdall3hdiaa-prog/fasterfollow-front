@@ -10,7 +10,6 @@ const Profile: React.FC = () => {
     const [activeTab, setActiveTab] = useState('account');
     const [successMessage, setSuccessMessage] = useState('');
     const [is2FAEnabled, setIs2FAEnabled] = useState(false);
-    console.log("the user is ", user)
     // دوال مساعدة للألوان
     const getTextColor = () => {
         return isDark ? '#ffffff' : '#1e2235';

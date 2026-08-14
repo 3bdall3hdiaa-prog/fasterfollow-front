@@ -40,7 +40,6 @@ const App: React.FC = () => {
     const [appView, setAppView] = useState<AppView>({ view: 'home' });
     const prevUser = useRef(user);
     const { isDark } = useThemeStore();
-    console.log("app view", appView);
     // Mock data state
     const [blogPosts, setBlogPosts] = useState<BlogPostType[]>([]);
     const [siteSettings, setSiteSettings] = useState<SiteSettings | null>(null);
@@ -402,7 +401,6 @@ const App: React.FC = () => {
     const handleGetServices = async (slug: any) => {
         try {
             const res = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/services-list/getOne/${slug}`, { withCredentials: true });
-            console.log(res.data);
             if (res.data) {
                 setFilteredServices(res.data.data);
             }

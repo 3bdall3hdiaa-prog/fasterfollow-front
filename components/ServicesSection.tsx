@@ -58,7 +58,6 @@ const ServicesSection = ({ platform }: any) => {
             setLoading(false);
         }
     }
-    console.log(platform);
     return (
         <div className='mt-[35px] py-4'>
             <a href={`#/services/${platform.slug}`} className='rounded-xl overflow-hidden block'>

@@ -87,7 +87,6 @@ const Dashboard: React.FC<DashboardProps> = ({ setActiveView }) => {
 
     const fetchPaypalPayments = async () => {
         try {
-            console.log('جاري جلب بيانات PayPal للمستخدم:', user?.username);
 
             const res = await fetch(`${import.meta.env.VITE_API_URL}/paypal`, {
                 credentials: 'include', headers: {
@@ -97,10 +96,8 @@ const Dashboard: React.FC<DashboardProps> = ({ setActiveView }) => {
             if (!res.ok) throw new Error('خطأ أثناء جلب بيانات PayPal');
             const payments = await res.json();
 
-            console.log('بيانات PayPal المستلمة:', payments);
 
             if (!Array.isArray(payments)) {
-                console.log('البيانات ليست مصفوفة');
                 return;
             }
 
@@ -108,14 +105,12 @@ const Dashboard: React.FC<DashboardProps> = ({ setActiveView }) => {
                 (p: any) => p.userName === user?.username
             );
 
-            console.log('عمليات المستخدم المفلترة:', userPayments);
 
             const totalBalance = userPayments.reduce(
                 (sum: number, p: any) => sum + parseFloat(p.amount || 0),
                 0
             );
 
-            console.log('إجمالي الرصيد المحسوب:', totalBalance);
             setWalletBalance(totalBalance);
 
         } catch (err) {
@@ -145,7 +140,6 @@ const Dashboard: React.FC<DashboardProps> = ({ setActiveView }) => {
                 throw new Error('البيانات غير صالحة');
             }
 
-            console.log('البيانات المستلمة:', ordersData);
             setOrderlength(ordersData.length);
             const username = user.username
             const completed = ordersData.filter((order: any) => {
@@ -165,7 +159,6 @@ const Dashboard: React.FC<DashboardProps> = ({ setActiveView }) => {
 
     const balance_users = async () => {
         try {
-            console.log('جاري تحديث الرصيد في السيرفر:', walletBalance);
 
             const response = await fetch(`${import.meta.env.VITE_API_URL}/balance-users`, {
                 method: 'POST',
@@ -180,13 +173,11 @@ const Dashboard: React.FC<DashboardProps> = ({ setActiveView }) => {
             });
 
             const result = await response.json();
-            console.log("نتيجة تحديث الرصيد:", result)
         } catch (error) {
             console.error("خطأ في تحديث الرصيد:", error);
         }
     }
 
-    console.log('قيمة walletBalance الحالية:', walletBalance);
 
     if (!user) {
         return <div style={{ color: getTextColor() }}>جاري التحميل...</div>;

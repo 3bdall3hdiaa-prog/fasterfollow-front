@@ -7,7 +7,6 @@ interface BlogPostProps {
 }
 
 const BlogPost: React.FC<BlogPostProps> = ({ post }) => {
-    console.log(post);
     const { isDark } = useThemeStore();
 
     // تنسيق التاريخ

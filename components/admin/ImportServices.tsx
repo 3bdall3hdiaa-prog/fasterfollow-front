@@ -65,7 +65,6 @@ const ImportServices = () => {
 
     const fetchServices = async (providerId: string, page: number = 1) => {
         const provider = providers.find(p => p._id === providerId);
-        console.log('جاري جلب الخدمات من المزود:', provider);
 
         if (!provider) {
             toast.error('المزود غير موجود');
@@ -90,7 +89,6 @@ const ImportServices = () => {
                 },
             );
 
-            console.log('الرد من السيرفر:', response.data);
 
             let servicesData: Service[] = [];
             let total = 0;
