@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Table, Button, Container, Spinner, Modal, Card, Badge, Form } from "react-bootstrap";
 import axios from "axios";
 import { useThemeStore } from "@/store/theme.store";
+import { useCurrency } from "@/contexts/CurrencyContext";
 
 const UsersManagement = () => {
     const [users, setUsers] = useState<any[]>([]);
@@ -12,7 +13,7 @@ const UsersManagement = () => {
     const [userBalance, setUserBalance] = useState(0);
     const [searchTerm, setSearchTerm] = useState("");
     const { isDark } = useThemeStore();
-
+    const { formatPrice } = useCurrency();
     const getBackgroundColor = () => {
         return isDark ? '#1e2235' : '#f8f6f0';
     };
@@ -187,7 +188,7 @@ const UsersManagement = () => {
 
     const handleAddUser = async () => {
         try {
-            const res = await axios.post(`${import.meta.env.VITE_API_URL}/signup`, { ...newUser, emailVerified: true }, {
+            const res = await axios.post(`${import.meta.env.VITE_API_URL}/getallusers`, { ...newUser }, {
                 withCredentials: true, headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -739,7 +740,7 @@ const UsersManagement = () => {
                                     <strong>الرصيد:</strong>
                                     <p>
                                         <Badge bg="info" style={{ fontSize: "16px", padding: "8px 12px" }}>
-                                            {userBalance.toFixed(2)} $
+                                            {formatPrice(userBalance)}
                                         </Badge>
                                     </p>
                                 </div>
@@ -994,7 +995,7 @@ const UsersManagement = () => {
                             />
                         </div>
                         <div className="mb-3">
-                            <label className="form-label" style={{ color: getTextColor() }}>الكمية</label>
+                            <label className="form-label" style={{ color: getTextColor() }}>الكميه بالدولار</label>
                             <input
                                 type="number"
                                 name="amount"

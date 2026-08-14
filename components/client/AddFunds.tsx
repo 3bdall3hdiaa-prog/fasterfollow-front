@@ -90,11 +90,11 @@ const AddFunds: React.FC = () => {
                 }));
 
 
-                const defaultMethods = [
-                    { id: 'paypal', name: 'PayPal', icon: '🅿️', description: 'الدفع عبر PayPal بشكل آمن' },
-                ];
+                // const defaultMethods = [
+                //     { id: 'paypal', name: 'PayPal', icon: '🅿️', description: 'الدفع عبر PayPal بشكل آمن' },
+                // ];
 
-                const allMethods = [...defaultMethods, ...formattedMethods];
+                const allMethods = [...formattedMethods];
                 setPaymentMethods(allMethods);
 
                 const initialMethod = allMethods.find(m => m.id === paymentMethod);
@@ -270,18 +270,17 @@ const AddFunds: React.FC = () => {
         if (selectedMethod.paymentUrl) {
             let finalUrl = selectedMethod.paymentUrl;
 
-            if (finalUrl.includes('?')) {
-                finalUrl += `&amount=${amount}`;
-            } else {
-                finalUrl += `?amount=${amount}`;
-            }
+            // if (finalUrl.includes('?')) {
+            //     finalUrl += `&amount=${amount}`;
+            // } else {
+            //     finalUrl += `?amount=${amount}`;
+            // }
 
+            // if (user.username) {
+            //     finalUrl += `&username=${user.username}`;
+            // }
 
-            if (user.username) {
-                finalUrl += `&username=${user.username}`;
-            }
-
-            window.location.href = finalUrl;
+            window.open(finalUrl, '_blank');
             return;
         }
 
@@ -293,218 +292,220 @@ const AddFunds: React.FC = () => {
     const statusClassesMap = getStatusClasses(isDark);
 
     return (
-        <div className="p-4" style={{
+        <div className="p-4 md:p-6" style={{
             backgroundColor: isDark ? '#1e2235' : '#f8f6f0',
             minHeight: "100vh",
             transition: "all 0.3s ease"
         }}>
-            <h1 className="text-2xl md:text-3xl font-bold mb-6" style={{ color: getTextColor() }}>شحن الرصيد</h1>
+            <div className="max-w-3xl mx-auto">
+                <h1 className="text-2xl md:text-3xl font-bold mb-6" style={{ color: getTextColor() }}>شحن الرصيد</h1>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* قسم شحن الرصيد */}
-                <div className="lg:col-span-2">
-                    <div className={`rounded-lg p-6 mb-6 transition-all duration-300 ${isDark
-                        ? 'bg-gray-800 border border-gray-700'
-                        : 'bg-white border border-[#dfd7bb] shadow-md'
-                        }`}>
-                        <h2 className="text-xl font-semibold mb-4" style={{ color: getTextColor() }}>استخدام كوبون</h2>
+                <div className="grid grid-cols-1 gap-6">
+                    {/* قسم شحن الرصيد */}
+                    <div className="lg:col-span-2">
+                        <div className={`rounded-lg p-6 mb-6 transition-all duration-300 ${isDark
+                            ? 'bg-gray-800 border border-gray-700'
+                            : 'bg-white border border-[#dfd7bb] shadow-md'
+                            }`}>
+                            <h2 className="text-xl font-semibold mb-4" style={{ color: getTextColor() }}>استخدام كوبون</h2>
 
-                        <div className="mb-4">
-                            <label htmlFor="couponCode" className="block text-sm font-medium mb-2" style={{ color: getMutedTextColor() }}>
-                                لديك كوبون؟ أدخل كود الكوبون الخاص بك هنا لشحن الرصيد فورا
-                            </label>
-                            <div className="flex flex-col gap-y-4">
-                                <input
-                                    type="text"
-                                    id="couponCode"
-                                    value={couponCode}
-                                    onChange={(e) => setCouponCode(e.target.value)}
-                                    placeholder="أدخل كود الكوبون هنا"
-                                    className={`flex-1 rounded-lg p-3 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 ${isDark
-                                        ? 'bg-gray-700 border border-gray-600 text-white'
-                                        : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
-                                        }`}
-                                    disabled={couponApplied || loading}
-                                />
-                                {!couponApplied ? (
-                                    <button
-                                        onClick={applyCoupon}
-                                        disabled={loading}
-                                        className={`font-bold py-3 rounded-lg transition-all duration-300 disabled:opacity-50 ${isDark
-                                            ? 'bg-primary-600 hover:bg-primary-700 text-white'
-                                            : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
+                            <div className="mb-4">
+                                <label htmlFor="couponCode" className="block text-sm font-medium mb-2" style={{ color: getMutedTextColor() }}>
+                                    لديك كوبون؟ أدخل كود الكوبون الخاص بك هنا لشحن الرصيد فورا
+                                </label>
+                                <div className="flex flex-col sm:flex-row gap-3">
+                                    <input
+                                        type="text"
+                                        id="couponCode"
+                                        value={couponCode}
+                                        onChange={(e) => setCouponCode(e.target.value)}
+                                        placeholder="أدخل كود الكوبون هنا"
+                                        className={`flex-1 rounded-lg p-3 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 ${isDark
+                                            ? 'bg-gray-700 border border-gray-600 text-white'
+                                            : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
                                             }`}
-                                    >
-                                        {loading ? 'جاري التطبيق...' : 'تطبيق'}
-                                    </button>
-                                ) : (
-                                    <button
-                                        onClick={removeCoupon}
-                                        className="bg-red-600 hover:bg-red-700 text-white font-bold  rounded-lg transition-colors"
-                                        disabled={loading}
-                                    >
-                                        إزالة
-                                    </button>
+                                        disabled={couponApplied || loading}
+                                    />
+                                    {!couponApplied ? (
+                                        <button
+                                            onClick={applyCoupon}
+                                            disabled={loading}
+                                            className={`font-bold py-3 px-6 rounded-lg transition-all duration-300 disabled:opacity-50 whitespace-nowrap ${isDark
+                                                ? 'bg-primary-600 hover:bg-primary-700 text-white'
+                                                : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
+                                                }`}
+                                        >
+                                            {loading ? 'جاري التطبيق...' : 'تطبيق'}
+                                        </button>
+                                    ) : (
+                                        <button
+                                            onClick={removeCoupon}
+                                            className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition-colors whitespace-nowrap"
+                                            disabled={loading}
+                                        >
+                                            إزالة
+                                        </button>
+                                    )}
+                                </div>
+                                {couponMessage && (
+                                    <p className={`mt-2 text-sm ${couponApplied ? 'text-green-400' : 'text-red-400'}`}>
+                                        {couponMessage}
+                                    </p>
                                 )}
                             </div>
-                            {couponMessage && (
-                                <p className={`mt-2 text-sm ${couponApplied ? 'text-green-400' : 'text-red-400'}`}>
-                                    {couponMessage}
-                                </p>
+
+                            {couponApplied && (
+                                <div className={`rounded-lg p-4 ${isDark ? 'bg-green-900/20 border border-green-800' : 'bg-green-50 border border-green-200'
+                                    }`}>
+                                    <div className="flex justify-between items-center text-green-400">
+                                        <span>قيمة الرصيد المضافة:</span>
+                                        <span className="font-bold">+${couponDiscount}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center text-green-400 mt-2">
+                                        <span>المبلغ الإجمالي:</span>
+                                        <span className="font-bold">${amount}</span>
+                                    </div>
+                                </div>
                             )}
                         </div>
 
-                        {couponApplied && (
-                            <div className={`rounded-lg p-4 ${isDark ? 'bg-green-900/20 border border-green-800' : 'bg-green-50 border border-green-200'
-                                }`}>
-                                <div className="flex justify-between items-center text-green-400">
-                                    <span>قيمة الرصيد المضافة:</span>
-                                    <span className="font-bold">+${couponDiscount}</span>
-                                </div>
-                                <div className="flex justify-between items-center text-green-400 mt-2">
-                                    <span>المبلغ الإجمالي:</span>
-                                    <span className="font-bold">${amount}</span>
-                                </div>
+                        <div className={`rounded-lg p-6 transition-all duration-300 ${isDark
+                            ? 'bg-gray-800 border border-gray-700'
+                            : 'bg-white border border-[#dfd7bb] shadow-md'
+                            }`}>
+                            <h2 className="text-xl font-semibold mb-4" style={{ color: getTextColor() }}>اختر طريقة الدفع</h2>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+                                {paymentMethods.map(method => (
+                                    <label key={method.id} className={`flex items-center p-4 rounded-lg border-2 cursor-pointer transition-all duration-300 ${paymentMethod === method.id
+                                        ? isDark ? 'bg-primary-900/50 border-primary-500' : 'bg-[#c9a84c]/10 border-[#c9a84c]'
+                                        : isDark ? 'bg-gray-700 border-gray-600 hover:border-gray-500' : 'bg-gray-50 border-[#dfd7bb] hover:border-gray-300'
+                                        }`}>
+                                        <input
+                                            type="radio"
+                                            name="paymentMethod"
+                                            value={method.id}
+                                            checked={paymentMethod === method.id}
+                                            onChange={(e) => setPaymentMethod(e.target.value)}
+                                            className="hidden"
+                                            disabled={loading}
+                                        />
+                                        <span className="text-2xl ml-3">{method.icon}</span>
+                                        <div className="flex-1">
+                                            <span className="font-medium block" style={{ color: getTextColor() }}>{method.name}</span>
+                                            {method.paymentUrl && (
+                                                <span className="text-xs" style={{ color: getMutedTextColor() }}>(رابط مباشر)</span>
+                                            )}
+                                        </div>
+                                    </label>
+                                ))}
                             </div>
-                        )}
+
+                            {/* عرض description طريقة الدفع المختارة */}
+                            {selectedMethodDescription && (
+                                <div className={`mb-4 p-3 rounded-lg border ${isDark
+                                    ? 'bg-gray-700/50 border-gray-600'
+                                    : 'bg-gray-50 border-[#dfd7bb]'
+                                    }`}>
+                                    <h3 className="text-sm font-medium mb-1" style={{ color: getMutedTextColor() }}>معلومات عن طريقة الدفع:</h3>
+                                    <p className="text-sm" style={{ color: getMutedTextColor() }}>{selectedMethodDescription}</p>
+                                </div>
+                            )}
+
+                            {/* <div className="mb-4">
+                                <label htmlFor="amount" className="block text-sm font-medium mb-2" style={{ color: getMutedTextColor() }}>
+                                    المبلغ (بالدولار)
+                                </label>
+                                <input
+                                    type="number"
+                                    id="amount"
+                                    value={amount}
+                                    onChange={(e) => setAmount(e.target.value)}
+                                    className={`w-full text-lg rounded-lg p-3 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 ${isDark
+                                        ? 'bg-gray-700 border border-gray-600 text-white'
+                                        : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
+                                        }`}
+                                    placeholder="e.g., 25"
+                                    min="1"
+                                    step="0.01"
+                                    disabled={loading}
+                                />
+                            </div> */}
+
+                            {couponApplied && (
+                                <div className={`rounded-lg p-4 mb-4 ${isDark ? 'bg-gray-700' : 'bg-gray-50 border border-[#dfd7bb]'
+                                    }`}>
+                                    <div className="flex justify-between items-center text-green-400 mb-2">
+                                        <span>قيمة الرصيد المضافة:</span>
+                                        <span className="font-bold">+${couponDiscount}</span>
+                                    </div>
+                                    <div className={`flex justify-between items-center font-bold text-lg pt-2 border-t ${isDark ? 'text-white border-gray-600' : 'text-gray-800 border-[#dfd7bb]'
+                                        }`}>
+                                        <span>المبلغ الإجمالي:</span>
+                                        <span>${amount}</span>
+                                    </div>
+                                </div>
+                            )}
+
+                            <button
+                                onClick={handle_payment_enhanced}
+                                className={`w-full font-bold py-3 text-lg rounded-lg transition-all duration-300 disabled:opacity-50 ${isDark
+                                    ? 'bg-primary-600 hover:bg-primary-700 text-white'
+                                    : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
+                                    }`}
+                                disabled={loading}
+                            >
+                                {couponApplied ? 'المتابعة للدفع مع الرصيد الإضافي' : 'المتابعة للدفع'}
+                            </button>
+                        </div>
                     </div>
 
-                    <div className={`rounded-lg p-6 transition-all duration-300 ${isDark
+                    {/* قسم سجل الشحن */}
+                    {/* <div className={`rounded-lg p-6 transition-all duration-300 ${isDark
                         ? 'bg-gray-800 border border-gray-700'
                         : 'bg-white border border-[#dfd7bb] shadow-md'
                         }`}>
-                        <h2 className="text-xl font-semibold mb-4" style={{ color: getTextColor() }}>اختر طريقة الدفع</h2>
-
-                        <div className="space-y-4 mb-6">
-                            {paymentMethods.map(method => (
-                                <label key={method.id} className={`flex items-center p-4 rounded-lg border-2 cursor-pointer transition-all duration-300 ${paymentMethod === method.id
-                                    ? isDark ? 'bg-primary-900/50 border-primary-500' : 'bg-[#c9a84c]/10 border-[#c9a84c]'
-                                    : isDark ? 'bg-gray-700 border-gray-600 hover:border-gray-500' : 'bg-gray-50 border-[#dfd7bb] hover:border-gray-300'
-                                    }`}>
-                                    <input
-                                        type="radio"
-                                        name="paymentMethod"
-                                        value={method.id}
-                                        checked={paymentMethod === method.id}
-                                        onChange={(e) => setPaymentMethod(e.target.value)}
-                                        className="hidden"
-                                        disabled={loading}
-                                    />
-                                    <span className="text-2xl ml-4">{method.icon}</span>
-                                    <div className="flex-1">
-                                        <span className="font-medium block" style={{ color: getTextColor() }}>{method.name}</span>
-                                        {method.paymentUrl && (
-                                            <span className="text-xs" style={{ color: getMutedTextColor() }}>(رابط مباشر)</span>
-                                        )}
-                                    </div>
-                                </label>
-                            ))}
-                        </div>
-
-                        {/* عرض description طريقة الدفع المختارة */}
-                        {selectedMethodDescription && (
-                            <div className={`mb-4 p-3 rounded-lg border ${isDark
-                                ? 'bg-gray-700/50 border-gray-600'
-                                : 'bg-gray-50 border-[#dfd7bb]'
-                                }`}>
-                                <h3 className="text-sm font-medium mb-1" style={{ color: getMutedTextColor() }}>معلومات عن طريقة الدفع:</h3>
-                                <p className="text-sm" style={{ color: getMutedTextColor() }}>{selectedMethodDescription}</p>
-                            </div>
-                        )}
-
-                        <div className="mb-4">
-                            <label htmlFor="amount" className="block text-sm font-medium mb-2" style={{ color: getMutedTextColor() }}>
-                                المبلغ (بالدولار)
-                            </label>
-                            <input
-                                type="number"
-                                id="amount"
-                                value={amount}
-                                onChange={(e) => setAmount(e.target.value)}
-                                className={`w-full text-lg rounded-lg p-3 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 ${isDark
-                                    ? 'bg-gray-700 border border-gray-600 text-white'
-                                    : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-xl font-semibold" style={{ color: getTextColor() }}>سجل عمليات الشحن</h2>
+                            <button
+                                onClick={fetchPayPalTransactions}
+                                className={`text-sm px-3 py-1 rounded transition-colors ${isDark
+                                    ? 'bg-gray-700 hover:bg-gray-600 text-white'
+                                    : 'bg-gray-100 hover:bg-gray-200 text-gray-800'
                                     }`}
-                                placeholder="e.g., 25"
-                                min="1"
-                                step="0.01"
                                 disabled={loading}
-                            />
+                            >
+                                تحديث
+                            </button>
                         </div>
 
-                        {couponApplied && (
-                            <div className={`rounded-lg p-4 mb-4 ${isDark ? 'bg-gray-700' : 'bg-gray-50 border border-[#dfd7bb]'
-                                }`}>
-                                <div className="flex justify-between items-center text-green-400 mb-2">
-                                    <span>قيمة الرصيد المضافة:</span>
-                                    <span className="font-bold">+${couponDiscount}</span>
-                                </div>
-                                <div className={`flex justify-between items-center font-bold text-lg pt-2 border-t ${isDark ? 'text-white border-gray-600' : 'text-gray-800 border-[#dfd7bb]'
-                                    }`}>
-                                    <span>المبلغ الإجمالي:</span>
-                                    <span>${amount}</span>
-                                </div>
-                            </div>
+                        {loading && (
+                            <div className="text-center py-4" style={{ color: getMutedTextColor() }}>جاري التحميل...</div>
                         )}
 
-                        <button
-                            onClick={handle_payment_enhanced}
-                            className={`w-full font-bold py-3 text-lg rounded-lg transition-all duration-300 disabled:opacity-50 ${isDark
-                                ? 'bg-primary-600 hover:bg-primary-700 text-white'
-                                : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
-                                }`}
-                            disabled={loading}
-                        >
-                            {couponApplied ? 'المتابعة للدفع مع الرصيد الإضافي' : 'المتابعة للدفع'}
-                        </button>
-                    </div>
-                </div>
+                        {error && (
+                            <div className="text-red-400 text-sm mb-4">{error}</div>
+                        )}
 
-                {/* قسم سجل الشحن */}
-                <div className={`rounded-lg p-6 transition-all duration-300 ${isDark
-                    ? 'bg-gray-800 border border-gray-700'
-                    : 'bg-white border border-[#dfd7bb] shadow-md'
-                    }`}>
-                    <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-xl font-semibold" style={{ color: getTextColor() }}>سجل عمليات الشحن</h2>
-                        <button
-                            onClick={fetchPayPalTransactions}
-                            className={`text-sm px-3 py-1 rounded transition-colors ${isDark
-                                ? 'bg-gray-700 hover:bg-gray-600 text-white'
-                                : 'bg-gray-100 hover:bg-gray-200 text-gray-800'
-                                }`}
-                            disabled={loading}
-                        >
-                            تحديث
-                        </button>
-                    </div>
-
-                    {loading && (
-                        <div className="text-center py-4" style={{ color: getMutedTextColor() }}>جاري التحميل...</div>
-                    )}
-
-                    {error && (
-                        <div className="text-red-400 text-sm mb-4">{error}</div>
-                    )}
-
-                    <div className="space-y-4">
-                        {transactions.length > 0 ? (
-                            transactions.map(tx => (
-                                <div key={tx.id} className={`flex justify-between items-center p-3 rounded-md ${isDark ? 'bg-gray-700/50' : 'bg-gray-50'
-                                    }`}>
-                                    <div>
-                                        <p className="font-bold" style={{ color: getTextColor() }}>${tx.amount}</p>
-                                        <p className="text-xs" style={{ color: getMutedTextColor() }}>{tx.status}</p>
+                        <div className="space-y-4">
+                            {transactions.length > 0 ? (
+                                transactions.map(tx => (
+                                    <div key={tx.id} className={`flex justify-between items-center p-3 rounded-md ${isDark ? 'bg-gray-700/50' : 'bg-gray-50'
+                                        }`}>
+                                        <div>
+                                            <p className="font-bold" style={{ color: getTextColor() }}>${tx.amount}</p>
+                                            <p className="text-xs" style={{ color: getMutedTextColor() }}>{tx.status}</p>
+                                        </div>
+                                        <span className={`px-2 py-1 text-xs rounded-full ${statusClassesMap[tx.status]}`}>
+                                            {tx.status}
+                                        </span>
                                     </div>
-                                    <span className={`px-2 py-1 text-xs rounded-full ${statusClassesMap[tx.status]}`}>
-                                        {tx.status}
-                                    </span>
-                                </div>
-                            ))
-                        ) : (
-                            !loading && <div className="text-center py-4" style={{ color: getMutedTextColor() }}>لا توجد معاملات</div>
-                        )}
-                    </div>
+                                ))
+                            ) : (
+                                !loading && <div className="text-center py-4" style={{ color: getMutedTextColor() }}>لا توجد معاملات</div>
+                            )}
+                        </div>
+                    </div> */}
                 </div>
             </div>
         </div>
