@@ -417,7 +417,7 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
                                     </div>
                                     <div className="text-right">
                                         <div className="text-green-400 font-semibold text-lg">
-                                            ${formatPrice(provider.balance)}
+                                            {formatPrice(provider.balance)}
                                         </div>
 
                                     </div>
