@@ -204,6 +204,7 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
         data.append('discounts', JSON.stringify(discountsToSend));
 
         try {
+            setLoading(true);
             if (editingService) {
                 const response = await axios.put(`${import.meta.env.VITE_API_URL}/services-list/${editingService._id}`, data, { withCredentials: true });
                 if (response.data) {
@@ -212,13 +213,19 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                 }
             } else {
                 const response = await axios.post(`${import.meta.env.VITE_API_URL}/services-list`, data, { withCredentials: true });
+
                 if (response.data) {
+                    alert('تم حفظ الخدمة بنجاح');
                     setServices(prev => [...prev, response.data]);
+                    window.location.reload();
                     handleCloseModal();
                 }
             }
-        } catch (error) {
-            console.error('حدث خطأ أثناء حفظ الخدمة:', error);
+        } catch (error: any) {
+            alert(error.response?.data?.message || 'حدث خطأ. يرجى المحاولة مرة أخرى.');
+            console.error('حدث خطأ أثناء حفظ الخدمة:', error.response?.data || error.message);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -806,7 +813,7 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                                         : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
                                         }`}
                                 >
-                                    حفظ
+                                    {loading ? 'جاري الحفظ...' : 'حفظ'}
                                 </button>
                             </div>
                         </form>

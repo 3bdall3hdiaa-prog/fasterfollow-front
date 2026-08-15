@@ -449,7 +449,7 @@ const App: React.FC = () => {
                 }
                 return <ClientPanel services={services} initialView={appView.slug} />;
             case 'page':
-                const page = pages.find((p: any) => p.link === appView.slug && p.isPublished);
+                const page = pages.find((p: any) => p.slug === appView.slug && p.isPublished);
                 return page ? <PageView page={page} /> : <div className="text-center pt-40">الصفحة غير موجودة</div>;
             case 'blog':
                 return <Blog onPostClick={(slug) => onNavigate('blogPost', slug)} />;
@@ -535,8 +535,11 @@ const App: React.FC = () => {
 
     return (
         <div className={`bg-gray-900 text-white min-h-screen font-sans" dir="rtl  ${isDark ? 'bg-gray-900' : 'bg-gradient-to-t from-[#dfd7bb] to-white'}`}>
-            <Header color={siteSettings?.primaryColor} siteName={siteSettings?.siteName || 'فاستر فولو'} logoUrl={siteSettings?.logo?.url} pages={pages} />
-            <main className=''>{renderView()}</main>
+            <Header isHomePage={appView.view === 'home'}
+                color={siteSettings?.primaryColor} siteName={siteSettings?.siteName || 'فاستر فولو'} logoUrl={siteSettings?.logo?.url} pages={pages} />
+            <main className=''>
+                {renderView()}
+            </main>
             {(appView.view === 'home' || appView.view === 'blog' || appView.view === 'blogPost' || appView.view === 'page' || appView.view === 'services') && <Footer siteName={siteSettings?.siteName || 'فاستر فولو'} pages={pages} onNavigate={onNavigate} />}
             {/* <Chatbot /> */}
         </div>

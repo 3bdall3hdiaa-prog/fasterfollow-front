@@ -134,8 +134,8 @@ const Reviews = ({ serviceId, setAvrgRating, setNumReviews }: { serviceId: strin
                 {loading && <h1 className='text-center text-2xl font-bold text-gray-400'>جاري تحميل البيانات...</h1>}
                 {error && <h1 className='text-center text-2xl font-bold text-gray-400'>حدث خطأ</h1>}
 
-                <div className='px-4'>
-                    <p className='text-md text-black font-bold'>{reviews.length} تقييم</p>
+                <div className='px-4 space-y-2'>
+                    <p className={`text-md ${isDark ? 'text-white' : 'text-gray-800'}  font-bold`}>{reviews.length} تقييم</p>
 
                     {/* ====== إضافة تقييم جديد ====== */}
                     <div className={` ${!user.role ? 'hidden' : ''}

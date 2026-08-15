@@ -69,7 +69,7 @@ const ServicesSection = ({ platform }: any) => {
             </a>
 
             <div className='mt-[35px]'>
-                <p className='text-xl sm:text-2xl md:text-3xl font-bold text-black dark:text-white transition-colors duration-300'>
+                <p className={`text-xl sm:text-2xl md:text-3xl font-bold text-black  ${isDark ? 'text-white' : 'text-black'} transition-colors duration-300`}>
                     خدمات {platform.name}
                 </p>
 
