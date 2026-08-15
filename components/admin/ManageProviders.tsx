@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Provider } from '../../types';
 import { useThemeStore } from '@/store/theme.store';
+import { useCurrency } from '@/contexts/CurrencyContext';
+import axios from 'axios';
 
 interface ManageProvidersProps {
     providers: Provider[];
@@ -22,6 +24,7 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
     const [editingProvider, setEditingProvider] = useState<Provider | null>(null);
     const [syncingProviderId, setSyncingProviderId] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
+    const [balanceProviders, setBalanceProviders] = useState<any[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [formData, setFormData] = useState({
         name: '',
@@ -29,7 +32,7 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
         apiKey: '',
         status: 'Active' as 'Active' | 'Inactive',
     });
-
+    const { formatPrice } = useCurrency();
 
     const getTextColor = () => {
         return isDark ? '#ffffff' : '#1e2235';
@@ -69,7 +72,10 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
     useEffect(() => {
         fetchProviders();
     }, []);
+    useEffect(() => {
 
+        handleBalance(providers)
+    }, [])
     const fetchProviders = async () => {
         try {
             setLoading(true);
@@ -232,39 +238,7 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
         }
     };
 
-    const handleSync = async (providerId: string) => {
-        setSyncingProviderId(providerId);
-        try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/manage-providers/${providerId}/sync`, {
-                method: 'POST',
-                credentials: 'include', headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
-            });
 
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => null);
-                throw new Error(errorData?.message || `فشل في مزامنة الرصيد: ${response.status}`);
-            }
-
-            const result = await response.json();
-            if (result.success && result.balance !== undefined) {
-                setProviders(prevProviders =>
-                    prevProviders.map(p =>
-                        p.id === providerId ? { ...p, balance: result.balance } : p
-                    )
-                );
-                alert('تمت مزامنة الرصيد بنجاح');
-            } else {
-                alert(`فشلت المزامنة: ${result.message || 'حدث خطأ غير معروف'}`);
-            }
-        } catch (error) {
-            console.error("Sync failed:", error);
-            alert(`فشلت المزامنة: ${error instanceof Error ? error.message : 'حدث خطأ غير معروف'}`);
-        } finally {
-            setSyncingProviderId(null);
-        }
-    };
 
     // فلترة المزودين حسب البحث
     const filteredProviders = providers.filter(provider =>
@@ -280,7 +254,30 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
             </div>
         );
     }
+    const handleBalance = async (providers: any) => {
+        try {
+            if (providers.length === 0 || !providers) {
+                return
+            }
+            const data = await Promise.all(providers.map(async (provider: any) => {
+                const x = await axios.post(provider.apiEndpoint, {
+                    key: provider.apiKey,
+                    action: 'balance'
+                }
+                )
+                return ({
+                    _id: provider._id,
+                    balance: x.data.balance
+                }
 
+                )
+            }))
+            setBalanceProviders(data)
+
+        } catch (error) {
+            console.error('Error fetching balance:', error);
+        }
+    }
     return (
         <div className="p-4" style={{
             backgroundColor: isDark ? '#1e2235' : '#f8f6f0',
@@ -339,11 +336,12 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
                                 <th className="px-4 py-3">نقطة النهاية (API)</th>
                                 <th className="px-4 py-3">API_KEY</th>
                                 <th className="px-4 py-3">الحالة</th>
+                                <th className="px-4 py-3">الرصيد</th>
                                 <th className="px-4 py-3">الإجراءات</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredProviders.map(provider => (
+                            {filteredProviders.map((provider: any) => (
                                 <tr key={provider.id} className={`border-b transition-colors ${isDark
                                     ? 'border-gray-700 hover:bg-gray-700/50'
                                     : 'border-[#dfd7bb] hover:bg-gray-50'
@@ -354,6 +352,8 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
                                         {provider.apiKey ? `${provider.apiKey.substring(0, 20)}...` : 'N/A'}
                                     </td>
                                     <td className="px-4 py-4"><StatusBadge status={provider.status} /></td>
+                                    <td className="px-4 py-4">{formatPrice(provider.balance)}</td>
+
                                     <td className="px-4 py-4">
                                         <div className="flex justify-end gap-3 flex-wrap">
                                             <button
@@ -402,7 +402,7 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
                             {providers.length === 0 ? 'لا توجد مزودين حالياً' : 'لم يتم العثور على مزودين تطابق البحث'}
                         </div>
                     ) : (
-                        filteredProviders.map(provider => (
+                        filteredProviders.map((provider: any) => (
                             <div key={provider.id} className={`border-b p-4 transition-colors ${isDark
                                 ? 'border-gray-700 hover:bg-gray-700/50'
                                 : 'border-[#dfd7bb] hover:bg-gray-50'
@@ -417,18 +417,9 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
                                     </div>
                                     <div className="text-right">
                                         <div className="text-green-400 font-semibold text-lg">
-                                            ${provider.balance?.toFixed(2) || '0.00'}
+                                            ${formatPrice(provider.balance)}
                                         </div>
-                                        <button
-                                            onClick={() => handleSync(provider.id)}
-                                            disabled={syncingProviderId === provider.id || loading}
-                                            className={`text-xs px-2 py-1 rounded mt-1 transition-colors ${isDark
-                                                ? 'text-blue-400 hover:text-blue-300 bg-blue-900/30 hover:bg-blue-900/50'
-                                                : 'text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100'
-                                                }`}
-                                        >
-                                            {syncingProviderId === provider.id ? 'جاري المزامنة...' : 'مزامنة الرصيد'}
-                                        </button>
+
                                     </div>
                                 </div>
 

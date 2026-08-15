@@ -125,10 +125,14 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
         fetchServices();
     }, [setServices]);
 
-    // ✅ تعديل: إضافة _id للخصومات في حالة التعديل
     const handleOpenModal = (service: any | null) => {
         setEditingService(service);
-        setFormData(service || {
+        setFormData(service ? {
+            ...service,
+            provider: service.provider?._id || '',
+            file: null,
+            description: service.description || '',
+        } : {
             platform: '',
             title: '',
             providerServiceId: 0,
@@ -138,17 +142,11 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
             max: 10000,
             status: true,
             provider: '',
-            file: null as any,
+            file: null,
             description: '',
             refill: false,
-            discount_for_2000: '',
-            discount_for_3000: '',
-            discount_for_4000: '',
-            discount_for_greater_than_4000: '',
-            discount_for_greater_than_100000: '',
         });
 
-        // ✅ تأكد من وجود _id لكل خصم
         if (service?.discounts && service.discounts.length > 0) {
             setDiscounts(
                 service.discounts.map((discount: any) => ({
@@ -193,16 +191,15 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
         data.append('title', formData.title);
         data.append('platform', formData.platform);
         if (formData.description) data.append('description', formData.description);
-        data.append('provider', formData.provider._id || formData.provider);
-        data.append('providerServiceId', formData.providerServiceId.toString());
+        data.append('provider', formData.provider); // ✅ الآن هي ID وليس كائن        data.append('providerServiceId', formData.providerServiceId.toString());
         data.append('providerRate', formData.providerRate.toString());
         data.append('price', formData.price.toString());
+        data.append('providerServiceId', formData.providerServiceId.toString());
         data.append('min', formData.min.toString());
         data.append('max', formData.max.toString());
         data.append('status', formData.status.toString());
         data.append('refill', formData.refill.toString());
 
-        // ✅ إزالة _id قبل الإرسال للسيرفر
         const discountsToSend = discounts.map(({ _id, ...rest }) => rest);
         data.append('discounts', JSON.stringify(discountsToSend));
 
@@ -595,19 +592,15 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                             >
                                 <option value="" disabled>اختر المنصه</option>
                                 {platforms.map((p: any) => (
-                                    <option key={p.id} value={p.name}>
+                                    <option key={p._id} value={p.name}>
                                         {p.name}
                                     </option>
                                 ))}
                             </select>
                             <select
-                                name="platform"
+                                name="provider"
                                 value={formData.provider || ''}
                                 onChange={(e) => { setFormData((prev: any) => ({ ...prev, provider: e.target.value })); }}
-                                className={`w-full p-2 rounded text-sm md:text-base transition-all duration-300 ${isDark
-                                    ? 'bg-gray-700 text-white'
-                                    : 'bg-gray-50 text-gray-800 border border-[#dfd7bb]'
-                                    }`}
                             >
                                 <option value="" disabled>اختر المزود</option>
                                 {providers.map((p: any) => (
