@@ -66,6 +66,8 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
         providerServiceId: 0,
         file: null as any,
         refill: false,
+        guarantee: '',
+        perDay: '',
     });
 
     const [searchTerm, setSearchTerm] = useState('');
@@ -145,6 +147,8 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
             file: null,
             description: '',
             refill: false,
+            guarantee: '',
+            perDay: ''
         });
 
         if (service?.discounts && service.discounts.length > 0) {
@@ -197,6 +201,8 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
         data.append('providerServiceId', formData.providerServiceId.toString());
         data.append('min', formData.min.toString());
         data.append('max', formData.max.toString());
+        if (formData.guarantee) data.append('guarantee', formData.guarantee);
+        if (formData.perDay) data.append('perDay', formData.perDay);
         data.append('status', formData.status.toString());
         data.append('refill', formData.refill.toString());
 
@@ -680,6 +686,31 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                                         : 'bg-gray-50 text-gray-800 border border-[#dfd7bb]'
                                         }`}
                                     required
+                                />
+                                <input
+                                    type="text"
+
+                                    name="guarantee"
+                                    value={formData.guarantee || ''}
+                                    onChange={(e) => { setFormData((prev: any) => ({ ...prev, guarantee: e.target.value })); }}
+                                    placeholder="الضمان"
+                                    className={`w-full p-2 rounded text-sm md:text-base transition-all duration-300 ${isDark
+                                        ? 'bg-gray-700 text-white'
+                                        : 'bg-gray-50 text-gray-800 border border-[#dfd7bb]'
+                                        }`}
+
+                                />
+                                <input
+                                    type="text"
+                                    name="perDay"
+                                    value={formData.perDay || ''}
+                                    onChange={(e) => { setFormData((prev: any) => ({ ...prev, perDay: e.target.value })); }}
+                                    placeholder="السرعه"
+                                    className={`w-full p-2 rounded text-sm md:text-base transition-all duration-300 ${isDark
+                                        ? 'bg-gray-700 text-white'
+                                        : 'bg-gray-50 text-gray-800 border border-[#dfd7bb]'
+                                        }`}
+
                                 />
 
                                 <input

@@ -52,12 +52,12 @@ const ServiceView = ({ id }: { id: string }) => {
 
     const guarantee = React.useMemo(() => {
         const description = Service?.title || '';
-        return description.match(/ضمان\s+(\d+)/)?.[1] || 'غير معروف';
+        return description.match(/ضمان\s+(\d+)/)?.[1] || Service?.guarantee || 'غير معروف';
     }, [Service]);
 
     const perDay = React.useMemo(() => {
         const description = Service?.title || '';
-        return description.match(/\[\s*(\d+\s*(?:الاف|الف|ألف)?)\s*\/\s*باليوم/i)?.[1] || 'غير معروف';
+        return description.match(/\[\s*(\d+\s*(?:الاف|الف|ألف)?)\s*\/\s*باليوم/i)?.[1] || Service?.perDay || 'غير معروف';
     }, [Service]);
 
     const cards = [
@@ -171,7 +171,6 @@ const ServiceView = ({ id }: { id: string }) => {
                 quantity,
                 totalCost,
                 provider: Service?.provider._id,
-                // providerOrderId: Service?.providerServiceId,
             }, { withCredentials: true, headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
 
             if (res.data && res.data.success) {

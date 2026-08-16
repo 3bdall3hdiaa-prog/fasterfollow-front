@@ -151,7 +151,7 @@ const OrdersManagement = () => {
         }
     };
 
-    const handleUpdateSingleStatus = async (orderId: any, orderNumber: any) => {
+    const handleUpdateSingleStatus = async (orderId: any, providerOrderId: any) => {
         if (!orderId) {
             showNotification("لا يوجد orderNumber لهذا الطلب ❌");
             return;
@@ -160,7 +160,7 @@ const OrdersManagement = () => {
         setUpdatingOrders((prev: any) => ({ ...prev, [orderId]: true }));
 
         try {
-            const response = await axios.get(`${import.meta.env.VITE_API_URL}/new-order/status/${orderId}`, {
+            const response = await axios.get(`${import.meta.env.VITE_API_URL}/new-order/status/${providerOrderId}`, {
                 withCredentials: true
             });
             const newStatus = response.data.status;
@@ -178,7 +178,7 @@ const OrdersManagement = () => {
             ));
 
             setLastUpdate(new Date());
-            showNotification(`تم تحديث حالة الطلب إلى: ${newStatus} ✅`);
+            showNotification(` تم تحديث حالة الطلب بنجاح قم بعمل ريفريش للصفحه✅`);
         } catch (err: any) {
             console.error("Error updating single status:", err);
             showNotification(err.response?.data?.message || "حدث خطأ أثناء تحديث حالة الطلب ❌");
@@ -189,13 +189,18 @@ const OrdersManagement = () => {
     const renderStatus = (status: any) => {
         const statusTexts: { [key: string]: string } = {
             'pending': 'قيد الانتظار',
+            'Pending': 'قيد الانتظار',
             'completed': 'مكتمل',
+            'Completed': 'مكتمل',
             'cancelled': 'ملغي',
+            'Cancelled': 'ملغي',
             'failed': 'فاشل',
+            'Failed': 'فاشل',
             'In Progress': 'جاري التنفيذ',
+            'In progress': 'جاري التنفيذ',
         };
 
-        const statusText = statusTexts[status.toLocaleLowerCase()] || status;
+        const statusText = statusTexts[status] || status;
         return (
             <span className={`px-2 py-1 rounded-full text-xs font-medium `}>
                 {statusText}
@@ -264,13 +269,13 @@ const OrdersManagement = () => {
     };
 
     const getStatusBadge = (status: any) => {
-        const stat = status.toLowerCase();
-        if (stat === "completed") return "success";
-        if (stat === "in progress") return "warning";
-        if (stat === "pending") return "secondary";
-        if (stat === "cancelled") return "danger";
-        if (stat === "failed") return "danger";
-        if (stat === "processing") return "warning";
+        const stat = status;
+        if (stat === "completed" || stat === "Completed") return "success";
+        if (stat === "in progress" || stat === "In Progress") return "warning";
+        if (stat === "pending" || stat === "Pending") return "secondary";
+        if (stat === "cancelled" || stat === "Cancelled") return "danger";
+        if (stat === "failed" || stat === "Failed") return "danger";
+        if (stat === "processing" || stat === "Processing") return "warning";
         return "secondary";
     };
 
@@ -610,7 +615,6 @@ const OrdersManagement = () => {
                                 <Table responsive hover className="mb-0" style={{ color: getTextColor() }}>
                                     <thead style={{ backgroundColor: getCardHeaderBackground() }}>
                                         <tr>
-                                            <th>#</th>
                                             <th>رقم الطلب</th>
                                             <th>المنصة</th>
                                             <th>الخدمة</th>
@@ -632,7 +636,6 @@ const OrdersManagement = () => {
                                                     onMouseEnter={() => setHoveredRow(order._id)}
                                                     onMouseLeave={() => setHoveredRow(null)}
                                                 >
-                                                    <td>{index + 1}</td>
                                                     <td>
                                                         <Badge bg="light" text="dark">
                                                             #{order._id}
