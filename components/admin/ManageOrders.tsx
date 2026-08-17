@@ -323,7 +323,7 @@ const OrdersManagement = () => {
         order.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         order.serviceTitle?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         order.selectedCategory?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order._id?.toString().includes(searchTerm) ||
+        order.id?.includes(Number(searchTerm)) ||
         order.status?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 

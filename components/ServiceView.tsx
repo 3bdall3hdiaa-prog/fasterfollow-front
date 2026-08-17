@@ -45,7 +45,7 @@ const ServiceView = ({ id }: { id: string }) => {
 
         return viewsInst; // صورة افتراضية
     };
-
+    console.log(Service)
     const getMutedTextColor = () => {
         return isDark ? '#8a8fa8' : '#6c757d';
     };

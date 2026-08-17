@@ -62,7 +62,7 @@ const OrdersHistory = () => {
     const getTextColor = () => {
         return isDark ? '#ffffff' : '#1e2235';
     };
-
+    console.log(orders)
     const getMutedTextColor = () => {
         return isDark ? '#8a8fa8' : '#6c757d';
     };
@@ -439,13 +439,13 @@ const OrdersHistory = () => {
                                                 : 'border-[#dfd7bb] hover:bg-gray-50'
                                                 }`}>
                                                 <td className="px-4 py-4 font-mono text-xs" style={{ color: getMutedTextColor() }}>
-                                                    {order.id || 'N/A'}
+                                                    #{order.id || 'N/A'}
                                                 </td>
                                                 <td className="px-4 py-4 whitespace-nowrap" style={{ color: getMutedTextColor() }}>
                                                     {formatDate(order.createdAt)}
                                                 </td>
                                                 <td className="px-4 py-4" style={{ color: getTextColor() }}>
-                                                    {order.serviceId?.title || 'خدمة غير معروفة'}
+                                                    {order.serviceTitle || 'خدمة غير معروفة'}
                                                 </td>
                                                 <td className="px-4 py-4 font-mono truncate max-w-xs" title={order.link} style={{ color: getMutedTextColor() }}>
                                                     {order.link || 'لا يوجد رابط'}
@@ -528,7 +528,7 @@ const OrdersHistory = () => {
                                     <div>
                                         <div className="text-xs mb-1" style={{ color: getMutedTextColor() }}>الخدمة</div>
                                         <div className="font-semibold" style={{ color: getTextColor() }}>
-                                            {order.serviceId?.title || 'خدمة غير معروفة'}
+                                            {order.serviceTitle || 'خدمة غير معروفة'}
                                         </div>
                                     </div>
 
