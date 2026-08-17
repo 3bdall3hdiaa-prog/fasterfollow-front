@@ -104,9 +104,7 @@ const OrdersHistory = () => {
                     key: selectedOrder?.provider.apiKey || '',
                 }, { withCredentials: true });
 
-            if (res.status === 200 || res.status === 201 || res.data) {
-                setReviewSuccess('تم إرسال طلب إعادة التعبئة بنجاح! شكراً لك.');
-            }
+            setReviewSuccess('تم إرسال طلب إعادة التعبئة بنجاح! شكراً لك.');
 
         } catch (error) {
             console.error('Error refilling order:', error);
@@ -441,7 +439,7 @@ const OrdersHistory = () => {
                                                 : 'border-[#dfd7bb] hover:bg-gray-50'
                                                 }`}>
                                                 <td className="px-4 py-4 font-mono text-xs" style={{ color: getMutedTextColor() }}>
-                                                    {order._id || 'N/A'}
+                                                    {order.id || 'N/A'}
                                                 </td>
                                                 <td className="px-4 py-4 whitespace-nowrap" style={{ color: getMutedTextColor() }}>
                                                     {formatDate(order.createdAt)}
@@ -474,11 +472,11 @@ const OrdersHistory = () => {
                                                     <button
 
                                                         onClick={() => { handleRefill() }}
-
+                                                        disabled={loading}
                                                         className={`       ${order.serviceId?.refill ? '' : 'hidden'} cursor-pointer hover:opacity-80 transition-all flex-1 ${isDark ? 'text-white bg-[#60a5fa]' : 'text-white bg-[#60a5fa]'} rounded-lg p-2 text-center font-semibold text-sm`}
                                                     // style={{ touchAction: 'manipulation' }}
                                                     >
-                                                        تعويض
+                                                        {loading ? '...تعويض جاري ' : 'تعويض'}
                                                     </button>
                                                 </td>
                                             </tr>
@@ -503,7 +501,7 @@ const OrdersHistory = () => {
                         </div>
                     ) : (
                         orders.map((order: any) => (
-                            <div key={order.id} className={`border-b p-4 transition-colors ${isDark
+                            <div key={order._id} className={`border-b p-4 transition-colors ${isDark
                                 ? 'border-gray-700 hover:bg-gray-700/50'
                                 : 'border-[#dfd7bb] hover:bg-gray-50'
                                 }`}>
@@ -513,7 +511,7 @@ const OrdersHistory = () => {
                                         <div>
                                             <p>رقم الطلب</p>
                                             <div className="font-bold text-lg mb-1" style={{ color: getTextColor() }}>
-                                                #{order._id || 'N/A'}
+                                                #{order.id || 'N/A'}
                                             </div>
                                         </div>
                                         <div className="text-sm" style={{ color: getMutedTextColor() }}>
@@ -530,7 +528,7 @@ const OrdersHistory = () => {
                                     <div>
                                         <div className="text-xs mb-1" style={{ color: getMutedTextColor() }}>الخدمة</div>
                                         <div className="font-semibold" style={{ color: getTextColor() }}>
-                                            {order.provider?.title || 'خدمة غير معروفة'}
+                                            {order.serviceId?.title || 'خدمة غير معروفة'}
                                         </div>
                                     </div>
 
@@ -570,10 +568,11 @@ const OrdersHistory = () => {
                                     </button>
                                     <button
                                         onClick={() => { handleRefill() }}
+                                        disabled={loading}
                                         className={`${order.serviceId?.refill ? '' : 'hidden'} cursor-pointer hover:opacity-80 transition-all flex-1 ${isDark ? 'text-white bg-[#60a5fa]' : 'text-white bg-[#60a5fa]'} rounded-lg p-2 text-center font-semibold text-sm`}
                                         style={{ touchAction: 'manipulation' }}
                                     >
-                                        تعويض
+                                        {loading ? '...تعويض جاري ' : 'تعويض'}
                                     </button>
                                 </div>
                             </div>

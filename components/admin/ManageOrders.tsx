@@ -25,7 +25,7 @@ const OrdersManagement = () => {
         status: "",
         username: "",
         serviceTitle: "",
-        order_number: ""
+
     });
 
     const [updatingAll, setUpdatingAll] = useState(false);
@@ -47,7 +47,6 @@ const OrdersManagement = () => {
             status: order.status,
             username: order.username,
             serviceTitle: order.serviceTitle,
-            order_number: order.order_number
         });
         setShowEditModal(true);
     };
@@ -63,7 +62,6 @@ const OrdersManagement = () => {
             status: "",
             username: "",
             serviceTitle: "",
-            order_number: ""
         });
     };
 
@@ -136,20 +134,20 @@ const OrdersManagement = () => {
         setSelectedOrder(null);
     };
 
-    const handleDelete = async (id: any) => {
-        if (window.confirm("هل أنت متأكد من حذف هذا الطلب؟")) {
-            try {
-                await axios.delete(`${import.meta.env.VITE_API_URL}/new-order/${id}`, {
-                    withCredentials: true
-                });
-                setOrders(orders.filter((order: any) => order._id !== id));
-                showNotification("تم حذف الطلب بنجاح ✅");
-            } catch (err) {
-                console.error("Delete error:", err);
-                showNotification("حدث خطأ أثناء الحذف ❌");
-            }
-        }
-    };
+    // const handleDelete = async (id: any) => {
+    //     if (window.confirm("هل أنت متأكد من حذف هذا الطلب؟")) {
+    //         try {
+    //             await axios.delete(`${import.meta.env.VITE_API_URL}/new-order/${id}`, {
+    //                 withCredentials: true
+    //             });
+    //             setOrders(orders.filter((order: any) => order._id !== id));
+    //             showNotification("تم حذف الطلب بنجاح ✅");
+    //         } catch (err) {
+    //             console.error("Delete error:", err);
+    //             showNotification("حدث خطأ أثناء الحذف ❌");
+    //         }
+    //     }
+    // };
 
     const handleUpdateSingleStatus = async (orderId: any, providerOrderId: any) => {
         if (!orderId) {
@@ -638,7 +636,7 @@ const OrdersManagement = () => {
                                                 >
                                                     <td>
                                                         <Badge bg="light" text="dark">
-                                                            #{order._id}
+                                                            #{order.id}
                                                         </Badge>
                                                     </td>
                                                     <td>
@@ -729,14 +727,14 @@ const OrdersManagement = () => {
                                                                     </>
                                                                 )}
                                                             </Button>
-                                                            <Button
+                                                            {/* <Button
                                                                 size="sm"
                                                                 variant="outline-danger"
                                                                 onClick={() => handleDelete(order._id)}
                                                             >
                                                                 <i className="fas fa-trash me-1"></i>
                                                                 حذف
-                                                            </Button>
+                                                            </Button> */}
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -814,7 +812,7 @@ const OrdersManagement = () => {
                                                 </div>
                                                 <div>
                                                     <div className="fw-bold" style={{ color: getTextColor() }}>{order.serviceTitle}</div>
-                                                    <div style={{ color: getMutedTextColor(), fontSize: "0.875rem" }}>#{order.order_number}</div>
+                                                    <div style={{ color: getMutedTextColor(), fontSize: "0.875rem" }}>#{order.id}</div>
                                                 </div>
                                             </div>
                                             <Badge bg={getStatusBadge(order.status)}>
@@ -903,7 +901,7 @@ const OrdersManagement = () => {
                                                     </>
                                                 )}
                                             </Button>
-                                            <Button
+                                            {/* <Button
                                                 size="sm"
                                                 variant="outline-danger"
                                                 onClick={() => handleDelete(order._id)}
@@ -911,7 +909,7 @@ const OrdersManagement = () => {
                                             >
                                                 <i className="fas fa-trash me-1"></i>
                                                 حذف
-                                            </Button>
+                                            </Button> */}
                                         </div>
                                     </div>
                                 ))
@@ -954,7 +952,7 @@ const OrdersManagement = () => {
                                     >
                                         <i className={getPlatformIcon(selectedOrder.selectedCategory)}></i>
                                     </div>
-                                    <h4 style={{ color: getTextColor() }}>طلب #{selectedOrder.order_number}</h4>
+                                    <h4 style={{ color: getTextColor() }}>طلب #{selectedOrder.id}</h4>
                                     <p style={{ color: getMutedTextColor() }}>{selectedOrder.serviceTitle}</p>
                                 </div>
 
@@ -980,7 +978,7 @@ const OrdersManagement = () => {
                                 </div>
                                 <div className="col-md-6 mb-3">
                                     <strong>رقم الطلب:</strong>
-                                    <p style={{ color: getTextColor() }}>#{selectedOrder.order_number}</p>
+                                    <p style={{ color: getTextColor() }}>#{selectedOrder.id}</p>
                                 </div>
                                 <div className="col-md-6 mb-3">
                                     <strong>الرابط:</strong>

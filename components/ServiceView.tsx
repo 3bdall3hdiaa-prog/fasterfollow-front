@@ -61,20 +61,11 @@ const ServiceView = ({ id }: { id: string }) => {
     }, [Service]);
 
     const cards = [
-        {
-            icon: Check,
-            label: "الجودة",
-            isProgress: true,
-        },
+
         {
             icon: ShieldCheck,
             label: "الضمان",
             value: `${guarantee} يوم`,
-        },
-        {
-            icon: Clock,
-            label: "وقت البدء",
-            value: "12 ساعة",
         },
         {
             icon: Zap,
@@ -256,8 +247,8 @@ const ServiceView = ({ id }: { id: string }) => {
                     <div>
                         <div dir="ltr" className="w-full max-w-3xl font-sans" style={{ fontFamily: "Tahoma, Arial, sans-serif" }}>
                             {/* 4 feature cards */}
-                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-4">
-                                {cards.map(({ icon: Icon, label, value, isProgress }) => (
+                            <div className="grid grid-cols-2 sm:grid-cols-2 gap-3 sm:gap-4 mb-4">
+                                {cards.map(({ icon: Icon, label, value }) => (
                                     <div
                                         key={label}
                                         className="flex flex-col items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white py-4 sm:py-6 px-2"
@@ -265,18 +256,13 @@ const ServiceView = ({ id }: { id: string }) => {
                                         <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-[#c9a84c]" strokeWidth={2.5} />
                                         <span className="text-gray-800 text-xs sm:text-sm font-medium text-center">{label}</span>
 
-                                        {isProgress ? (
-                                            <div className="w-14 sm:w-16 h-1.5 rounded-full bg-gray-200 overflow-hidden mt-1">
-                                                <div className="h-full w-1/4 rounded-full bg-[#c9a84c]" />
-                                            </div>
-                                        ) : (
-                                            <span className="flex items-center gap-1 text-gray-900 font-semibold text-xs sm:text-sm">
-                                                {value}
-                                                {label === "الضمان" && (
-                                                    <ShieldCheck className="w-4 h-4 text-green-500" strokeWidth={2.5} />
-                                                )}
-                                            </span>
-                                        )}
+                                        <span className="flex items-center gap-1 text-gray-900 font-semibold text-xs sm:text-sm">
+                                            {value}
+                                            {label === "الضمان" && (
+                                                <ShieldCheck className="w-4 h-4 text-green-500" strokeWidth={2.5} />
+                                            )}
+                                        </span>
+
                                     </div>
                                 ))}
                             </div>
