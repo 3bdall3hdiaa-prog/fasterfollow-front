@@ -423,6 +423,8 @@ const OrdersHistory = () => {
                                     <th className="px-4 py-3">الكمية</th>
                                     <th className="px-4 py-3">السعر</th>
                                     <th className="px-4 py-3">الحالة</th>
+                                    <th className="px-4 py-3">عدد البدا</th>
+                                    <th className="px-4 py-3">المتبقي</th>
                                     <th className={`px-4 py-3 text-center `}>
                                         <span className="sr-only">الإجراءات</span>
                                     </th>
@@ -458,6 +460,12 @@ const OrdersHistory = () => {
                                                 </td>
                                                 <td className="px-4 py-4">
                                                     {renderStatus(order.status)}
+                                                </td>
+                                                <td className="px-4 py-4">
+                                                    {order.startCount ? order.startCount : order.status === 'completed' ? order.quantity : 0}
+                                                </td>
+                                                <td className="px-4 py-4">
+                                                    {order.remains ? order.remains : order.status === 'completed' ? 0 : order.quantity}
                                                 </td>
                                                 <td className={`${order.status === 'completed' || order.status === 'Completed' ? '' : 'hidden'} px-4 py-4 flex flex-col gap-y-2 text-center`}>
                                                     <button
@@ -529,6 +537,18 @@ const OrdersHistory = () => {
                                         <div className="text-xs mb-1" style={{ color: getMutedTextColor() }}>الخدمة</div>
                                         <div className="font-semibold" style={{ color: getTextColor() }}>
                                             {order.serviceTitle || 'خدمة غير معروفة'}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div className="text-xs mb-1" style={{ color: getMutedTextColor() }}>عدد البدا</div>
+                                        <div className="font-semibold" style={{ color: getTextColor() }}>
+                                            {order.startCount ? order.startCount : order.status === 'completed' ? order.quantity : 0}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div className="text-xs mb-1" style={{ color: getMutedTextColor() }}>المتبقي</div>
+                                        <div className="font-semibold" style={{ color: getTextColor() }}>
+                                            {order.remains ? order.remains : order.status === 'completed' ? 0 : order.quantity}
                                         </div>
                                     </div>
 
