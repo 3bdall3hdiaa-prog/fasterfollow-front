@@ -45,7 +45,7 @@ const ServicesSection = ({ platform }: any) => {
             setIsError(false);
 
             const res = await axios.get(
-                `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/services-list/getOne/${platform.slug}`
+                `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/services-list/getOne/${platform.slug}?platform=${platform.name}`,
             );
 
             if (res.data) {

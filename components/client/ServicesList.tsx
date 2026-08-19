@@ -46,6 +46,7 @@ const ServicesList: React.FC = () => {
 
                 const servicesData = response.data.map((service: any) => ({
                     _id: service._id,
+                    id: service.id,
                     providerServiceId: service.providerServiceId,
                     provider: service.provider,
                     platform: service.platform,
@@ -188,7 +189,7 @@ const ServicesList: React.FC = () => {
                                     <div className={`flex justify-between items-center mt-3 pt-3 border-t ${isDark ? 'border-gray-600' : 'border-[#dfd7bb]'
                                         }`}>
                                         <div className="text-xs font-mono" style={{ color: getMutedTextColor() }}>
-                                            رقم: {service.providerServiceId}
+                                            رقم: {service.id}
                                         </div>
                                         <div className="text-xs" style={{ color: getMutedTextColor() }}>
                                             {service.type || '-'}
@@ -221,7 +222,7 @@ const ServicesList: React.FC = () => {
                                                 : 'border-[#dfd7bb] hover:bg-gray-50'
                                                 }`}>
                                                 <td className="px-4 py-4 font-mono text-xs" style={{ color: getMutedTextColor() }}>
-                                                    {service.providerServiceId}
+                                                    {service.id}
                                                 </td>
                                                 <td className="px-4 py-4" style={{ color: getTextColor() }}>{service.platform}</td>
                                                 <td className="px-4 py-4">

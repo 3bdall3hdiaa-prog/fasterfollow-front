@@ -347,7 +347,7 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                                             </div>
                                         )}
                                     </td>
-                                    <td className="px-4 py-4">{service._id}</td>
+                                    <td className="px-4 py-4">{service.id}</td>
                                     <td className="px-4 py-4" style={{ color: getTextColor() }}>{service.title}</td>
                                     <td className="px-4 py-4" style={{ color: getTextColor() }}>{service.provider.name}</td>
                                     <td className="px-4 py-4 text-green-400 font-semibold">{formatPrice(service.price || 0)}</td>
@@ -446,7 +446,7 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                                         )}
                                         <div>
                                             <div className="font-semibold" style={{ color: getTextColor() }}>{service.title}</div>
-                                            <div style={{ color: getMutedTextColor() }} className="text-sm">ID: {service.providerServiceId}</div>
+                                            <div style={{ color: getMutedTextColor() }} className="text-sm">ID: {service.id}</div>
                                         </div>
                                     </div>
                                     <span className={`px-2 py-1 rounded-full text-xs ${service.status
@@ -880,7 +880,7 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <p className="text-sm" style={{ color: getMutedTextColor() }}>معرف الخدمة:</p>
-                                    <p className="text-sm break-words" style={{ color: getTextColor() }}>{viewingService._id}</p>
+                                    <p className="text-sm break-words" style={{ color: getTextColor() }}>{viewingService.id}</p>
                                 </div>
                                 <div>
                                     <p className="text-sm" style={{ color: getMutedTextColor() }}>رقم الخدمة عند المزود:</p>
