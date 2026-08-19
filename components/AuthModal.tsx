@@ -179,7 +179,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
             const data = await response.json();
 
             if (response.ok) {
-                setResetMessage('تم إرسال رمز التحقق إلى بريدك الإلكتروني.');
+                setResetMessage('تم إرسال رمز التحقق إلى بريدك الإلكتروني. يرجى التحقق من البريد الوارد أو مجلد الرسائل غير المرغوب فيها (Spam).');
                 setTimeout(() => {
                     setView('verifyCode');
                     setResetMessage('');
@@ -353,11 +353,28 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
                                 {error}
                             </p>
                         )}
-                        <p className="text-center mb-4 text-sm" style={{ color: getMutedTextColor() }}>
-                            تم إرسال رمز التحقق إلى <strong style={{ color: getTextColor() }}>{registeredEmail}</strong>
-                            <br />
-                            يرجى إدخاله أدناه لتفعيل حسابك.
-                        </p>
+                        <div
+                            className="text-center mb-4 text-sm"
+                            style={{ color: getMutedTextColor() }}
+                        >
+                            <p>
+                                تم إرسال رمز التحقق إلى{" "}
+                                <strong style={{ color: getTextColor() }}>
+                                    {registeredEmail}
+                                </strong>
+                            </p>
+
+                            <p className="mt-2">
+                                إذا لم تجد الرسالة في البريد الوارد، يرجى التحقق من مجلد{" "}
+                                <strong style={{ color: getTextColor() }}>
+                                    الرسائل غير المرغوب فيها (Spam)
+                                </strong>
+                            </p>
+
+                            <p className="mt-2">
+                                يرجى إدخال الرمز أدناه لتفعيل حسابك.
+                            </p>
+                        </div>
                         <div className="mb-4">
                             <label htmlFor="otp-code" className="block mb-2 text-sm font-medium" style={{ color: getMutedTextColor() }}>
                                 رمز التحقق
