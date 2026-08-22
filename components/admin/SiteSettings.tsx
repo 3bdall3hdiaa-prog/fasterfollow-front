@@ -166,8 +166,8 @@ const SiteSettingsComponent: React.FC<SiteSettingsProps> = ({ settings, setSetti
                 placeholder={placeholder}
                 disabled={isLoading}
                 className={`w-full rounded-md p-2 border disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 ${isDark
-                    ? 'bg-gray-700 border-gray-600 text-white'
-                    : 'bg-gray-50 border-[#dfd7bb] text-gray-800'
+                    ? ' border-gray-600 text-white'
+                    : ' border-[#dfd7bb] text-gray-800'
                     }`}
             />
         </div>
@@ -175,7 +175,6 @@ const SiteSettingsComponent: React.FC<SiteSettingsProps> = ({ settings, setSetti
 
     return (
         <div className="p-4" style={{
-            backgroundColor: isDark ? '#1e2235' : '#f8f6f0',
             minHeight: "100vh",
             transition: "all 0.3s ease"
         }}>

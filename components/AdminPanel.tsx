@@ -10,7 +10,6 @@ import SupportTickets from './admin/SupportTickets';
 import SiteSettingsComponent from './admin/SiteSettings';
 import ManagePages from './admin/ManagePages';
 import ManageBlog from './admin/ManageBlog';
-import ManageBanners from './admin/ManageBanners';
 import ManagePlatforms from './admin/ManagePlatforms';
 import ManageCoupons from './admin/ManageCoppons';
 import ManagePayments from './admin/MangePayments';
@@ -56,7 +55,6 @@ const AdminPanel: React.FC<AdminPanelProps> = (props) => {
             case 'support': return <SupportTickets />;
             case 'pages': return <ManagePages pages={props.pages} setPages={props.setPages} />;
             case 'blog': return <ManageBlog />;
-            case 'banners': return <ManageBanners banners={props.banners} setBanners={props.setBanners} />;
             case 'platforms': return <ManagePlatforms platforms={props.platforms} setPlatforms={props.setPlatforms} />;
             case 'settings': return <SiteSettingsComponent settings={props.settings} setSettings={props.setSettings} />;
             case 'coupons': return <ManageCoupons />;

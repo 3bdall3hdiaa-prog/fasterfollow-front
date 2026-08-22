@@ -62,7 +62,6 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, setActiveView, isSidebarO
         { view: 'support', label: 'الدعم الفني', icon: '💬' },
         { view: 'pages', label: 'إدارة الصفحات', icon: '📄' },
         { view: 'blog', label: 'إدارة المدونة', icon: '✍️' },
-        { view: 'banners', label: 'إدارة البنرات', icon: '🖼️' },
         { view: 'platforms', label: 'إدارة المنصات', icon: '📱' },
         { view: 'settings', label: 'إعدادات الموقع', icon: '⚙️' },
     ];

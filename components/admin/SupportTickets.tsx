@@ -155,8 +155,8 @@ const SupportTickets: React.FC = () => {
                 <button
                     onClick={() => setSelectedTicket(null)}
                     className={`py-2 px-3 sm:px-4 rounded-lg transition-colors text-sm sm:text-base ${isDark
-                            ? 'bg-gray-600 hover:bg-gray-500 text-white'
-                            : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
+                        ? 'bg-gray-600 hover:bg-gray-500 text-white'
+                        : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
                         }`}
                 >
                     ← العودة إلى التذاكر
@@ -164,8 +164,8 @@ const SupportTickets: React.FC = () => {
 
                 <div
                     className={`rounded-lg p-3 sm:p-4 md:p-6 mt-3 sm:mt-4 transition-all duration-300 ${isDark
-                            ? 'bg-gray-800 border border-gray-700'
-                            : 'bg-white border border-[#dfd7bb] shadow-md'
+                        ? 'bg-gray-800 border border-gray-700'
+                        : 'bg-white border border-[#dfd7bb] shadow-md'
                         }`}
                 >
                     <h2
@@ -193,8 +193,8 @@ const SupportTickets: React.FC = () => {
                             >
                                 <div
                                     className={`max-w-[85%] sm:max-w-[75%] md:max-w-lg p-2 sm:p-3 rounded-lg ${msg.sender === 'admin'
-                                            ? isDark ? 'bg-blue-700 text-white' : 'bg-[#c9a84c] text-white'
-                                            : isDark ? 'bg-gray-700 text-gray-100' : 'bg-gray-200 text-gray-800'
+                                        ? isDark ? 'bg-blue-700 text-white' : 'bg-[#c9a84c] text-white'
+                                        : isDark ? 'bg-gray-700 text-gray-100' : 'bg-gray-200 text-gray-800'
                                         }`}
                                 >
                                     <p className="text-sm sm:text-base break-words">{msg.text}</p>
@@ -217,15 +217,15 @@ const SupportTickets: React.FC = () => {
                                 rows={3}
                                 placeholder="اكتب ردك هنا..."
                                 className={`w-full rounded-md p-2 sm:p-3 mb-2 transition-all duration-300 text-sm sm:text-base ${isDark
-                                        ? 'bg-gray-700 border border-gray-600 text-white'
-                                        : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
+                                    ? 'bg-gray-700 border border-gray-600 text-white'
+                                    : 'bg-gray-50 border border-[#dfd7bb] text-gray-800'
                                     }`}
                             />
                             <button
                                 onClick={handleSendReply}
                                 className={`w-full sm:w-auto font-bold py-2 px-4 sm:px-6 rounded-lg transition-all duration-300 text-sm sm:text-base ${isDark
-                                        ? 'bg-primary-600 hover:bg-primary-700 text-white'
-                                        : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
+                                    ? 'bg-primary-600 hover:bg-primary-700 text-white'
+                                    : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
                                     }`}
                             >
                                 إرسال الرد
@@ -242,7 +242,6 @@ const SupportTickets: React.FC = () => {
         <div
             className="p-3 sm:p-4 md:p-6 min-h-screen"
             style={{
-                backgroundColor: isDark ? '#1e2235' : '#f8f6f0',
                 transition: "all 0.3s ease"
             }}
         >
@@ -254,14 +253,14 @@ const SupportTickets: React.FC = () => {
             </h1>
 
             {/* نسخة الجوال - بطاقات */}
-            <div className="block lg:hidden space-y-3 sm:space-y-4">
+            <div className="block space-y-3 sm:space-y-4">
                 {tickets.map((ticket) => (
                     <div
                         key={ticket._id}
                         onClick={() => setSelectedTicket(ticket)}
                         className={`rounded-lg p-3 sm:p-4 cursor-pointer transition-all duration-300 ${isDark
-                                ? 'bg-gray-800 border border-gray-700 hover:bg-gray-700/50'
-                                : 'bg-white border border-[#dfd7bb] shadow-sm hover:shadow-md'
+                            ? 'bg-gray-800 border border-gray-700 hover:bg-gray-700/50'
+                            : 'bg-white border border-[#dfd7bb] shadow-sm hover:shadow-md'
                             }`}
                     >
                         <div className="flex justify-between items-start mb-2">
@@ -282,55 +281,7 @@ const SupportTickets: React.FC = () => {
                 ))}
             </div>
 
-            {/* نسخة الكمبيوتر اللوحي والكمبيوتر - جدول */}
-            <div className="hidden lg:block">
-                <div
-                    className={`rounded-lg overflow-hidden transition-all duration-300 ${isDark
-                            ? 'bg-gray-800 border border-gray-700'
-                            : 'bg-white border border-[#dfd7bb] shadow-md'
-                        }`}
-                >
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-sm" style={{ color: getTextColor() }}>
-                            <thead className={`text-xs uppercase ${isDark ? 'text-gray-400 bg-gray-700/50' : 'text-gray-500 bg-gray-50'
-                                }`}>
-                                <tr>
-                                    <th className="px-4 py-3 text-right">الموضوع</th>
-                                    <th className="px-4 py-3 text-right">الحالة</th>
-                                    <th className="px-4 py-3 text-right hidden md:table-cell">تاريخ الإنشاء</th>
-                                    <th className="px-4 py-3 text-right hidden lg:table-cell">آخر تحديث</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {tickets.map((ticket) => (
-                                    <tr
-                                        key={ticket._id}
-                                        onClick={() => setSelectedTicket(ticket)}
-                                        className={`border-b cursor-pointer transition-colors ${isDark
-                                                ? 'border-gray-700 hover:bg-gray-700/30'
-                                                : 'border-[#dfd7bb] hover:bg-gray-50'
-                                            }`}
-                                    >
-                                        <td
-                                            className="px-4 py-3 font-semibold max-w-[150px] md:max-w-[200px] truncate"
-                                            style={{ color: getTextColor() }}
-                                        >
-                                            {ticket.title}
-                                        </td>
-                                        <td className="px-4 py-3">{getStatusBadge(ticket.status)}</td>
-                                        <td className="px-4 py-3 hidden md:table-cell" style={{ color: getMutedTextColor() }}>
-                                            {formatDate(ticket.createdAt)}
-                                        </td>
-                                        <td className="px-4 py-3 hidden lg:table-cell" style={{ color: getMutedTextColor() }}>
-                                            {formatDate(ticket.updatedAt)}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+
 
             {tickets.length === 0 && (
                 <div className="p-8 sm:p-12 text-center" style={{ color: getMutedTextColor() }}>

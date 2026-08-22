@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Page } from '../../types';
 import { useThemeStore } from '@/store/theme.store';
+import axios from 'axios';
 
 interface ManagePagesProps {
     pages: Page[];
@@ -60,15 +61,13 @@ const ManagePages: React.FC<ManagePagesProps> = ({ pages, setPages }) => {
 
     const fetchPages = async () => {
         try {
-            const response = await fetch(`${API_BASE_URL}/managepages`, {
-                method: 'GET',
-                credentials: 'include', headers: {
+            const response = await axios.get(`${API_BASE_URL}/managepages`, {
+                withCredentials: true,
+                headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
             });
-            if (!response.ok) throw new Error('Failed to fetch pages');
-            const data = await response.json();
-            setPages(data);
+            setPages(response.data);
         } catch (error) {
             console.error('Error fetching pages:', error);
             alert('فشل في تحميل الصفحات');
@@ -78,17 +77,13 @@ const ManagePages: React.FC<ManagePagesProps> = ({ pages, setPages }) => {
     const handleAddPage = async (pageData: Partial<Page>) => {
         try {
             setLoading(true);
-            const response = await fetch(`${API_BASE_URL}/managepages`, {
-                method: 'POST',
-                credentials: 'include',
-                body: JSON.stringify(pageData), headers: {
+            await axios.post(`${API_BASE_URL}/managepages`, pageData, {
+                withCredentials: true,
+                headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
             });
-
-            if (!response.ok) throw new Error('Failed to add page');
-
             await fetchPages();
         } catch (error) {
             console.error('Error adding page:', error);
@@ -101,17 +96,13 @@ const ManagePages: React.FC<ManagePagesProps> = ({ pages, setPages }) => {
     const handleUpdatePage = async (pageId: string, pageData: Partial<Page>) => {
         try {
             setLoading(true);
-            const response = await fetch(`${API_BASE_URL}/managepages/${pageId}`, {
-                method: 'PUT',
-                credentials: 'include',
-                body: JSON.stringify(pageData), headers: {
+            await axios.put(`${API_BASE_URL}/managepages/${pageId}`, pageData, {
+                withCredentials: true,
+                headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
             });
-
-            if (!response.ok) throw new Error('Failed to update page');
-
             await fetchPages();
         } catch (error) {
             console.error('Error updating page:', error);
@@ -124,15 +115,12 @@ const ManagePages: React.FC<ManagePagesProps> = ({ pages, setPages }) => {
     const handleDeletePage = async (pageId: string) => {
         try {
             setLoading(true);
-            const response = await fetch(`${API_BASE_URL}/managepages/${pageId}`, {
-                method: 'DELETE',
-                credentials: 'include', headers: {
+            await axios.delete(`${API_BASE_URL}/managepages/${pageId}`, {
+                withCredentials: true,
+                headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
             });
-
-            if (!response.ok) throw new Error('Failed to delete page');
-
             await fetchPages();
         } catch (error) {
             console.error('Error deleting page:', error);
@@ -172,7 +160,6 @@ const ManagePages: React.FC<ManagePagesProps> = ({ pages, setPages }) => {
 
     return (
         <div className="p-4" style={{
-            backgroundColor: isDark ? '#1e2235' : '#f8f6f0',
             minHeight: "100vh",
             transition: "all 0.3s ease"
         }}>
@@ -182,9 +169,7 @@ const ManagePages: React.FC<ManagePagesProps> = ({ pages, setPages }) => {
                 </h1>
                 <button
                     onClick={() => handleOpenModal(null)}
-                    className={`font-bold py-2 px-4 rounded-lg transition-all duration-300 ${isDark
-                        ? 'bg-primary-600 hover:bg-primary-700 text-white'
-                        : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
+                    className={`font-bold py-3 px-6 rounded-lg w-full md:w-auto transition-all duration-300 ${isDark ? 'bg-primary-600 hover:bg-primary-700 text-white' : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
                         }`}
                     disabled={loading}
                 >
@@ -193,81 +178,86 @@ const ManagePages: React.FC<ManagePagesProps> = ({ pages, setPages }) => {
             </div>
 
             {loading && (
-                <div className={`rounded-lg p-4 mb-4 transition-all duration-300 ${isDark
-                    ? 'bg-blue-900/20 border border-blue-700 text-blue-300'
-                    : 'bg-blue-50 border border-blue-200 text-blue-700'
+                <div className={`rounded-lg p-4 mb-4 transition-all duration-300 ${isDark ? 'bg-blue-900/20 border border-blue-700 text-blue-300' : 'bg-blue-50 border border-blue-200 text-blue-700'
                     }`}>
                     <p>جاري تحديث البيانات...</p>
                 </div>
             )}
 
-            <div className={`rounded-lg overflow-hidden transition-all duration-300 ${isDark
-                ? 'bg-gray-800 border border-gray-700'
-                : 'bg-white border border-[#dfd7bb] shadow-md'
-                }`}>
-                <div className="overflow-x-auto">
-                    <table className="w-full text-sm text-right" style={{ color: getTextColor() }}>
-                        <thead className={`text-xs uppercase ${isDark ? 'text-gray-400 bg-gray-700/50' : 'text-gray-500 bg-gray-50'
-                            }`}>
-                            <tr>
-                                <th className="px-4 py-3">العنوان</th>
-                                <th className="px-4 py-3">الرابط (Slug)</th>
-                                <th className="px-4 py-3">الحالة</th>
-                                <th className="px-4 py-3">الإجراءات</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {pages.map(page => (
-                                <tr key={page._id || page.id} className={`border-b transition-colors ${isDark
-                                    ? 'border-gray-700 hover:bg-gray-700/50'
-                                    : 'border-[#dfd7bb] hover:bg-gray-50'
-                                    }`}>
-                                    <td className="px-4 py-4" style={{ color: getTextColor() }}>{page.title}</td>
-                                    <td className="px-4 py-4 font-mono" style={{ color: getMutedTextColor() }}>/{page.slug}</td>
-                                    <td className="px-4 py-4">
-                                        <button
-                                            onClick={() => handleTogglePublish(page)}
-                                            className={`px-2 py-1 text-xs rounded-full transition-colors ${page.isPublished
-                                                ? isDark ? 'bg-green-900 text-green-300' : 'bg-green-100 text-green-700'
-                                                : isDark ? 'bg-gray-600 text-gray-200' : 'bg-gray-200 text-gray-600'
-                                                }`}
-                                            disabled={loading}
-                                        >
-                                            {page.isPublished ? 'منشورة' : 'مسودة'}
-                                        </button>
-                                    </td>
-                                    <td className="px-4 py-4">
-                                        <div className="flex space-x-2 space-x-reverse">
-                                            <button
-                                                onClick={() => handleOpenModal(page)}
-                                                className={`transition-colors ${isDark ? 'text-primary-400 hover:text-primary-300' : 'text-[#c9a84c] hover:text-[#b8973a]'
-                                                    }`}
-                                                disabled={loading}
-                                            >
-                                                تعديل
-                                            </button>
-                                            <button
-                                                onClick={() => handleDelete(page._id || page.id)}
-                                                className="text-red-400 hover:text-red-300 transition-colors"
-                                                disabled={loading}
-                                            >
-                                                حذف
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+            {/* ✅ بطاقات الصفحات */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {pages.length === 0 ? (
+                    <div className={`col-span-full text-center py-8 rounded-lg ${isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-[#dfd7bb] shadow-md'
+                        }`} style={{ color: getMutedTextColor() }}>
+                        لا توجد صفحات حالياً
+                    </div>
+                ) : (
+                    pages.map(page => (
+                        <div
+                            key={page._id || page.id}
+                            className={`border-2 rounded-lg p-4 transition-colors h-full min-h-[200px] flex flex-col ${isDark ? 'border-gray-700 hover:bg-gray-700/50 bg-gray-800' : 'border-[#dfd7bb] hover:bg-gray-50 bg-white'
+                                }`}
+                        >
+                            {/* رأس البطاقة */}
+                            <div className="flex justify-between items-start mb-3">
+                                <div className="min-w-0 flex-1">
+                                    <div className="font-semibold text-lg truncate" style={{ color: getTextColor() }}>
+                                        {page.title}
+                                    </div>
+                                    <div className="text-sm font-mono mt-1 break-all" style={{ color: getMutedTextColor() }}>
+                                        /{page.slug}
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => handleTogglePublish(page)}
+                                    className={`px-2 py-1 text-xs rounded-full transition-colors flex-shrink-0 ${page.isPublished
+                                        ? isDark ? 'bg-green-900 text-green-300' : 'bg-green-100 text-green-700'
+                                        : isDark ? 'bg-gray-600 text-gray-200' : 'bg-gray-200 text-gray-600'
+                                        }`}
+                                    disabled={loading}
+                                >
+                                    {page.isPublished ? 'منشورة' : 'مسودة'}
+                                </button>
+                            </div>
 
-                    {pages.length === 0 && (
-                        <div className="p-12 text-center" style={{ color: getMutedTextColor() }}>
-                            لا توجد صفحات حالياً
+                            {/* محتوى مختصر */}
+                            <div className="flex-1 mb-4">
+                                <div className="text-sm line-clamp-3" style={{ color: getMutedTextColor() }}>
+                                    {page.content ? page.content.replace(/<[^>]*>/g, '').substring(0, 150) + '...' : 'لا يوجد محتوى'}
+                                </div>
+                            </div>
+
+                            {/* أزرار الإجراءات */}
+                            <div className="flex gap-2 mt-auto">
+                                <button
+                                    onClick={() => handleOpenModal(page)}
+                                    className={`p-2 rounded flex items-center gap-1 flex-1 justify-center text-sm transition-colors ${isDark ? 'bg-yellow-600 hover:bg-yellow-700 text-white' : 'bg-yellow-500 hover:bg-yellow-600 text-white'
+                                        }`}
+                                    disabled={loading}
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                    تعديل
+                                </button>
+                                <button
+                                    onClick={() => handleDelete(page._id || page.id)}
+                                    className={`p-2 rounded flex items-center gap-1 flex-1 justify-center text-sm transition-colors ${isDark ? 'bg-red-600 hover:bg-red-700 text-white' : 'bg-red-500 hover:bg-red-600 text-white'
+                                        }`}
+                                    disabled={loading}
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                    حذف
+                                </button>
+                            </div>
                         </div>
-                    )}
-                </div>
+                    ))
+                )}
             </div>
 
+            {/* Modal - نفس اللي موجود */}
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={handleCloseModal}>
                     <div className={`rounded-2xl shadow-xl w-full max-w-2xl transition-all duration-300 ${isDark ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'
@@ -282,9 +272,7 @@ const ManagePages: React.FC<ManagePagesProps> = ({ pages, setPages }) => {
                                     value={formData.title || ''}
                                     onChange={handleChange}
                                     placeholder="عنوان الصفحة"
-                                    className={`w-full p-2 rounded transition-all duration-300 ${isDark
-                                        ? 'bg-gray-700 text-white'
-                                        : 'bg-gray-50 text-gray-800 border border-[#dfd7bb]'
+                                    className={`w-full p-2 rounded transition-all duration-300 ${isDark ? 'bg-gray-700 text-white' : 'bg-gray-50 text-gray-800 border border-[#dfd7bb]'
                                         }`}
                                     required
                                     disabled={loading}
@@ -294,9 +282,7 @@ const ManagePages: React.FC<ManagePagesProps> = ({ pages, setPages }) => {
                                     value={formData.slug || ''}
                                     onChange={handleChange}
                                     placeholder="الرابط (e.g., privacy-policy)"
-                                    className={`w-full p-2 rounded transition-all duration-300 ${isDark
-                                        ? 'bg-gray-700 text-white'
-                                        : 'bg-gray-50 text-gray-800 border border-[#dfd7bb]'
+                                    className={`w-full p-2 rounded transition-all duration-300 ${isDark ? 'bg-gray-700 text-white' : 'bg-gray-50 text-gray-800 border border-[#dfd7bb]'
                                         }`}
                                     required
                                     disabled={loading}
@@ -307,9 +293,7 @@ const ManagePages: React.FC<ManagePagesProps> = ({ pages, setPages }) => {
                                     onChange={handleChange}
                                     placeholder="محتوى الصفحة (HTML مسموح)"
                                     rows={10}
-                                    className={`w-full p-2 rounded font-mono transition-all duration-300 ${isDark
-                                        ? 'bg-gray-700 text-white'
-                                        : 'bg-gray-50 text-gray-800 border border-[#dfd7bb]'
+                                    className={`w-full p-2 rounded font-mono transition-all duration-300 ${isDark ? 'bg-gray-700 text-white' : 'bg-gray-50 text-gray-800 border border-[#dfd7bb]'
                                         }`}
                                     disabled={loading}
                                 />
@@ -331,9 +315,7 @@ const ManagePages: React.FC<ManagePagesProps> = ({ pages, setPages }) => {
                                 <button
                                     type="button"
                                     onClick={handleCloseModal}
-                                    className={`py-2 px-4 rounded transition-colors ${isDark
-                                        ? 'bg-gray-600 hover:bg-gray-500 text-white'
-                                        : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
+                                    className={`py-2 px-4 rounded transition-colors ${isDark ? 'bg-gray-600 hover:bg-gray-500 text-white' : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
                                         }`}
                                     disabled={loading}
                                 >
@@ -341,9 +323,7 @@ const ManagePages: React.FC<ManagePagesProps> = ({ pages, setPages }) => {
                                 </button>
                                 <button
                                     type="submit"
-                                    className={`py-2 px-4 rounded transition-all duration-300 ${isDark
-                                        ? 'bg-primary-600 hover:bg-primary-700 text-white'
-                                        : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
+                                    className={`py-2 px-4 rounded transition-all duration-300 ${isDark ? 'bg-primary-600 hover:bg-primary-700 text-white' : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
                                         }`}
                                     disabled={loading}
                                 >

@@ -293,7 +293,6 @@ const AddFunds: React.FC = () => {
 
     return (
         <div className="p-4 md:p-6" style={{
-            backgroundColor: isDark ? '#1e2235' : '#f8f6f0',
             minHeight: "100vh",
             transition: "all 0.3s ease"
         }}>

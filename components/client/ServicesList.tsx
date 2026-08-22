@@ -101,7 +101,6 @@ const ServicesList: React.FC = () => {
 
     return (
         <div className="p-4" style={{
-            backgroundColor: isDark ? '#1e2235' : '#f8f6f0',
             minHeight: "100vh",
             transition: "all 0.3s ease"
         }}>
@@ -131,8 +130,8 @@ const ServicesList: React.FC = () => {
             </div>
 
             <div className={`rounded-lg overflow-hidden transition-all duration-300 ${isDark
-                ? 'bg-gray-800 border border-gray-700'
-                : 'bg-white border border-[#dfd7bb] shadow-md'
+                ? ''
+                : ''
                 }`}>
                 {filteredServices.length === 0 ? (
                     <div className="text-center py-8" style={{ color: getMutedTextColor() }}>
@@ -141,28 +140,31 @@ const ServicesList: React.FC = () => {
                 ) : (
                     <>
                         {/* تصميم الهواتف */}
-                        <div className="block md:hidden">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             {filteredServices.map(service => (
-                                <div key={service._id} className={`border-b p-4 transition-colors ${isDark
-                                    ? 'bg-gray-700/30 border-gray-600 hover:bg-gray-700/50'
-                                    : 'bg-gray-50/30 border-[#dfd7bb] hover:bg-gray-50'
-                                    }`}>
-                                    <div className="flex justify-between items-start mb-3">
-                                        <span className={`px-3 py-1 rounded-full text-xs ${service.status
+                                <div
+                                    key={service._id}
+                                    className={`border-2 rounded-lg p-4 transition-colors h-full min-h-[280px] flex flex-col ${isDark ? 'bg-gray-700/30 border-gray-600' : 'bg-white border-[#dfd7bb]'
+                                        }`}
+                                >
+                                    <div className="flex justify-between items-start mb-3 gap-2">
+                                        <span className={`px-3 py-1 rounded-full text-xs flex-shrink-0 ${service.status
                                             ? isDark ? 'bg-green-500/20 text-green-400' : 'bg-green-100 text-green-700'
                                             : isDark ? 'bg-red-500/20 text-red-400' : 'bg-red-100 text-red-700'
                                             }`}>
                                             {service.status ? 'نشطة' : 'موقوفة'}
                                         </span>
-                                        <span className="text-green-400 font-semibold text-lg">
-                                            {formatPrice(service.price?.toFixed(2))}
+                                        <span className="text-green-400 font-semibold text-lg flex-shrink-0">
+                                            {formatPrice(service.price)}
                                         </span>
                                     </div>
 
-                                    <div className="mb-3">
-                                        <div className="font-semibold text-base mb-1" style={{ color: getTextColor() }}>{service.title}</div>
+                                    <div className="mb-3 flex-1">
+                                        <div className="font-semibold  mb-1 " style={{ color: getTextColor() }}>
+                                            {service.title}
+                                        </div>
                                         {service.description && (
-                                            <div className="text-xs" style={{ color: getMutedTextColor() }}>
+                                            <div className="text-xs line-clamp-3" style={{ color: getMutedTextColor() }}>
                                                 {service.description.length > 100
                                                     ? `${service.description.substring(0, 100)}...`
                                                     : service.description
@@ -174,7 +176,7 @@ const ServicesList: React.FC = () => {
                                     <div className="grid grid-cols-2 gap-3 text-sm mb-2">
                                         <div style={{ color: getMutedTextColor() }}>
                                             <div className="text-xs mb-1">المنصة</div>
-                                            <div style={{ color: getTextColor() }}>{service.platform}</div>
+                                            <div className="truncate" style={{ color: getTextColor() }}>{service.platform}</div>
                                         </div>
                                         <div style={{ color: getMutedTextColor() }}>
                                             <div className="text-xs mb-1">الحد الأدنى</div>
@@ -188,10 +190,10 @@ const ServicesList: React.FC = () => {
 
                                     <div className={`flex justify-between items-center mt-3 pt-3 border-t ${isDark ? 'border-gray-600' : 'border-[#dfd7bb]'
                                         }`}>
-                                        <div className="text-xs font-mono" style={{ color: getMutedTextColor() }}>
+                                        <div className="text-xs font-mono truncate" style={{ color: getMutedTextColor() }}>
                                             رقم: {service.id}
                                         </div>
-                                        <div className="text-xs" style={{ color: getMutedTextColor() }}>
+                                        <div className="text-xs flex-shrink-0" style={{ color: getMutedTextColor() }}>
                                             {service.type || '-'}
                                         </div>
                                     </div>
@@ -199,62 +201,7 @@ const ServicesList: React.FC = () => {
                             ))}
                         </div>
 
-                        {/* تصميم الشاشات الكبيرة */}
-                        <div className="hidden md:block">
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-sm text-right" style={{ color: getTextColor() }}>
-                                    <thead className={`text-xs uppercase ${isDark ? 'text-gray-400 bg-gray-700/50' : 'text-gray-500 bg-gray-50'
-                                        }`}>
-                                        <tr>
-                                            <th className="px-4 py-3">رقم الخدمة</th>
-                                            <th className="px-4 py-3">المنصة</th>
-                                            <th className="px-4 py-3">الخدمة</th>
-                                            <th className="px-4 py-3">سعرنا</th>
-                                            <th className="px-4 py-3">الحد الأدنى</th>
-                                            <th className="px-4 py-3">الحد الأقصى</th>
-                                            <th className="px-4 py-3">الحالة</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {filteredServices.map(service => (
-                                            <tr key={service._id} className={`border-b transition-colors ${isDark
-                                                ? 'border-gray-700 hover:bg-gray-700/50'
-                                                : 'border-[#dfd7bb] hover:bg-gray-50'
-                                                }`}>
-                                                <td className="px-4 py-4 font-mono text-xs" style={{ color: getMutedTextColor() }}>
-                                                    {service.id}
-                                                </td>
-                                                <td className="px-4 py-4" style={{ color: getTextColor() }}>{service.platform}</td>
-                                                <td className="px-4 py-4">
-                                                    <div>
-                                                        <div className="font-semibold" style={{ color: getTextColor() }}>{service.title}</div>
-                                                        {service.description && (
-                                                            <div className="text-xs mt-1" style={{ color: getMutedTextColor() }}>
-                                                                {service.description.length > 50
-                                                                    ? `${service.description.substring(0, 50)}...`
-                                                                    : service.description
-                                                                }
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                </td>
-                                                <td className="px-4 py-4 text-green-400 font-semibold">{formatPrice(service.price?.toFixed(2))}</td>
-                                                <td className="px-4 py-4" style={{ color: getTextColor() }}>{service.min?.toLocaleString()}</td>
-                                                <td className="px-4 py-4" style={{ color: getTextColor() }}>{service.max?.toLocaleString()}</td>
-                                                <td className="px-4 py-4">
-                                                    <span className={`px-3 py-1 rounded-full text-xs ${service.status
-                                                        ? isDark ? 'bg-green-500/20 text-green-400' : 'bg-green-100 text-green-700'
-                                                        : isDark ? 'bg-red-500/20 text-red-400' : 'bg-red-100 text-red-700'
-                                                        }`}>
-                                                        {service.status ? 'نشطة' : 'موقوفة'}
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+
                     </>
                 )}
             </div>

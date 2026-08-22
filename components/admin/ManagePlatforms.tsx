@@ -209,7 +209,6 @@ const ManagePlatforms: React.FC<ManagePlatformsProps> = ({ platforms, setPlatfor
         <div
             className="p-3 sm:p-4 md:p-6 min-h-screen"
             style={{
-                backgroundColor: isDark ? '#1e2235' : '#f8f6f0',
                 transition: "all 0.3s ease"
             }}
         >
@@ -242,7 +241,7 @@ const ManagePlatforms: React.FC<ManagePlatformsProps> = ({ platforms, setPlatfor
             )}
 
             {/* قائمة المنصات - نسخة الجوال (بطاقات) */}
-            <div className="block lg:hidden space-y-3 sm:space-y-4">
+            <div className="block  space-y-3 sm:space-y-4">
                 {platforms.length === 0 ? (
                     <div className={`rounded-lg p-8 text-center ${isDark
                         ? 'bg-gray-800 border border-gray-700'
@@ -322,93 +321,7 @@ const ManagePlatforms: React.FC<ManagePlatformsProps> = ({ platforms, setPlatfor
                 )}
             </div>
 
-            {/* قائمة المنصات - نسخة الكمبيوتر اللوحي والكمبيوتر (جدول) */}
-            <div className="hidden lg:block">
-                <div className={`rounded-lg overflow-hidden transition-all duration-300 ${isDark
-                    ? 'bg-gray-800 border border-gray-700'
-                    : 'bg-white border border-[#dfd7bb] shadow-md'
-                    }`}>
-                    {platforms.length === 0 ? (
-                        <div className="text-center py-8" style={{ color: getMutedTextColor() }}>
-                            لا توجد منصات مضافة حتى الآن
-                        </div>
-                    ) : (
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-sm" style={{ color: getTextColor() }}>
-                                <thead className={`text-xs uppercase ${isDark ? 'text-gray-400 bg-gray-700/50' : 'text-gray-500 bg-gray-50'
-                                    }`}>
-                                    <tr>
-                                        <th className="px-4 py-3 text-right">الصورة</th>
-                                        <th className="px-4 py-3 text-right">الاسم</th>
-                                        <th className="px-4 py-3 text-right hidden md:table-cell">الرابط المختصر</th>
-                                        <th className="px-4 py-3 text-right">الإجراءات</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {platforms.map(platform => {
-                                        const imageUrl = getImageUrl(platform);
-                                        return (
-                                            <tr key={platform._id} className={`border-b transition-colors ${isDark
-                                                ? 'border-gray-700 hover:bg-gray-700/50'
-                                                : 'border-[#dfd7bb] hover:bg-gray-50'
-                                                }`}>
-                                                <td className="px-4 py-3">
-                                                    {imageUrl ? (
-                                                        <img
-                                                            src={imageUrl}
-                                                            alt={platform.name}
-                                                            className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg object-contain bg-gray-100 dark:bg-gray-700"
-                                                            loading="lazy"
-                                                            onError={(e) => {
-                                                                (e.target as HTMLImageElement).style.display = 'none';
-                                                            }}
-                                                        />
-                                                    ) : (
-                                                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                                                            <ImageIcon className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400" />
-                                                        </div>
-                                                    )}
-                                                </td>
-                                                <td
-                                                    className="px-4 py-3 font-medium max-w-[120px] truncate"
-                                                    style={{ color: getTextColor() }}
-                                                >
-                                                    {platform.name}
-                                                </td>
-                                                <td
-                                                    className="px-4 py-3 text-sm hidden md:table-cell max-w-[100px] truncate"
-                                                    style={{ color: getMutedTextColor() }}
-                                                >
-                                                    {platform.slug}
-                                                </td>
-                                                <td className="px-4 py-3">
-                                                    <div className="flex gap-2 sm:gap-3 justify-end">
-                                                        <button
-                                                            onClick={() => handleOpenModal(platform)}
-                                                            className={`text-sm transition-colors ${isDark ? 'text-primary-400 hover:text-primary-300' : 'text-[#c9a84c] hover:text-[#b8973a]'
-                                                                }`}
-                                                            disabled={loading}
-                                                        >
-                                                            تعديل
-                                                        </button>
-                                                        <button
-                                                            onClick={() => handleDelete(platform._id)}
-                                                            className="text-sm text-red-400 hover:text-red-300 transition-colors"
-                                                            disabled={loading}
-                                                        >
-                                                            حذف
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        );
-                                    })}
-                                </tbody>
-                            </table>
-                        </div>
-                    )}
-                </div>
-            </div>
+
 
             {/* Modal - متجاوب */}
             {isModalOpen && (

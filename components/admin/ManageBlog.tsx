@@ -240,7 +240,6 @@ const ManageBlog: React.FC = () => {
 
     return (
         <div className="p-4" style={{
-            backgroundColor: isDark ? '#1e2235' : '#f8f6f0',
             minHeight: "100vh",
             transition: "all 0.3s ease"
         }}>
@@ -281,101 +280,12 @@ const ManageBlog: React.FC = () => {
                 </div>
             </div>
 
-            {/*  جدول المقالات - للشاشات الكبيرة */}
-            <div className={`hidden md:block rounded-lg overflow-hidden transition-all duration-300 ${isDark
-                ? 'bg-gray-800 border border-gray-700'
-                : 'bg-white border border-[#dfd7bb] shadow-md'
-                }`}>
-                <table className="w-full text-sm text-right" style={{ color: getTextColor() }}>
-                    <thead className={`text-xs uppercase ${isDark ? 'text-gray-400 bg-gray-700/50' : 'text-gray-500 bg-gray-50'
-                        }`}>
-                        <tr>
-                            <th className="px-6 py-4">العنوان</th>
-                            <th className="px-6 py-4">الرابط</th>
-                            <th className="px-6 py-4">الكاتب</th>
-                            <th className="px-6 py-4">الحالة</th>
-                            <th className="px-6 py-4">الإجراءات</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filteredPosts.map(post => (
-                            <tr key={post._id} className={`border-b transition-colors ${isDark
-                                ? 'border-gray-700 hover:bg-gray-700/50'
-                                : 'border-[#dfd7bb] hover:bg-gray-50'
-                                }`}>
-                                <td className="px-6 py-4">
-                                    <div className="font-semibold" style={{ color: getTextColor() }}>{post.title}</div>
-                                    {post.extract && (
-                                        <div className="text-sm mt-1 line-clamp-2" style={{ color: getMutedTextColor() }}>
-                                            {post.extract}
-                                        </div>
-                                    )}
-                                </td>
-                                <td className="px-6 py-4">
-                                    <div className="text-sm" style={{ color: getMutedTextColor() }}>{post.link}</div>
-                                </td>
-                                <td className="px-6 py-4" style={{ color: getTextColor() }}>{post.author || 'Admin'}</td>
-                                <td className="px-6 py-4">
-                                    <span className={`px-3 py-1 text-xs rounded-full ${getStatusClass(post.status)}`}>
-                                        {getStatusText(post.status)}
-                                    </span>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <div className="flex justify-end gap-2 flex-wrap">
-                                        <button
-                                            onClick={() => handleOpenModal(post)}
-                                            className={`py-2 px-4 rounded-lg text-sm transition-colors flex items-center ${isDark
-                                                ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                                                : 'bg-blue-500 hover:bg-blue-600 text-white'
-                                                }`}
-                                        >
-                                            <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                            </svg>
-                                            تعديل
-                                        </button>
-                                        <button
-                                            onClick={() => post._id && handleDelete(post._id)}
-                                            className={`py-2 px-4 rounded-lg text-sm transition-colors flex items-center ${isDark
-                                                ? 'bg-red-600 hover:bg-red-700 text-white'
-                                                : 'bg-red-500 hover:bg-red-600 text-white'
-                                                }`}
-                                        >
-                                            <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                            </svg>
-                                            حذف
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-
-                {filteredPosts.length === 0 && (
-                    <div className="p-12 text-center">
-                        <div className="text-lg mb-4" style={{ color: getMutedTextColor() }}>
-                            {posts.length === 0 ? 'لا توجد مقالات حالياً' : 'لم يتم العثور على مقالات تطابق البحث'}
-                        </div>
-                        <button
-                            onClick={() => handleOpenModal(null)}
-                            className={`py-2 px-6 rounded-lg transition-all duration-300 ${isDark
-                                ? 'bg-primary-600 hover:bg-primary-700 text-white'
-                                : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
-                                }`}
-                        >
-                            إنشاء أول مقال
-                        </button>
-                    </div>
-                )}
-            </div>
 
             {/*  تصميم البطاقات للهواتف */}
-            <div className="block md:hidden">
-                <div className={`rounded-lg overflow-hidden transition-all duration-300 ${isDark
-                    ? 'bg-gray-800 border border-gray-700'
-                    : 'bg-white border border-[#dfd7bb] shadow-md'
+            <div className="block ">
+                <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 rounded-lg overflow-hidden transition-all duration-300 ${isDark
+                    ? ' '
+                    : ''
                     }`}>
                     {filteredPosts.length === 0 ? (
                         <div className="p-8 text-center">
@@ -394,9 +304,9 @@ const ManageBlog: React.FC = () => {
                         </div>
                     ) : (
                         filteredPosts.map(post => (
-                            <div key={post._id} className={`border-b p-4 transition-colors ${isDark
-                                ? 'border-gray-700 hover:bg-gray-700/50'
-                                : 'border-[#dfd7bb] hover:bg-gray-50'
+                            <div key={post._id} className={`${isDark ? 'bg-gray-800' : 'bg-white'} border-2 rounded-lg p-4 transition-colors ${isDark
+                                ? 'border-gray-700'
+                                : 'border-[#dfd7bb] '
                                 }`}>
                                 {/* رأس البطاقة */}
                                 <div className="flex justify-between items-start mb-3">

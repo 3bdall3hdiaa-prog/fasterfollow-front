@@ -15,7 +15,7 @@ const UsersManagement = () => {
     const { isDark } = useThemeStore();
     const { formatPrice } = useCurrency();
     const getBackgroundColor = () => {
-        return isDark ? '#1e2235' : '#f8f6f0';
+        return isDark ? '#1e2235' : '';
     };
 
     const getCardBackground = () => {
@@ -308,7 +308,6 @@ const UsersManagement = () => {
     return (
         <div
             style={{
-                backgroundColor: getBackgroundColor(),
                 minHeight: "100vh",
                 padding: "20px",
                 color: getTextColor(),
@@ -481,207 +480,131 @@ const UsersManagement = () => {
                     </div>
                 </div>
 
-                {/* جدول المستخدمين - للشاشات الكبيرة */}
-                <div className="d-none d-md-block">
-                    <Card style={{
-                        backgroundColor: getCardBackground(),
-                        border: isDark ? "none" : "1px solid #dfd7bb",
-                        borderRadius: "15px",
-                        transition: "all 0.3s ease"
-                    }}>
-                        <Card.Header style={{
-                            backgroundColor: getCardHeaderBackground(),
-                            border: "none",
-                            padding: "20px"
-                        }}>
-                            <h5 className="mb-0" style={{ color: isDark ? "white" : "black" }}>قائمة المستخدمين</h5>
-                        </Card.Header>
-                        <Card.Body className="p-0">
-                            {loading ? (
-                                <div className="text-center py-5">
-                                    <Spinner animation="border" variant={isDark ? "light" : "secondary"} />
-                                </div>
-                            ) : (
-                                <Table responsive hover className="mb-0" style={{ color: getTextColor() }}>
-                                    <thead style={{ backgroundColor: getCardHeaderBackground() }}>
-                                        <tr>
-                                            <th>#</th>
-                                            <th>الاسم</th>
-                                            <th>الوظيفة</th>
-                                            <th>البريد الإلكتروني</th>
-                                            <th>الحالة</th>
-                                            <th>الإجراءات</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {filteredUsers.length > 0 ? (
-                                            filteredUsers.map((user, index) => {
-                                                return (
-                                                    <tr
-                                                        key={user._id}
-                                                        style={getRowStyle(user._id)}
-                                                        onMouseEnter={() => setHoveredRow(user._id)}
-                                                        onMouseLeave={() => setHoveredRow(null)}
-                                                    >
-                                                        <td>{index + 1}</td>
-                                                        <td>
-                                                            <div className="d-flex align-items-center">
-                                                                <div
-                                                                    className="rounded-circle d-flex align-items-center justify-content-center me-3"
-                                                                    style={{
-                                                                        width: "40px",
-                                                                        height: "40px",
-                                                                        backgroundColor: isDark ? "#4a90e2" : "#c9a84c",
-                                                                        color: "white",
-                                                                        fontSize: "14px",
-                                                                        fontWeight: "bold"
-                                                                    }}
-                                                                >
-                                                                    {getInitials(user.name)}
-                                                                </div>
-                                                                <div>
-                                                                    <div className="fw-bold" style={{ color: "black", fontSize: "16px" }}>{user.name}</div>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td style={{ color: 'black' }}>{user.job}</td>
-                                                        <td style={{ color: "black" }}>{user.email}</td>
-                                                        <td>
-                                                            <Badge bg={getStatusBadge(user.status)}>
-                                                                {user.status === "active"
-                                                                    ? "نشط"
-                                                                    : user.status === "banned"
-                                                                        ? "محظور"
-                                                                        : "غير نشط"}
-                                                            </Badge>
-                                                        </td>
-                                                        <td>
-                                                            <div className="d-flex gap-2">
-                                                                <Button
-                                                                    size="sm"
-                                                                    variant="outline-info"
-                                                                    onClick={() => handleView(user)}
-                                                                >
-                                                                    عرض
-                                                                </Button>
-                                                                <Button
-                                                                    size="sm"
-                                                                    variant="outline-warning"
-                                                                    onClick={() => handleShowEditModal(user)}
-                                                                >
-                                                                    تعديل
-                                                                </Button>
-                                                            </div>
-                                                        </td>
-                                                    </tr>)
-                                            })) : (
-                                            <tr>
-                                                <td colSpan={6} className="text-center py-4" style={{ color: getMutedTextColor() }}>
-                                                    <i className="fas fa-users fa-2x mb-3 d-block"></i>
-                                                    {users.length === 0 ? 'لا يوجد مستخدمين' : 'لم يتم العثور على مستخدمين'}
-                                                </td>
-                                            </tr>
-                                        )}
-                                    </tbody>
-                                </Table>
-                            )}
-                        </Card.Body>
-                    </Card>
-                </div>
+
 
                 {/* تصميم البطاقات للهواتف */}
-                <div className="d-block d-md-none">
-                    <Card style={{
-                        backgroundColor: getCardBackground(),
-                        border: isDark ? "none" : "1px solid #dfd7bb",
-                        borderRadius: "15px",
-                        transition: "all 0.3s ease"
-                    }}>
-                        <Card.Header style={{
-                            backgroundColor: getCardHeaderBackground(),
-                            border: "none",
-                            padding: "15px"
-                        }}>
-                            <h5 className="mb-0" style={{ color: getTextColor() }}>قائمة المستخدمين</h5>
-                        </Card.Header>
-                        <Card.Body className="p-0">
-                            {loading ? (
-                                <div className="text-center py-5">
-                                    <Spinner animation="border" variant={isDark ? "light" : "secondary"} />
-                                </div>
-                            ) : filteredUsers.length > 0 ? (
-                                filteredUsers.map((user, index) => (
-                                    <div
-                                        key={user._id}
-                                        className="border-bottom p-3 hover-bg"
-                                        style={{
-                                            backgroundColor: hoveredRow === user._id ? (isDark ? "#2f3450" : "#f0ede4") : "transparent",
-                                            borderColor: isDark ? "#2f3450" : "#dfd7bb",
-                                            transition: "background-color 0.3s"
-                                        }}
-                                        onMouseEnter={() => setHoveredRow(user._id)}
-                                        onMouseLeave={() => setHoveredRow(null)}
-                                    >
-                                        <div className="d-flex justify-content-between align-items-start mb-2">
-                                            <div className="d-flex align-items-center">
-                                                <div
-                                                    className="rounded-circle d-flex align-items-center justify-content-center me-3"
-                                                    style={{
-                                                        width: "45px",
-                                                        height: "45px",
-                                                        backgroundColor: isDark ? "#4a90e2" : "#c9a84c",
-                                                        color: "white",
-                                                        fontSize: "16px",
-                                                        fontWeight: "bold"
-                                                    }}
-                                                >
-                                                    {getInitials(user.name)}
-                                                </div>
-                                                <div>
-                                                    <div className="fw-bold" style={{ color: getTextColor() }}>{user.name}</div>
-                                                    <div style={{ color: getMutedTextColor(), fontSize: "0.875rem" }}>{user.job}</div>
-                                                </div>
-                                            </div>
-                                            <Badge bg={getStatusBadge(user.status)}>
-                                                {user.status === "active" ? "نشط" : user.status === "banned" ? "محظور" : "غير نشط"}
-                                            </Badge>
-                                        </div>
+                <div className="block">
+                    <div className={`rounded-lg overflow-hidden transition-all duration-300 ${isDark ? 'bg-gray-800 border border-gray-700' : ' border border-[#dfd7bb] shadow-md'
+                        }`}>
+                        {/* Header */}
+                        <div className={`p-4 border-b ${isDark ? 'border-gray-700' : 'border-[#dfd7bb]'
+                            }`} style={{
+                                backgroundColor: getCardHeaderBackground()
+                            }}>
+                            <h5 className="mb-0 font-bold text-lg" style={{ color: getTextColor() }}>
+                                قائمة المستخدمين
+                            </h5>
+                        </div>
 
-                                        <div className="mb-3">
-                                            <div style={{ color: getMutedTextColor(), fontSize: "0.875rem" }}>البريد الإلكتروني</div>
-                                            <div style={{ color: getTextColor() }}>{user.email}</div>
-                                        </div>
-
-                                        <div className="d-flex gap-2">
-                                            <Button
-                                                size="sm"
-                                                variant="outline-info"
-                                                onClick={() => handleView(user)}
-                                                className="flex-fill"
-                                            >
-                                                <i className="fas fa-eye me-1"></i>
-                                                عرض
-                                            </Button>
-                                            <Button
-                                                size="sm"
-                                                variant="outline-warning"
-                                                onClick={() => handleShowEditModal(user)}
-                                                className="flex-fill"
-                                            >
-                                                <i className="fas fa-edit me-1"></i>
-                                                تعديل
-                                            </Button>
+                        {/* Body with Grid */}
+                        <div className="p-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {loading ? (
+                                    <div className="col-span-full text-center py-8" style={{ color: getMutedTextColor() }}>
+                                        <div className="flex justify-center items-center gap-2">
+                                            <div className={`animate-spin rounded-full h-8 w-8 border-b-2 ${isDark ? 'border-white' : 'border-[#c9a84c]'
+                                                }`}></div>
+                                            <span>جاري التحميل...</span>
                                         </div>
                                     </div>
-                                ))
-                            ) : (
-                                <div className="text-center py-4" style={{ color: getMutedTextColor() }}>
-                                    <i className="fas fa-users fa-2x mb-3 d-block"></i>
-                                    {users.length === 0 ? 'لا يوجد مستخدمين' : 'لم يتم العثور على مستخدمين'}
-                                </div>
-                            )}
-                        </Card.Body>
-                    </Card>
+                                ) : filteredUsers.length > 0 ? (
+                                    filteredUsers.map((user, index) => (
+                                        <div
+                                            key={user._id}
+                                            className={`rounded-lg border-2 p-4 transition-colors ${isDark
+                                                ? 'border-gray-700 hover:bg-gray-700/50 bg-gray-800'
+                                                : 'border-[#dfd7bb] hover:bg-gray-50 bg-white'
+                                                }`}
+                                            onMouseEnter={() => setHoveredRow(user._id)}
+                                            onMouseLeave={() => setHoveredRow(null)}
+                                        >
+                                            {/* رأس البطاقة */}
+                                            <div className="flex justify-between items-start mb-3">
+                                                <div className="flex items-center gap-3">
+                                                    <div
+                                                        className="rounded-full flex items-center justify-center"
+                                                        style={{
+                                                            width: "45px",
+                                                            height: "45px",
+                                                            backgroundColor: isDark ? "#4a90e2" : "#c9a84c",
+                                                            color: "white",
+                                                            fontSize: "16px",
+                                                            fontWeight: "bold",
+                                                            flexShrink: 0
+                                                        }}
+                                                    >
+                                                        {getInitials(user.name)}
+                                                    </div>
+                                                    <div>
+                                                        <div className="font-bold text-base" style={{ color: getTextColor() }}>
+                                                            {user.name}
+                                                        </div>
+                                                        <div className="text-sm" style={{ color: getMutedTextColor() }}>
+                                                            {user.job}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <span className={`px-2 py-1 text-xs rounded-full ${user.status === "active"
+                                                    ? isDark ? 'bg-green-900 text-green-300' : 'bg-green-100 text-green-700'
+                                                    : user.status === "banned"
+                                                        ? isDark ? 'bg-red-900 text-red-300' : 'bg-red-100 text-red-700'
+                                                        : isDark ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-600'
+                                                    }`}>
+                                                    {user.status === "active" ? "نشط" : user.status === "banned" ? "محظور" : "غير نشط"}
+                                                </span>
+                                            </div>
+
+                                            {/* معلومات المستخدم */}
+                                            <div className="mb-4">
+                                                <div className="text-xs mb-1" style={{ color: getMutedTextColor() }}>
+                                                    البريد الإلكتروني
+                                                </div>
+                                                <div className="text-sm" style={{ color: getTextColor() }}>
+                                                    {user.email}
+                                                </div>
+                                            </div>
+
+                                            {/* أزرار الإجراءات */}
+                                            <div className="flex gap-2">
+                                                <button
+                                                    onClick={() => handleView(user)}
+                                                    className={`p-2 rounded flex items-center gap-1 flex-1 justify-center text-sm transition-colors ${isDark
+                                                        ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                                                        : 'bg-blue-500 hover:bg-blue-600 text-white'
+                                                        }`}
+                                                >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                    </svg>
+                                                    عرض
+                                                </button>
+                                                <button
+                                                    onClick={() => handleShowEditModal(user)}
+                                                    className={`p-2 rounded flex items-center gap-1 flex-1 justify-center text-sm transition-colors ${isDark
+                                                        ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
+                                                        : 'bg-yellow-500 hover:bg-yellow-600 text-white'
+                                                        }`}
+                                                >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                    </svg>
+                                                    تعديل
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="col-span-full text-center py-8" style={{ color: getMutedTextColor() }}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto mb-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                        </svg>
+                                        {users.length === 0 ? 'لا يوجد مستخدمين' : 'لم يتم العثور على مستخدمين'}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 {/* مودال عرض المستخدم */}

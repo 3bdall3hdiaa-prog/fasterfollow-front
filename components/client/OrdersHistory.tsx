@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Order, OrderStatus } from '../../types';
 import axios from 'axios';
 import { useThemeStore } from '@/store/theme.store';
@@ -43,6 +43,9 @@ const getStatusClasses = (isDark: boolean) => {
 
 
 const OrdersHistory = () => {
+    const [refillDataMap, setRefillDataMap] = useState<{ [key: string]: any }>({})
+    const [refillIdMap, setRefillIdMap] = useState<{ [key: string]: string }>({})
+    const [refillingMap, setRefillingMap] = useState<{ [key: string]: boolean }>({});
     const { isDark } = useThemeStore();
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
@@ -62,7 +65,6 @@ const OrdersHistory = () => {
     const getTextColor = () => {
         return isDark ? '#ffffff' : '#1e2235';
     };
-    console.log(orders)
     const getMutedTextColor = () => {
         return isDark ? '#8a8fa8' : '#6c757d';
     };
@@ -94,27 +96,54 @@ const OrdersHistory = () => {
             return null;
         }
     };
-    const handleRefill = async () => {
+    const handleRefill = async (order: any) => {
+        // ضبط حالة التحميل للطلب الحالي
+        setRefillingMap(prev => ({ ...prev, [order._id]: true }));
+
         try {
-            setLoading(true);
-            const res = await axios.post(`${import.meta.env.VITE_API_URL}/services-list/refill`,
-                {
-                    order: selectedOrder?.providerOrderId || '',
-                    apiEndpoint: selectedOrder?.provider.apiEndpoint || '',
-                    key: selectedOrder?.provider.apiKey || '',
-                }, { withCredentials: true });
+            const res = await axios.post(`${import.meta.env.VITE_API_URL}/services-list/refill`, {
+                order: order?.providerOrderId || '',
+                apiEndpoint: order?.provider.apiEndpoint || '',
+                key: order?.provider.apiKey || '',
+            }, { withCredentials: true });
 
+            if (res.data) {
+                if (res.data.error) {
+                    alert(res.data.error)
+                }
+                const { refill } = res.data
+                setRefillIdMap(prev => ({
+                    ...prev,
+                    [order._id]: refill
+                }))
+            }
             setReviewSuccess('تم إرسال طلب إعادة التعبئة بنجاح! شكراً لك.');
-
         } catch (error) {
             console.error('Error refilling order:', error);
             setReviewError('حدث خطأ أثناء إرسال طلب إعادة التعبئة. حاول مرة أخرى.');
         } finally {
-            setLoading(false);
-
+            // إزالة حالة التحميل للطلب الحالي
+            setRefillingMap(prev => ({ ...prev, [order._id]: false }));
         }
     }
-
+    const handleView = async (orderId: string, refillid: any, order: any) => {
+        try {
+            const res = await axios.post(`${import.meta.env.VITE_API_URL}/services-list/refillStatus`, {
+                refillid,
+                key: order.provider.apiKey,
+                apiEndpoint: order.provider.apiEndpoint
+            }, { withCredentials: true })
+            if (res.data) {
+                // خزن البيانات مع مفتاح orderId
+                setRefillDataMap(prev => ({
+                    ...prev,
+                    [orderId]: res.data
+                }))
+            }
+        } catch (error) {
+            console.error('Error fetching refill status:', error);
+        }
+    }
     // جلب البيانات من السيرفر
     useEffect(() => {
         const fetchOrders = async () => {
@@ -259,7 +288,7 @@ const OrdersHistory = () => {
                 return;
             }
 
-            const serviceId = selectedOrder._id || selectedOrder.id;
+            const serviceId = selectedOrder.serviceId._id;
 
             const reviewData = {
                 userId: user._id,
@@ -274,7 +303,6 @@ const OrdersHistory = () => {
 
             if (res.status === 200 || res.status === 201) {
                 setReviewSuccess('تم إرسال التقييم بنجاح! شكراً لك.');
-                // إغلاق النافذة بعد 2 ثانية
                 setTimeout(() => {
                     closeReviewModal();
                 }, 2000);
@@ -350,7 +378,6 @@ const OrdersHistory = () => {
 
     return (
         <div className=" pt-4 md:p-4" style={{
-            backgroundColor: isDark ? '#1e2235' : '#f8f6f0',
             minHeight: "100vh",
             transition: "all 0.3s ease"
         }}>
@@ -401,202 +428,154 @@ const OrdersHistory = () => {
                 </div>
             </div>
 
-            {/* ✅ جدول الطلبات - للشاشات الكبيرة مع زر تقييم */}
-            <div className={`hidden  md:block rounded-lg overflow-hidden transition-all duration-300 ${isDark
-                ? 'bg-gray-800 border border-gray-700'
-                : 'bg-white border border-[#dfd7bb] shadow-md'
-                }`}>
-                {orders.length === 0 ? (
-                    <div className="text-center py-8" style={{ color: getMutedTextColor() }}>
-                        {orders.length === 0 ? 'لا توجد طلبات حالياً' : 'لم يتم العثور على طلبات تطابق البحث'}
-                    </div>
-                ) : (
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-sm text-right" style={{ color: getTextColor() }}>
-                            <thead className={`text-xs uppercase ${isDark ? 'text-gray-400 bg-gray-700/50' : 'text-gray-500 bg-gray-50'
-                                }`}>
-                                <tr>
-                                    <th className="px-4 py-3">رقم الطلب</th>
-                                    <th className="px-4 py-3">التاريخ</th>
-                                    <th className="px-4 py-3">الخدمة</th>
-                                    <th className="px-4 py-3">الرابط</th>
-                                    <th className="px-4 py-3">الكمية</th>
-                                    <th className="px-4 py-3">السعر</th>
-                                    <th className="px-4 py-3">الحالة</th>
-                                    <th className="px-4 py-3">عدد البدا</th>
-                                    <th className="px-4 py-3">المتبقي</th>
-                                    <th className={`px-4 py-3 text-center `}>
-                                        <span className="sr-only">الإجراءات</span>
-                                    </th>
-                                </tr>
-                            </thead>
-                            {orders.length === 0 || !orders ?
-                                'لا توجد طلبات حالياً' :
-                                <tbody>
-
-                                    {
-                                        orders.map((order: any) => (
-                                            <tr key={order._id} className={`border-b transition-colors ${isDark
-                                                ? 'border-gray-700 hover:bg-gray-700/50'
-                                                : 'border-[#dfd7bb] hover:bg-gray-50'
-                                                }`}>
-                                                <td className="px-4 py-4 font-mono text-xs" style={{ color: getMutedTextColor() }}>
-                                                    #{order.id || 'N/A'}
-                                                </td>
-                                                <td className="px-4 py-4 whitespace-nowrap" style={{ color: getMutedTextColor() }}>
-                                                    {formatDate(order.createdAt)}
-                                                </td>
-                                                <td className="px-4 py-4" style={{ color: getTextColor() }}>
-                                                    {order.serviceTitle || 'خدمة غير معروفة'}
-                                                </td>
-                                                <td className="px-4 py-4 font-mono truncate max-w-xs" title={order.link} style={{ color: getMutedTextColor() }}>
-                                                    {order.link || 'لا يوجد رابط'}
-                                                </td>
-                                                <td className="px-4 py-4" style={{ color: getTextColor() }}>
-                                                    {(order.quantity || 0).toLocaleString()}
-                                                </td>
-                                                <td className="px-4 py-4 text-green-400 font-semibold">
-                                                    {order.status === 'failed' || order.status === 'Failed' ? formatPrice(0) : formatPrice(order.totalCost || 0)}
-                                                </td>
-                                                <td className="px-4 py-4">
-                                                    {renderStatus(order.status)}
-                                                </td>
-                                                <td className="px-4 py-4">
-                                                    {order.startCount ? order.startCount : order.status === 'completed' ? order.quantity : 0}
-                                                </td>
-                                                <td className="px-4 py-4">
-                                                    {order.remains ? order.remains : order.status === 'completed' ? 0 : order.quantity}
-                                                </td>
-                                                <td className={`${order.status === 'completed' || order.status === 'Completed' ? '' : 'hidden'} px-4 py-4 flex flex-col gap-y-2 text-center`}>
-                                                    <button
-                                                        onClick={() => openReviewModal(order)}
-                                                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${isDark
-                                                            ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
-                                                            : 'bg-yellow-500 hover:bg-yellow-600 text-white'
-                                                            }`}
-                                                    >
-                                                        تقييم
-                                                    </button>
-                                                    <button
-
-                                                        onClick={() => { handleRefill() }}
-                                                        disabled={loading}
-                                                        className={`       ${order.serviceId?.refill ? '' : 'hidden'} cursor-pointer hover:opacity-80 transition-all flex-1 ${isDark ? 'text-white bg-[#60a5fa]' : 'text-white bg-[#60a5fa]'} rounded-lg p-2 text-center font-semibold text-sm`}
-                                                    // style={{ touchAction: 'manipulation' }}
-                                                    >
-                                                        {loading ? '...تعويض جاري ' : 'تعويض'}
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        ))
-                                    }
-                                </tbody>
-                            }
-                        </table>
-                    </div>
-                )}
-            </div>
 
             {/* ✅ تصميم البطاقات للهواتف مع زر تقييم */}
-            <div className="block  md:hidden ">
-                <div className={`rounded-lg overflow-hidden transition-all duration-300 ${isDark
-                    ? 'bg-gray-800 border border-gray-700'
-                    : 'bg-white border border-[#dfd7bb] shadow-md'
-                    }`}>
+            <div className="block">
+                <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4`}>
                     {orders.length === 0 ? (
-                        <div className="text-center py-8" style={{ color: getMutedTextColor() }}>
+                        <div className={`col-span-full text-center py-8 rounded-lg ${isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-[#dfd7bb] shadow-md'
+                            }`} style={{ color: getMutedTextColor() }}>
                             {orders.length === 0 ? 'لا توجد طلبات حالياً' : 'لم يتم العثور على طلبات تطابق البحث'}
                         </div>
                     ) : (
-                        orders.map((order: any) => (
-                            <div key={order._id} className={`border-b p-4 transition-colors ${isDark
-                                ? 'border-gray-700 hover:bg-gray-700/50'
-                                : 'border-[#dfd7bb] hover:bg-gray-50'
-                                }`}>
-                                {/* رأس البطاقة */}
-                                <div className="flex justify-between items-start mb-3">
-                                    <div>
-                                        <div>
-                                            <p>رقم الطلب</p>
-                                            <div className="font-bold text-lg mb-1" style={{ color: getTextColor() }}>
+                        orders.map((order: any) => {
+                            const orderRefillId = refillIdMap[order._id]
+                            const orderRefillData = refillDataMap[order._id]
+
+                            return (
+                                <div
+                                    key={order._id}
+                                    className={`rounded-lg border-2 p-4 transition-colors h-full min-h-[320px] flex flex-col ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-[#dfd7bb]'
+                                        }`}
+                                >
+                                    {/* رأس البطاقة */}
+                                    <div className="flex justify-between items-start mb-3 gap-2">
+                                        <div className="min-w-0 flex-1">
+                                            <p className="text-xs" style={{ color: getMutedTextColor() }}>رقم الطلب</p>
+                                            <div className="font-bold text-lg mb-1 truncate" style={{ color: getTextColor() }}>
                                                 #{order.id || 'N/A'}
                                             </div>
+                                            <div className="text-sm truncate" style={{ color: getMutedTextColor() }}>
+                                                {formatDate(order.createdAt)}
+                                            </div>
                                         </div>
-                                        <div className="text-sm" style={{ color: getMutedTextColor() }}>
-                                            {formatDate(order.createdAt)}
-                                        </div>
-                                    </div>
-                                    <div>
-                                        {renderStatus(order.status)}
-                                    </div>
-                                </div>
-
-                                {/* معلومات الطلب */}
-                                <div className="space-y-3 mb-4">
-                                    <div>
-                                        <div className="text-xs mb-1" style={{ color: getMutedTextColor() }}>الخدمة</div>
-                                        <div className="font-semibold" style={{ color: getTextColor() }}>
-                                            {order.serviceTitle || 'خدمة غير معروفة'}
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div className="text-xs mb-1" style={{ color: getMutedTextColor() }}>عدد البدا</div>
-                                        <div className="font-semibold" style={{ color: getTextColor() }}>
-                                            {order.startCount ? order.startCount : order.status === 'completed' ? order.quantity : 0}
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div className="text-xs mb-1" style={{ color: getMutedTextColor() }}>المتبقي</div>
-                                        <div className="font-semibold" style={{ color: getTextColor() }}>
-                                            {order.remains ? order.remains : order.status === 'completed' ? 0 : order.quantity}
+                                        <div className="flex-shrink-0">
+                                            {renderStatus(order.status)}
                                         </div>
                                     </div>
 
-                                    <div>
-                                        <div className="text-xs mb-1" style={{ color: getMutedTextColor() }}>الرابط</div>
-                                        <div className="text-sm break-all" style={{ color: isDark ? '#60a5fa' : '#2563eb' }}>
-                                            {order.link || 'لا يوجد رابط'}
-                                        </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-4">
+                                    {/* معلومات الطلب */}
+                                    <div className="space-y-3 mb-4 flex-1">
                                         <div>
-                                            <div className="text-xs mb-1" style={{ color: getMutedTextColor() }}>الكمية</div>
+                                            <div className="text-xs mb-1" style={{ color: getMutedTextColor() }}>الخدمة</div>
+                                            <div className="font-semibold truncate" style={{ color: getTextColor() }}>
+                                                {order.serviceTitle || 'خدمة غير معروفة'}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div className="text-xs mb-1" style={{ color: getMutedTextColor() }}>عدد البدا</div>
                                             <div className="font-semibold" style={{ color: getTextColor() }}>
-                                                {(order.quantity || 0).toLocaleString()}
+                                                {order.startCount ? order.startCount : order.status === 'completed' ? order.quantity : 0}
                                             </div>
                                         </div>
                                         <div>
-                                            <div className="text-xs mb-1" style={{ color: getMutedTextColor() }}>السعر</div>
-                                            <div className="text-green-400 font-bold text-lg">
-                                                {formatPrice(order.totalCost || 0)}
+                                            <div className="text-xs mb-1" style={{ color: getMutedTextColor() }}>المتبقي</div>
+                                            <div className="font-semibold" style={{ color: getTextColor() }}>
+                                                {order.remains ? order.remains : order.status === 'completed' ? 0 : order.quantity}
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <div className="text-xs mb-1" style={{ color: getMutedTextColor() }}>الرابط</div>
+                                            <div className="text-sm truncate" style={{ color: isDark ? '#60a5fa' : '#2563eb' }}>
+                                                {order.link || 'لا يوجد رابط'}
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <div className="text-xs mb-1" style={{ color: getMutedTextColor() }}>الكمية</div>
+                                                <div className="font-semibold" style={{ color: getTextColor() }}>
+                                                    {(order.quantity || 0).toLocaleString()}
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div className="text-xs mb-1" style={{ color: getMutedTextColor() }}>السعر</div>
+                                                <div className="text-green-400 font-bold text-lg">
+                                                    {formatPrice(order.totalCost || 0)}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
+
+                                    {/* أزرار الإجراءات */}
+                                    <div className={`flex mt-3 gap-2 ${order.status === 'completed' || order.status === 'Completed' ? '' : 'hidden'
+                                        }`}>
+                                        <button
+                                            onClick={() => openReviewModal(order)}
+                                            className={`cursor-pointer hover:opacity-80 transition-all flex-1 ${isDark ? 'text-white bg-[#c9a84c]' : 'text-white bg-[#c9a84c]'
+                                                } rounded-lg p-2 text-center font-semibold text-sm`}
+                                            style={{ touchAction: 'manipulation' }}
+                                        >
+                                            تقييم
+                                        </button>
+                                        <button
+                                            onClick={() => { handleRefill(order) }}
+                                            disabled={refillingMap[order._id] || false}
+                                            className={`${order.serviceId?.refill ? '' : 'hidden'
+                                                } ${refillingMap[order._id] ? 'cursor-not-allowed opacity-50' : ''
+                                                } cursor-pointer hover:opacity-80 transition-all flex-1 ${isDark ? 'text-white bg-[#60a5fa]' : 'text-white bg-[#60a5fa]'
+                                                } rounded-lg p-2 text-center font-semibold text-sm`}
+                                            style={{ touchAction: 'manipulation' }}
+                                        >
+                                            {refillingMap[order._id] ? '...تعويض جاري' : 'تعويض'}
+                                        </button>
+                                    </div>
+
+                                    {/* ✅ عرض حالة الـ Refill */}
+                                    {orderRefillId && (
+                                        <div className="mt-3 pt-3 border-t" style={{ borderColor: getBorderColor() }}>
+                                            {orderRefillData ? (
+                                                <div className="flex flex-col gap-2">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-sm font-medium" style={{ color: getTextColor() }}>
+                                                            حالة التعويض:
+                                                        </span>
+                                                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${orderRefillData.status === 'Completed'
+                                                            ? 'bg-green-100 text-green-700'
+                                                            : orderRefillData.status === 'Processing'
+                                                                ? 'bg-blue-100 text-blue-700'
+                                                                : orderRefillData.status === 'Failed'
+                                                                    ? 'bg-red-100 text-red-700'
+                                                                    : 'bg-yellow-100 text-yellow-700'
+                                                            }`}>
+                                                            {orderRefillData.status || 'جاري المعالجة...'}
+                                                        </span>
+                                                    </div>
+                                                    {orderRefillData.remains && (
+                                                        <div className="text-sm" style={{ color: getMutedTextColor() }}>
+                                                            المتبقي: <span className="font-semibold" style={{ color: getTextColor() }}>{orderRefillData.remains}</span>
+                                                        </div>
+                                                    )}
+                                                    {orderRefillData.start_count && (
+                                                        <div className="text-sm" style={{ color: getMutedTextColor() }}>
+                                                            عدد البدا: <span className="font-semibold" style={{ color: getTextColor() }}>{orderRefillData.start_count}</span>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ) : (
+                                                <button
+                                                    onClick={() => handleView(order._id, orderRefillId, order)}
+                                                    className="w-full px-4 py-2 rounded-lg text-sm font-medium bg-blue-500 hover:bg-blue-600 text-white transition-all"
+                                                >
+                                                    عرض حالة التعويض
+                                                </button>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
-
-
-
-                                {/* أزرار الإجراءات في الموبايل */}
-                                <div className={`flex mt-3 gap-2 ${order.status === 'completed' || order.status === 'Completed' ? '' : 'hidden'}`}>
-                                    <button
-                                        onClick={() => openReviewModal(order)}
-                                        className={`cursor-pointer hover:opacity-80 transition-all flex-1 ${isDark ? 'text-white bg-[#c9a84c]' : 'text-white bg-[#c9a84c]'} rounded-lg p-2 text-center font-semibold text-sm`}
-                                        style={{ touchAction: 'manipulation' }}
-                                    >
-                                        تقييم
-                                    </button>
-                                    <button
-                                        onClick={() => { handleRefill() }}
-                                        disabled={loading}
-                                        className={`${order.serviceId?.refill ? '' : 'hidden'} cursor-pointer hover:opacity-80 transition-all flex-1 ${isDark ? 'text-white bg-[#60a5fa]' : 'text-white bg-[#60a5fa]'} rounded-lg p-2 text-center font-semibold text-sm`}
-                                        style={{ touchAction: 'manipulation' }}
-                                    >
-                                        {loading ? '...تعويض جاري ' : 'تعويض'}
-                                    </button>
-                                </div>
-                            </div>
-                        ))
+                            )
+                        })
                     )}
                 </div>
             </div>

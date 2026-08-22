@@ -330,10 +330,6 @@ const OrdersManagement = () => {
 
     const { isDark } = useThemeStore();
 
-    const getBackgroundColor = () => {
-        return isDark ? '#1e2235' : '#f8f6f0';
-    };
-
     const getCardBackground = () => {
         return isDark ? '#252a41' : '#ffffff';
     };
@@ -369,7 +365,6 @@ const OrdersManagement = () => {
     return (
         <div
             style={{
-                backgroundColor: getBackgroundColor(),
                 minHeight: "100vh",
                 padding: "20px",
                 color: getTextColor(),
@@ -582,345 +577,210 @@ const OrdersManagement = () => {
                     </div>
                 </div>
 
-                {/* جدول الطلبات - للشاشات الكبيرة */}
-                <div className="d-none d-md-block">
-                    <Card style={{
-                        backgroundColor: getCardBackground(),
-                        border: isDark ? "none" : "1px solid #dfd7bb",
-                        borderRadius: "15px",
-                        transition: "all 0.3s ease"
-                    }}>
-                        <Card.Header style={{
-                            backgroundColor: getCardHeaderBackground(),
-                            border: "none",
-                            padding: "20px"
-                        }}>
-                            <div className="d-flex justify-content-between align-items-center flex-wrap">
-                                <h5 className="mb-0" style={{ color: getTextColor() }}>قائمة الطلبات</h5>
-                                {lastUpdate && (
-                                    <small style={{ color: getMutedTextColor() }}>
-                                        آخر تحديث للحالات: {formatDate(lastUpdate)}
-                                    </small>
-                                )}
-                            </div>
-                        </Card.Header>
-                        <Card.Body className="p-0">
-                            {loading ? (
-                                <div className="text-center py-5">
-                                    <Spinner animation="border" variant={isDark ? "light" : "secondary"} />
-                                </div>
-                            ) : (
-                                <Table responsive hover className="mb-0" style={{ color: getTextColor() }}>
-                                    <thead style={{ backgroundColor: getCardHeaderBackground() }}>
-                                        <tr>
-                                            <th>رقم الطلب</th>
-                                            <th>المنصة</th>
-                                            <th>الخدمة</th>
-                                            <th>الرابط</th>
-                                            <th>الكمية</th>
-                                            <th>التكلفة</th>
-                                            <th>المستخدم</th>
-                                            <th>الحالة</th>
-                                            <th>التاريخ</th>
-                                            <th>الإجراءات</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {filteredOrders.length > 0 ? (
-                                            filteredOrders.map((order: any, index: any) => (
-                                                <tr
-                                                    key={order._id}
-                                                    style={getRowStyle(order._id)}
-                                                    onMouseEnter={() => setHoveredRow(order._id)}
-                                                    onMouseLeave={() => setHoveredRow(null)}
-                                                >
-                                                    <td>
-                                                        <Badge bg="light" text="dark">
-                                                            #{order.id}
-                                                        </Badge>
-                                                    </td>
-                                                    <td>
-                                                        <Badge bg={getCategoryBadge(order.selectedCategory)}>
-                                                            <i className={`${getPlatformIcon(order.selectedCategory)} me-1`}></i>
-                                                            {order.selectedCategory}
-                                                        </Badge>
-                                                    </td>
-                                                    <td>
-                                                        <div className="fw-bold" style={{ fontSize: "14px", color: getTextColor() }}>
-                                                            {order.serviceTitle}
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        <a
-                                                            href={order.link}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="text-info text-decoration-none"
-                                                            style={{ fontSize: "12px" }}
-                                                        >
-                                                            <i className="fas fa-external-link-alt me-1"></i>
-                                                            رابط
-                                                        </a>
-                                                    </td>
-                                                    <td>
-                                                        <span className="fw-bold" style={{ color: getTextColor() }}>{order.quantity?.toLocaleString()}</span>
-                                                    </td>
-                                                    <td>
-                                                        <span className="fw-bold text-success">{formatPrice(order.totalCost || 0)}</span>
-                                                    </td>
-                                                    <td>
-                                                        <div className="d-flex align-items-center">
-                                                            <div
-                                                                className="rounded-circle d-flex align-items-center justify-content-center me-2"
-                                                                style={{
-                                                                    width: "30px",
-                                                                    height: "30px",
-                                                                    backgroundColor: isDark ? "#4a90e2" : "#c9a84c",
-                                                                    color: "white",
-                                                                    fontSize: "12px",
-                                                                    fontWeight: "bold"
-                                                                }}
-                                                            >
-                                                                {order.username?.charAt(0) || "م"}
-                                                            </div>
-                                                            <span style={{ color: getTextColor() }}>{order.username}</span>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        <Badge bg={getStatusBadge(order.status)}>
-                                                            {renderStatus(order.status)}
-                                                        </Badge>
-                                                    </td>
-                                                    <td>
-                                                        <small style={{ color: getMutedTextColor() }}>{formatDate(order.createdAt)}</small>
-                                                    </td>
-                                                    <td>
-                                                        <div className="d-flex gap-2 flex-wrap">
-                                                            <Button
-                                                                size="sm"
-                                                                variant="outline-info"
-                                                                onClick={() => handleView(order)}
-                                                            >
-                                                                <i className="fas fa-eye me-1"></i>
-                                                                عرض
-                                                            </Button>
-                                                            <Button
-                                                                size="sm"
-                                                                variant="outline-warning"
-                                                                onClick={() => handleShowEditModal(order)}
-                                                            >
-                                                                <i className="fas fa-edit me-1"></i>
-                                                                تعديل
-                                                            </Button>
-                                                            <Button
-                                                                size="sm"
-                                                                variant="outline-success"
-                                                                onClick={() => handleUpdateSingleStatus(order._id, order.providerOrderId)}
-                                                                disabled={updatingOrders[order._id] || !order.providerOrderId}
-                                                            >
-                                                                {updatingOrders[order._id] ? (
-                                                                    <Spinner animation="border" size="sm" />
-                                                                ) : (
-                                                                    <>
-                                                                        <i className="fas fa-sync-alt me-1"></i>
-                                                                        تحديث
-                                                                    </>
-                                                                )}
-                                                            </Button>
-                                                            {/* <Button
-                                                                size="sm"
-                                                                variant="outline-danger"
-                                                                onClick={() => handleDelete(order._id)}
-                                                            >
-                                                                <i className="fas fa-trash me-1"></i>
-                                                                حذف
-                                                            </Button> */}
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            ))
-                                        ) : (
-                                            <tr>
-                                                <td colSpan={11} className="text-center py-4" style={{ color: getMutedTextColor() }}>
-                                                    <i className="fas fa-shopping-cart fa-2x mb-3 d-block"></i>
-                                                    {orders.length === 0 ? 'لا توجد طلبات' : 'لم يتم العثور على طلبات'}
-                                                </td>
-                                            </tr>
-                                        )}
-                                    </tbody>
-                                </Table>
-                            )}
-                        </Card.Body>
-                    </Card>
-                </div>
+
 
                 {/* تصميم البطاقات للهواتف */}
-                <div className="d-block d-md-none">
-                    <Card style={{
-                        backgroundColor: getCardBackground(),
-                        border: isDark ? "none" : "1px solid #dfd7bb",
-                        borderRadius: "15px",
-                        transition: "all 0.3s ease"
-                    }}>
-                        <Card.Header style={{
-                            backgroundColor: getCardHeaderBackground(),
-                            border: "none",
-                            padding: "15px"
-                        }}>
-                            <div className="d-flex justify-content-between align-items-center">
-                                <h5 className="mb-0" style={{ color: getTextColor() }}>قائمة الطلبات</h5>
-                                {lastUpdate && (
-                                    <small style={{ color: getMutedTextColor(), fontSize: "0.7rem" }}>
-                                        {formatDate(lastUpdate)}
-                                    </small>
-                                )}
-                            </div>
-                        </Card.Header>
-                        <Card.Body className="p-0">
-                            {loading ? (
-                                <div className="text-center py-5">
-                                    <Spinner animation="border" variant={isDark ? "light" : "secondary"} />
-                                </div>
-                            ) : filteredOrders.length > 0 ? (
-                                filteredOrders.map((order: any, index: number) => (
-                                    <div
-                                        key={order._id}
-                                        className="border-bottom p-3 hover-bg"
-                                        style={{
-                                            backgroundColor: hoveredRow === order._id ? (isDark ? "#2f3450" : "#f0ede4") : "transparent",
-                                            borderColor: isDark ? "#2f3450" : "#dfd7bb",
-                                            transition: "background-color 0.3s"
-                                        }}
-                                        onMouseEnter={() => setHoveredRow(order._id)}
-                                        onMouseLeave={() => setHoveredRow(null)}
-                                    >
-                                        {/* رأس البطاقة */}
-                                        <div className="d-flex justify-content-between align-items-start mb-3">
-                                            <div className="d-flex align-items-center">
-                                                <div
-                                                    className="rounded-circle d-flex align-items-center justify-content-center me-3"
-                                                    style={{
-                                                        width: "40px",
-                                                        height: "40px",
-                                                        backgroundColor: isDark ? "#4a90e2" : "#c9a84c",
-                                                        color: "white",
-                                                        fontSize: "14px",
-                                                        fontWeight: "bold"
-                                                    }}
-                                                >
-                                                    <i className={getPlatformIcon(order.selectedCategory)}></i>
-                                                </div>
-                                                <div>
-                                                    <div className="fw-bold" style={{ color: getTextColor() }}>{order.serviceTitle}</div>
-                                                    <div style={{ color: getMutedTextColor(), fontSize: "0.875rem" }}>#{order.id}</div>
-                                                </div>
-                                            </div>
-                                            <Badge bg={getStatusBadge(order.status)}>
-                                                {renderStatus(order.status)}
-                                            </Badge>
-                                        </div>
+                <div className="block">
+                    <div className={`rounded-lg overflow-hidden transition-all duration-300 ${isDark ? ' border border-gray-700' : ' border border-[#dfd7bb] shadow-md'
+                        }`}>
+                        {/* Header */}
+                        <div className={`p-4 border-b flex justify-between items-center ${isDark ? 'border-gray-700' : 'border-[#dfd7bb]'
+                            }`} style={{
+                                backgroundColor: getCardHeaderBackground()
+                            }}>
+                            <h5 className="mb-0 font-bold text-lg" style={{ color: getTextColor() }}>
+                                قائمة الطلبات
+                            </h5>
+                            {lastUpdate && (
+                                <small style={{ color: getMutedTextColor(), fontSize: "0.7rem" }}>
+                                    {formatDate(lastUpdate)}
+                                </small>
+                            )}
+                        </div>
 
-                                        {/* معلومات الطلب */}
-                                        <div className="row mb-3 flex flex-col gap-2">
-                                            <div className="col-6">
-                                                <div style={{ color: getMutedTextColor(), fontSize: "0.875rem" }}>المستخدم</div>
-                                                <div className="fw-bold" style={{ color: getTextColor() }}>{order.username}</div>
-                                            </div>
-                                            <div className="col-6">
-                                                <div className='' style={{ color: getMutedTextColor(), fontSize: "0.875rem" }}>المنصة</div>
-                                                <div>
-                                                    <Badge className='' bg={getCategoryBadge(order.selectedCategory)}>
-                                                        {order.selectedCategory}
-                                                    </Badge>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="row mb-3">
-                                            <div className="col-6">
-                                                <div style={{ color: getMutedTextColor(), fontSize: "0.875rem" }}>الكمية</div>
-                                                <div className="fw-bold" style={{ color: getTextColor() }}>{order.quantity?.toLocaleString()}</div>
-                                            </div>
-                                            <div className="col-6">
-                                                <div style={{ color: getMutedTextColor(), fontSize: "0.875rem" }}>التكلفة</div>
-                                                <div className="fw-bold text-success">{formatPrice(order.totalCost)}</div>
-                                            </div>
-                                        </div>
-
-                                        <div className="mb-3">
-                                            <div style={{ color: getMutedTextColor(), fontSize: "0.875rem" }}>الرابط</div>
-                                            <a
-                                                href={order.link}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="text-info text-decoration-none small"
-                                            >
-                                                <i className="fas fa-external-link-alt me-1"></i>
-                                                عرض الرابط
-                                            </a>
-                                        </div>
-
-                                        <div className="mb-3">
-                                            <div style={{ color: getMutedTextColor(), fontSize: "0.875rem" }}>التاريخ</div>
-                                            <div style={{ color: getMutedTextColor(), fontSize: "0.875rem" }}>{formatDate(order.createdAt)}</div>
-                                        </div>
-
-                                        {/* أزرار الإجراءات */}
-                                        <div className="d-flex gap-2 flex-wrap">
-                                            <Button
-                                                size="sm"
-                                                variant="outline-info"
-                                                onClick={() => handleView(order)}
-                                                className="flex-fill"
-                                            >
-                                                <i className="fas fa-eye me-1"></i>
-                                                عرض
-                                            </Button>
-                                            <Button
-                                                size="sm"
-                                                variant="outline-warning"
-                                                onClick={() => handleShowEditModal(order)}
-                                                className="flex-fill"
-                                            >
-                                                <i className="fas fa-edit me-1"></i>
-                                                تعديل
-                                            </Button>
-                                            <Button
-                                                size="sm"
-                                                variant="outline-success"
-                                                onClick={() => handleUpdateSingleStatus(order._id, order.providerOrderId)}
-                                                disabled={updatingOrders[order._id] || !order.providerOrderId}
-                                                className="flex-fill"
-                                            >
-                                                {updatingOrders[order._id] ? (
-                                                    <Spinner animation="border" size="sm" />
-                                                ) : (
-                                                    <>
-                                                        <i className="fas fa-sync-alt me-1"></i>
-                                                        تحديث
-                                                    </>
-                                                )}
-                                            </Button>
-                                            {/* <Button
-                                                size="sm"
-                                                variant="outline-danger"
-                                                onClick={() => handleDelete(order._id)}
-                                                className="flex-fill"
-                                            >
-                                                <i className="fas fa-trash me-1"></i>
-                                                حذف
-                                            </Button> */}
+                        {/* Body with Grid */}
+                        <div className="p-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {loading ? (
+                                    <div className="col-span-full text-center py-8" style={{ color: getMutedTextColor() }}>
+                                        <div className="flex justify-center items-center gap-2">
+                                            <div className={`animate-spin rounded-full h-8 w-8 border-b-2 ${isDark ? 'border-white' : 'border-[#c9a84c]'
+                                                }`}></div>
+                                            <span>جاري التحميل...</span>
                                         </div>
                                     </div>
-                                ))
-                            ) : (
-                                <div className="text-center py-4" style={{ color: getMutedTextColor() }}>
-                                    <i className="fas fa-shopping-cart fa-2x mb-3 d-block"></i>
-                                    {orders.length === 0 ? 'لا توجد طلبات' : 'لم يتم العثور على طلبات'}
-                                </div>
-                            )}
-                        </Card.Body>
-                    </Card>
+                                ) : filteredOrders.length > 0 ? (
+
+                                    filteredOrders.map((order: any, index: number) => (
+                                        <div
+                                            key={order._id}
+                                            className={`rounded-lg border-2 p-4 transition-colors h-full min-h-[280px] flex flex-col ${isDark
+                                                    ? 'border-gray-700 hover:bg-gray-700/50 bg-gray-800'
+                                                    : 'border-[#dfd7bb] hover:bg-gray-50 bg-white'
+                                                }`}
+                                            onMouseEnter={() => setHoveredRow(order._id)}
+                                            onMouseLeave={() => setHoveredRow(null)}
+                                        >
+                                            {/* رأس البطاقة */}
+                                            <div className="flex justify-between items-start mb-3 gap-2">
+                                                <div className="flex items-center gap-3 min-w-0 flex-1">
+                                                    <div
+                                                        className="rounded-full flex items-center justify-center flex-shrink-0"
+                                                        style={{
+                                                            width: "40px",
+                                                            height: "40px",
+                                                            backgroundColor: isDark ? "#4a90e2" : "#c9a84c",
+                                                            color: "white",
+                                                            fontSize: "18px",
+                                                            fontWeight: "bold"
+                                                        }}
+                                                    >
+                                                        <i className={getPlatformIcon(order.selectedCategory)}></i>
+                                                    </div>
+                                                    <div className="min-w-0 flex-1">
+                                                        <div className="font-bold text-sm truncate" style={{ color: getTextColor() }}>
+                                                            {order.serviceTitle}
+                                                        </div>
+                                                        <div className="text-xs" style={{ color: getMutedTextColor() }}>
+                                                            #{order.id}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <span className={`px-2 py-1 text-xs rounded-full flex-shrink-0 ${order.status === 'completed'
+                                                        ? isDark ? 'bg-green-900 text-green-300' : 'bg-green-100 text-green-700'
+                                                        : order.status === 'pending'
+                                                            ? isDark ? 'bg-yellow-900 text-yellow-300' : 'bg-yellow-100 text-yellow-700'
+                                                            : order.status === 'In Progress'
+                                                                ? isDark ? 'bg-blue-900 text-blue-300' : 'bg-blue-100 text-blue-700'
+                                                                : order.status === 'cancelled'
+                                                                    ? isDark ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-600'
+                                                                    : isDark ? 'bg-red-900 text-red-300' : 'bg-red-100 text-red-700'
+                                                    }`}>
+                                                    {renderStatus(order.status)}
+                                                </span>
+                                            </div>
+
+                                            {/* معلومات الطلب */}
+                                            <div className="grid grid-cols-2 gap-2 mb-3">
+                                                <div>
+                                                    <div className="text-xs" style={{ color: getMutedTextColor() }}>المستخدم</div>
+                                                    <div className="font-bold text-sm truncate" style={{ color: getTextColor() }}>
+                                                        {order.username}
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <div className="text-xs" style={{ color: getMutedTextColor() }}>المنصة</div>
+                                                    <div>
+                                                        <span className={`px-2 py-0.5 text-xs rounded-full ${order.selectedCategory === 'instagram'
+                                                                ? isDark ? 'bg-pink-900 text-pink-300' : 'bg-pink-100 text-pink-700'
+                                                                : order.selectedCategory === 'youtube'
+                                                                    ? isDark ? 'bg-red-900 text-red-300' : 'bg-red-100 text-red-700'
+                                                                    : order.selectedCategory === 'tiktok'
+                                                                        ? isDark ? 'bg-blue-900 text-blue-300' : 'bg-blue-100 text-blue-700'
+                                                                        : order.selectedCategory === 'telegram'
+                                                                            ? isDark ? 'bg-blue-900 text-blue-300' : 'bg-blue-100 text-blue-700'
+                                                                            : isDark ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-600'
+                                                            }`}>
+                                                            {order.selectedCategory}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="grid grid-cols-2 gap-2 mb-3">
+                                                <div>
+                                                    <div className="text-xs" style={{ color: getMutedTextColor() }}>الكمية</div>
+                                                    <div className="font-bold text-sm" style={{ color: getTextColor() }}>
+                                                        {order.quantity?.toLocaleString()}
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <div className="text-xs" style={{ color: getMutedTextColor() }}>التكلفة</div>
+                                                    <div className="font-bold text-sm text-green-400">
+                                                        {formatPrice(order.totalCost)}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="mb-3">
+                                                <div className="text-xs" style={{ color: getMutedTextColor() }}>الرابط</div>
+                                                <a
+                                                    href={order.link}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-sm hover:underline truncate block"
+                                                    style={{ color: isDark ? '#60a5fa' : '#2563eb' }}
+                                                >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 inline ml-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                                    </svg>
+                                                    عرض الرابط
+                                                </a>
+                                            </div>
+
+                                            <div className="mb-3">
+                                                <div className="text-xs" style={{ color: getMutedTextColor() }}>التاريخ</div>
+                                                <div className="text-sm" style={{ color: getMutedTextColor() }}>
+                                                    {formatDate(order.createdAt)}
+                                                </div>
+                                            </div>
+
+                                            {/* أزرار الإجراءات - mt-auto عشان تروح للأسفل */}
+                                            <div className="flex flex-wrap gap-2 mt-auto">
+                                                <button
+                                                    onClick={() => handleView(order)}
+                                                    className={`p-2 rounded flex items-center gap-1 flex-1 justify-center text-sm transition-colors ${isDark ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-blue-500 hover:bg-blue-600 text-white'
+                                                        }`}
+                                                >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                    </svg>
+                                                    عرض
+                                                </button>
+                                                <button
+                                                    onClick={() => handleShowEditModal(order)}
+                                                    className={`p-2 rounded flex items-center gap-1 flex-1 justify-center text-sm transition-colors ${isDark ? 'bg-yellow-600 hover:bg-yellow-700 text-white' : 'bg-yellow-500 hover:bg-yellow-600 text-white'
+                                                        }`}
+                                                >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                    </svg>
+                                                    تعديل
+                                                </button>
+                                                <button
+                                                    onClick={() => handleUpdateSingleStatus(order._id, order.providerOrderId)}
+                                                    disabled={updatingOrders[order._id] || !order.providerOrderId}
+                                                    className={`p-2 rounded flex items-center gap-1 flex-1 justify-center text-sm transition-colors ${updatingOrders[order._id] || !order.providerOrderId
+                                                            ? isDark ? 'bg-gray-600 cursor-not-allowed text-gray-400' : 'bg-gray-300 cursor-not-allowed text-gray-500'
+                                                            : isDark ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-green-500 hover:bg-green-600 text-white'
+                                                        }`}
+                                                >
+                                                    {updatingOrders[order._id] ? (
+                                                        <div className={`animate-spin rounded-full h-4 w-4 border-b-2 border-white`}></div>
+                                                    ) : (
+                                                        <>
+                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                                            </svg>
+                                                            تحديث
+                                                        </>
+                                                    )}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="col-span-full text-center py-8" style={{ color: getMutedTextColor() }}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto mb-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                        </svg>
+                                        {orders.length === 0 ? 'لا توجد طلبات' : 'لم يتم العثور على طلبات'}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 {/* مودال عرض الطلب */}

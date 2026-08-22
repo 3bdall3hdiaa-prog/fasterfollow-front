@@ -286,7 +286,6 @@ const ManagePayments: React.FC = () => {
 
     return (
         <div className="p-4" style={{
-            backgroundColor: isDark ? '#1e2235' : '#f8f6f0',
             minHeight: "100vh",
             transition: "all 0.3s ease"
         }}>
@@ -328,104 +327,13 @@ const ManagePayments: React.FC = () => {
                 </div>
             </div>
 
-            {/* ✅ جدول عرض طرق الدفع - للشاشات الكبيرة */}
-            <div className={`hidden md:block rounded-lg overflow-hidden transition-all duration-300 ${isDark
-                ? 'bg-gray-800 border border-gray-700'
-                : 'bg-white border border-[#dfd7bb] shadow-md'
-                }`}>
-                <div className="overflow-x-auto">
-                    <table className="w-full text-sm text-right" style={{ color: getTextColor() }}>
-                        <thead className={`text-xs uppercase ${isDark ? 'text-gray-400 bg-gray-700/50' : 'text-gray-500 bg-gray-50'
-                            }`}>
-                            <tr>
-                                <th className="px-4 py-3">ID</th>
-                                <th className="px-4 py-3">الاسم</th>
-                                <th className="px-4 py-3">الأيقونة</th>
-                                <th className="px-4 py-3">الوصف</th>
-                                <th className="px-4 py-3">رابط بوابة الدفع</th>
-                                <th className="px-4 py-3">الإجراءات</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredPayments.map(payment => (
-                                <tr key={payment._id} className={`border-b transition-colors ${isDark
-                                    ? 'border-gray-700 hover:bg-gray-700/50'
-                                    : 'border-[#dfd7bb] hover:bg-gray-50'
-                                    }`}>
-                                    <td className="px-4 py-4 font-mono text-xs">
-                                        <code className={`px-2 py-1 rounded ${isDark ? 'bg-gray-700' : 'bg-gray-100'
-                                            }`} style={{ color: getTextColor() }}>
-                                            {payment.id}
-                                        </code>
-                                    </td>
-                                    <td className="px-4 py-4 font-medium" style={{ color: getTextColor() }}>{payment.name}</td>
-                                    <td className="px-4 py-4 text-2xl">
-                                        {payment.icon}
-                                    </td>
-                                    <td className="px-4 py-4 max-w-xs">
-                                        <div className="text-sm line-clamp-2" style={{ color: getMutedTextColor() }} title={payment.description}>
-                                            {payment.description || 'لا يوجد وصف'}
-                                        </div>
-                                    </td>
-                                    <td className="px-4 py-4 font-mono text-xs">
-                                        <a
-                                            href={payment.paymentUrl}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className={`break-all transition-colors ${isDark ? 'text-primary-400 hover:text-primary-300' : 'text-[#c9a84c] hover:text-[#b8973a]'
-                                                }`}
-                                        >
-                                            {payment.paymentUrl}
-                                        </a>
-                                    </td>
-                                    <td className="px-4 py-4">
-                                        <div className="flex justify-end gap-2 flex-wrap">
-                                            <button
-                                                onClick={() => handleOpenModal(payment)}
-                                                className={`p-2 rounded flex items-center gap-1 text-xs transition-colors ${isDark
-                                                    ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
-                                                    : 'bg-yellow-500 hover:bg-yellow-600 text-white'
-                                                    }`}
-                                                disabled={loading}
-                                            >
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                                </svg>
-                                                تعديل
-                                            </button>
-                                            <button
-                                                onClick={() => handleDelete(payment._id)}
-                                                className={`p-2 rounded flex items-center gap-1 text-xs transition-colors ${isDark
-                                                    ? 'bg-red-600 hover:bg-red-700 text-white'
-                                                    : 'bg-red-500 hover:bg-red-600 text-white'
-                                                    }`}
-                                                disabled={loading}
-                                            >
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                </svg>
-                                                حذف
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
 
-                    {filteredPayments.length === 0 && !loading && (
-                        <div className="text-center py-8" style={{ color: getMutedTextColor() }}>
-                            {paymentMethods.length === 0 ? 'لا توجد طرق دفع' : 'لم يتم العثور على طرق دفع تطابق البحث'}
-                        </div>
-                    )}
-                </div>
-            </div>
 
             {/* ✅ تصميم البطاقات للهواتف */}
-            <div className="block md:hidden">
-                <div className={`rounded-lg overflow-hidden transition-all duration-300 ${isDark
-                    ? 'bg-gray-800 border border-gray-700'
-                    : 'bg-white border border-[#dfd7bb] shadow-md'
+            <div className="block ">
+                <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 rounded-lg overflow-hidden transition-all duration-300 ${isDark
+                    ? ' '
+                    : ' '
                     }`}>
                     {filteredPayments.length === 0 ? (
                         <div className="text-center py-8" style={{ color: getMutedTextColor() }}>
@@ -433,9 +341,9 @@ const ManagePayments: React.FC = () => {
                         </div>
                     ) : (
                         filteredPayments.map(payment => (
-                            <div key={payment._id} className={`border-b p-4 transition-colors ${isDark
-                                ? 'border-gray-700 hover:bg-gray-700/50'
-                                : 'border-[#dfd7bb] hover:bg-gray-50'
+                            <div key={payment._id} className={`${isDark ? 'bg-gray-800' : 'bg-white'} border-2 rounded-lg p-4 transition-colors ${isDark
+                                ? 'border-gray-700 '
+                                : 'border-[#dfd7bb] '
                                 }`}>
                                 {/* رأس البطاقة */}
                                 <div className="flex justify-between items-start mb-3">

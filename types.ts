@@ -75,7 +75,7 @@ export interface Order {
     id: string;
     _id?: string;
     selectedCategory: string;
-    selectedServiceId: string;
+    serviceId: any;
     serviceTitle: string;
     providerOrderId: string;
     id_user: {

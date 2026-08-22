@@ -264,7 +264,6 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
 
     return (
         <div className="p-4" style={{
-            backgroundColor: getBackgroundColor(),
             minHeight: "100vh",
             transition: "all 0.3s ease"
         }}>
@@ -305,138 +304,34 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                 </div>
             </div>
 
-            {/* ✅ جدول عرض الخدمات - للشاشات الكبيرة */}
-            <div className={`hidden md:block rounded-lg overflow-hidden transition-all duration-300 ${isDark
-                ? 'bg-gray-800 border border-gray-700'
-                : 'bg-white border border-[#dfd7bb] shadow-md'
-                }`}>
-                <div className="overflow-x-auto">
-                    <table className="w-full text-sm text-right" style={{ color: getTextColor() }}>
-                        <thead className={`text-xs uppercase ${isDark ? 'text-gray-400 bg-gray-700/50' : 'text-gray-500 bg-gray-50'
-                            }`}>
-                            <tr>
-                                <th className="px-4 py-3">الصورة</th>
-                                <th className="px-4 py-3">ID</th>
-                                <th className="px-4 py-3">الخدمة</th>
-                                <th className="px-4 py-3">المزود</th>
-                                <th className="px-4 py-3">السعر / 1000</th>
-                                <th className="px-4 py-3">الحالة</th>
-                                <th className="px-4 py-3">الإجراءات</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredServices.map((service: any) => (
-                                <tr key={service._id} className={`border-b transition-colors ${isDark
-                                    ? 'border-gray-700 hover:bg-gray-700/50'
-                                    : 'border-[#dfd7bb] hover:bg-gray-50'
-                                    }`}>
-                                    <td className="px-4 py-4">
-                                        {service.image?.url ? (
-                                            <img
-                                                src={service.image.url}
-                                                alt={service.title}
-                                                className="w-10 h-10 rounded object-cover"
-                                            />
-                                        ) : (
-                                            <div className={`w-10 h-10 rounded flex items-center justify-center ${isDark ? 'bg-gray-600' : 'bg-gray-200'
-                                                }`}>
-                                                <svg xmlns="http://www.w3.org/2000/svg" className={`h-5 w-5 ${isDark ? 'text-gray-400' : 'text-gray-500'
-                                                    }`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                </svg>
-                                            </div>
-                                        )}
-                                    </td>
-                                    <td className="px-4 py-4">{service.id}</td>
-                                    <td className="px-4 py-4" style={{ color: getTextColor() }}>{service.title}</td>
-                                    <td className="px-4 py-4" style={{ color: getTextColor() }}>{service.provider.name}</td>
-                                    <td className="px-4 py-4 text-green-400 font-semibold">{formatPrice(service.price || 0)}</td>
-                                    <td className="px-4 py-4">
-                                        <span className={`px-2 py-1 rounded-full text-xs ${service.status
-                                            ? isDark ? 'bg-green-500/20 text-green-400' : 'bg-green-100 text-green-700'
-                                            : isDark ? 'bg-red-500/20 text-red-400' : 'bg-red-100 text-red-700'
-                                            }`}>
-                                            {service.status ? 'نشطة' : 'موقوفة'}
-                                        </span>
-                                    </td>
-                                    <td className="px-4 py-4">
-                                        <div className="flex justify-end gap-2">
-                                            <button
-                                                onClick={() => handleViewService(service)}
-                                                className={`p-2 rounded flex items-center gap-1 transition-colors ${isDark
-                                                    ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                                                    : 'bg-blue-500 hover:bg-blue-600 text-white'
-                                                    }`}
-                                                title="عرض التفاصيل"
-                                            >
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                </svg>
-                                                <span className="text-xs">عرض</span>
-                                            </button>
-                                            <button
-                                                onClick={() => handleOpenModal(service)}
-                                                className={`p-2 rounded flex items-center gap-1 transition-colors ${isDark
-                                                    ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
-                                                    : 'bg-yellow-500 hover:bg-yellow-600 text-white'
-                                                    }`}
-                                                title="تعديل"
-                                            >
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                                </svg>
-                                                <span className="text-xs">تعديل</span>
-                                            </button>
-                                            <button
-                                                onClick={() => handleDeleteService(service._id!)}
-                                                className={`p-2 rounded flex items-center gap-1 transition-colors ${isDark
-                                                    ? 'bg-red-600 hover:bg-red-700 text-white'
-                                                    : 'bg-red-500 hover:bg-red-600 text-white'
-                                                    }`}
-                                                title="حذف"
-                                            >
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                </svg>
-                                                <span className="text-xs">حذف</span>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+
 
             {/* ✅ تصميم البطاقات للهواتف */}
-            <div className="block md:hidden">
-                <div className={`rounded-lg overflow-hidden transition-all duration-300 ${isDark
-                    ? 'bg-gray-800 border border-gray-700'
-                    : 'bg-white border border-[#dfd7bb] shadow-md'
-                    }`}>
+            <div className="block">
+                <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4`}>
                     {filteredServices.length === 0 ? (
-                        <div className="text-center py-8" style={{ color: getMutedTextColor() }}>
+                        <div className={`col-span-full text-center py-8 rounded-lg ${isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-[#dfd7bb] shadow-md'
+                            }`} style={{ color: getMutedTextColor() }}>
                             {services.length === 0 ? 'لا توجد خدمات حالياً' : 'لم يتم العثور على خدمات تطابق البحث'}
                         </div>
                     ) : (
                         filteredServices.map((service: any) => (
-                            <div key={service._id} className={`border-b p-4 transition-colors ${isDark
-                                ? 'border-gray-700 hover:bg-gray-700/50'
-                                : 'border-[#dfd7bb] hover:bg-gray-50'
-                                }`}>
+                            <div
+                                key={service._id}
+                                className={`border-2 rounded-lg p-4 transition-colors h-full min-h-[280px] flex flex-col ${isDark ? 'border-gray-700 hover:bg-gray-700/50 bg-gray-800' : 'border-[#dfd7bb] hover:bg-gray-50 bg-white'
+                                    }`}
+                            >
                                 {/* رأس البطاقة */}
                                 <div className="flex justify-between items-start mb-3">
-                                    <div className="flex items-center gap-3">
+                                    <div className="flex items-center gap-3 min-w-0 flex-1">
                                         {service.image?.url ? (
                                             <img
                                                 src={service.image.url}
                                                 alt={service.title}
-                                                className="w-12 h-12 rounded object-cover"
+                                                className="w-12 h-12 rounded object-cover flex-shrink-0"
                                             />
                                         ) : (
-                                            <div className={`w-12 h-12 rounded flex items-center justify-center ${isDark ? 'bg-gray-600' : 'bg-gray-200'
+                                            <div className={`w-12 h-12 rounded flex items-center justify-center flex-shrink-0 ${isDark ? 'bg-gray-600' : 'bg-gray-200'
                                                 }`}>
                                                 <svg xmlns="http://www.w3.org/2000/svg" className={`h-6 w-6 ${isDark ? 'text-gray-400' : 'text-gray-500'
                                                     }`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -444,12 +339,16 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                                                 </svg>
                                             </div>
                                         )}
-                                        <div>
-                                            <div className="font-semibold" style={{ color: getTextColor() }}>{service.title}</div>
-                                            <div style={{ color: getMutedTextColor() }} className="text-sm">ID: {service.id}</div>
+                                        <div className="min-w-0 flex-1">
+                                            <div className="font-semibold truncate" style={{ color: getTextColor() }}>
+                                                {service.title}
+                                            </div>
+                                            <div style={{ color: getMutedTextColor() }} className="text-sm">
+                                                ID: {service.id}
+                                            </div>
                                         </div>
                                     </div>
-                                    <span className={`px-2 py-1 rounded-full text-xs ${service.status
+                                    <span className={`px-2 py-1 rounded-full text-xs flex-shrink-0 ${service.status
                                         ? isDark ? 'bg-green-500/20 text-green-400' : 'bg-green-100 text-green-700'
                                         : isDark ? 'bg-red-500/20 text-red-400' : 'bg-red-100 text-red-700'
                                         }`}>
@@ -458,14 +357,14 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                                 </div>
 
                                 {/* معلومات الخدمة */}
-                                <div className="grid grid-cols-2 gap-3 text-sm mb-3">
+                                <div className="grid grid-cols-2 gap-3 text-sm mb-3 flex-1">
                                     <div>
                                         <div className="text-xs mb-1" style={{ color: getMutedTextColor() }}>المزود</div>
-                                        <div style={{ color: getTextColor() }}>{service.provider.name}</div>
+                                        <div className="truncate" style={{ color: getTextColor() }}>{service.provider.name}</div>
                                     </div>
                                     <div>
                                         <div className="text-xs mb-1" style={{ color: getMutedTextColor() }}>المنصة</div>
-                                        <div style={{ color: getTextColor() }}>{service.platform}</div>
+                                        <div className="truncate" style={{ color: getTextColor() }}>{service.platform}</div>
                                     </div>
                                     <div>
                                         <div className="text-xs mb-1" style={{ color: getMutedTextColor() }}>السعر / 1000</div>
@@ -478,12 +377,10 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                                 </div>
 
                                 {/* أزرار الإجراءات */}
-                                <div className="flex gap-2">
+                                <div className="flex gap-2 mt-auto">
                                     <button
                                         onClick={() => handleViewService(service)}
-                                        className={`p-2 rounded flex items-center gap-1 flex-1 justify-center transition-colors ${isDark
-                                            ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                                            : 'bg-blue-500 hover:bg-blue-600 text-white'
+                                        className={`p-2 rounded flex items-center gap-1 flex-1 justify-center transition-colors ${isDark ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-blue-500 hover:bg-blue-600 text-white'
                                             }`}
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -494,9 +391,7 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                                     </button>
                                     <button
                                         onClick={() => handleOpenModal(service)}
-                                        className={`p-2 rounded flex items-center gap-1 flex-1 justify-center transition-colors ${isDark
-                                            ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
-                                            : 'bg-yellow-500 hover:bg-yellow-600 text-white'
+                                        className={`p-2 rounded flex items-center gap-1 flex-1 justify-center transition-colors ${isDark ? 'bg-yellow-600 hover:bg-yellow-700 text-white' : 'bg-yellow-500 hover:bg-yellow-600 text-white'
                                             }`}
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -506,9 +401,7 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                                     </button>
                                     <button
                                         onClick={() => handleDeleteService(service._id!)}
-                                        className={`p-2 rounded flex items-center gap-1 flex-1 justify-center transition-colors ${isDark
-                                            ? 'bg-red-600 hover:bg-red-700 text-white'
-                                            : 'bg-red-500 hover:bg-red-600 text-white'
+                                        className={`p-2 rounded flex items-center gap-1 flex-1 justify-center transition-colors ${isDark ? 'bg-red-600 hover:bg-red-700 text-white' : 'bg-red-500 hover:bg-red-600 text-white'
                                             }`}
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -919,6 +812,15 @@ const ManageServices: React.FC<ManageServicesProps> = ({ services, setServices, 
                                     <p className="text-sm" style={{ color: getMutedTextColor() }}>Refill:</p>
                                     <p style={{ color: getTextColor() }}>{viewingService.refill ? 'نعم' : 'لا'}</p>
                                 </div>
+                                <div>
+                                    <p className="text-sm" style={{ color: getMutedTextColor() }}>الضمان:</p>
+                                    <p style={{ color: getTextColor() }}>{viewingService.guarantee ? viewingService.guarantee : 'لم يحدد'}</p>
+                                </div>
+                                <div>
+                                    <p className="text-sm" style={{ color: getMutedTextColor() }}>السرعه:</p>
+                                    <p style={{ color: getTextColor() }}>{viewingService.perDay ? viewingService.perDay : 'لم يحدد'}</p>
+                                </div>
+
 
                                 {viewingService.type && (
                                     <div>

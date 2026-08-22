@@ -290,67 +290,143 @@ const Header: React.FC<HeaderProps> = ({ siteName, logoUrl, pages, color, isHome
 
 
 
-                {/* Mobile Menu */}
-                {isMenuOpen && (
-                    <div className={`flex justify-around md:hidden border-t py-4 transition-colors duration-300 ${isDark
-                        ? 'bg-gray-800 border-gray-700'
-                        : 'bg-white border-[#dfd7bb]'
+            </header>
+            {/* Mobile Menu */}
+            {/* ✅ القائمة الجانبية - موجودة دايماً في الـ DOM */}
+            <div
+                className={`fixed inset-0 z-50 transition-all duration-300 ease-in-out ${isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+                    }`}
+            >
+                {/* الـ Overlay */}
+                <div
+                    className={`absolute inset-0 bg-black transition-opacity duration-300 ${isMenuOpen ? 'opacity-50' : 'opacity-0'
+                        }`}
+                    onClick={() => setIsMenuOpen(false)}
+                />
+
+                {/* القائمة الجانبية */}
+                <div
+                    className={`absolute top-0 right-0 h-full w-[85%] max-w-sm transition-transform duration-300 ease-in-out transform ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'
+                        } ${isDark ? 'bg-gray-900 border-l border-gray-700' : 'bg-white border-l border-[#dfd7bb]'
+                        } shadow-2xl overflow-y-auto`}
+                >
+                    {/* رأس القائمة */}
+                    <div className={`flex items-center justify-between p-4 border-b ${isDark ? 'border-gray-700' : 'border-[#dfd7bb]'
                         }`}>
-                        <div className={`flex flex-col gap-2`}>
-                            <a href="#/" onClick={() => setIsMenuOpen(false)} className={`block transition-colors duration-300 ${isDark ? 'text-gray-300 hover:text-primary-400' : 'text-gray-600 hover:text-[#c9a84c]'
-                                }`}>الرئيسية</a>
-                            <a href="#/blog" onClick={() => setIsMenuOpen(false)} className={`block transition-colors duration-300 ${isDark ? 'text-gray-300 hover:text-primary-400' : 'text-gray-600 hover:text-[#c9a84c]'
-                                }`}>المدونة</a>
+                        <div className="flex items-center gap-2">
+                            {logoUrl && <img src={logoUrl} alt={siteName} className="h-8 w-8 object-contain" />}
+                            <span className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-800'}`}>
+                                {siteName}
+                            </span>
+                        </div>
+                        <button
+                            onClick={() => setIsMenuOpen(false)}
+                            className={`p-2 rounded-lg transition-colors ${isDark ? 'hover:bg-gray-700 text-gray-300' : 'hover:bg-gray-100 text-gray-600'
+                                }`}
+                        >
+                            <X className="w-6 h-6" />
+                        </button>
+                    </div>
+
+                    {/* محتوى القائمة */}
+                    <div className="p-4 space-y-6">
+                        {/* روابط التنقل الرئيسية */}
+                        <div className="space-y-2">
+                            <a
+                                href="#/"
+                                onClick={() => setIsMenuOpen(false)}
+                                className={`block px-4 py-3 rounded-lg transition-all duration-200 ${isDark ? 'hover:bg-gray-800 text-gray-300 hover:text-white' : 'hover:bg-gray-50 text-gray-600 hover:text-[#c9a84c]'
+                                    }`}
+                            >
+                                <span className="font-medium">الرئيسية</span>
+                            </a>
+                            <a
+                                href="#/blog"
+                                onClick={() => setIsMenuOpen(false)}
+                                className={`block px-4 py-3 rounded-lg transition-all duration-200 ${isDark ? 'hover:bg-gray-800 text-gray-300 hover:text-white' : 'hover:bg-gray-50 text-gray-600 hover:text-[#c9a84c]'
+                                    }`}
+                            >
+                                <span className="font-medium">المدونة</span>
+                            </a>
                             {pages.filter(p => p.isPublished).map(page => (
-                                <a key={page.id} href={`#/page/${page.slug}`} onClick={() => setIsMenuOpen(false)} className={`block transition-colors duration-300 ${isDark ? 'text-gray-300 hover:text-primary-400' : 'text-gray-600 hover:text-[#c9a84c]'
-                                    }`}>{page.title}</a>
-                            ))}
-                            <div className="sm:hidden pt-1">
-                                <select
-                                    value={currency}
-                                    onChange={(e) => setCurrency(e.target.value)}
-                                    className={`w-full rounded-md py-2 px-2 text-sm focus:outline-none transition-colors duration-300 ${isDark
-                                        ? 'bg-gray-900 text-gray-300 border border-gray-700'
-                                        : 'bg-gray-50 text-gray-700 border border-[#dfd7bb]'
+                                <a
+                                    key={page.id}
+                                    href={`#/page/${page.slug}`}
+                                    onClick={() => setIsMenuOpen(false)}
+                                    className={`block px-4 py-3 rounded-lg transition-all duration-200 ${isDark ? 'hover:bg-gray-800 text-gray-300 hover:text-white' : 'hover:bg-gray-50 text-gray-600 hover:text-[#c9a84c]'
                                         }`}
                                 >
-                                    {currencies.map(c => <option key={c} value={c}>{c}</option>)}
-                                </select>
-                            </div>
+                                    <span className="font-medium">{page.title}</span>
+                                </a>
+                            ))}
                         </div>
-                        {user?.role === 'client' ? <>
-                            <div className='flex flex-col gap-y-3 text-black px-4 border-gray-100'>
-                                <p className="text-sm" style={{ color: isDark ? '#60a5fa' : '#c9a84c' }}>
-                                    رصيدك : {formatPrice(walletBalance) || "0.00"}
-                                </p>
-                                <NavLink viewName="orders-history" activeView={activeView} setActiveView={setActiveView}>
-                                    <svg className="w-5 h-5 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
-                                    سجل الطلبات
-                                </NavLink>
-                                <NavLink viewName="add-funds" activeView={activeView} setActiveView={setActiveView}>
-                                    <svg className="w-5 h-5 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
-                                    شحن الرصيد
-                                </NavLink>
-                            </div>
-                            <div className='flex flex-col gap-y-3 text-black'>
-                                <NavLink viewName="services-list" activeView={activeView} setActiveView={setActiveView}>
-                                    <svg className="w-5 h-5 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" /></svg>
-                                    قائمة الخدمات
-                                </NavLink>
-                                <NavLink viewName="support" activeView={activeView} setActiveView={setActiveView}>
-                                    <svg className="w-5 h-5 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                    الدعم الفني
-                                </NavLink>
-                                <NavLink viewName="profile" activeView={activeView} setActiveView={setActiveView}>
-                                    <svg className="w-5 h-5 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
-                                    الملف الشخصي
-                                </NavLink>
-                            </div>
-                        </>
-                            : null}
+
+                        {user?.role === 'client' && (
+                            <>
+                                <div className={` border-t ${isDark ? 'border-gray-700' : 'border-[#dfd7bb]'}`} />
+
+                                <div className="px-4 py-3">
+                                    <p className="text-sm" style={{ color: isDark ? '#60a5fa' : '#c9a84c' }}>
+                                        رصيدك: <span className="font-bold">{formatPrice(walletBalance) || "0.00"}</span>
+                                    </p>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <NavLink viewName="orders-history" activeView={activeView} setActiveView={setActiveView}>
+                                        <svg className="w-5 h-5 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                        </svg>
+                                        سجل الطلبات
+                                    </NavLink>
+
+                                    <NavLink viewName="add-funds" activeView={activeView} setActiveView={setActiveView}>
+                                        <svg className="w-5 h-5 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                                        </svg>
+                                        شحن الرصيد
+                                    </NavLink>
+
+                                    <NavLink viewName="services-list" activeView={activeView} setActiveView={setActiveView}>
+                                        <svg className="w-5 h-5 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                                        </svg>
+                                        قائمة الخدمات
+                                    </NavLink>
+
+                                    <NavLink viewName="support" activeView={activeView} setActiveView={setActiveView}>
+                                        <svg className="w-5 h-5 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        الدعم الفني
+                                    </NavLink>
+
+                                    <NavLink viewName="profile" activeView={activeView} setActiveView={setActiveView}>
+                                        <svg className="w-5 h-5 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                        </svg>
+                                        الملف الشخصي
+                                    </NavLink>
+                                </div>
+
+                                <div className={`pt-2 px-4 ${isDark ? 'border-gray-700' : 'border-[#dfd7bb]'}`}>
+                                    <select
+                                        value={currency}
+                                        onChange={(e) => setCurrency(e.target.value)}
+                                        className={`w-full rounded-md py-2 px-3 text-sm focus:outline-none transition-colors duration-300 ${isDark ? 'bg-gray-800 text-gray-300 border border-gray-700' : 'bg-gray-50 text-gray-700 border border-[#dfd7bb]'
+                                            }`}
+                                    >
+                                        {currencies.map(c => <option key={c} value={c}>{c}</option>)}
+                                    </select>
+                                </div>
+                            </>
+                        )}
                     </div>
-                )}
-            </header>
+                </div>
+            </div>
+
+
+
+
             {isAuthModalOpen && <AuthModal onClose={() => setIsAuthModalOpen(false)} />}
             {isWalletModalOpen && user && <WalletModal onClose={() => setIsWalletModalOpen(false)} />}
         </>

@@ -79,21 +79,22 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
     const fetchProviders = async () => {
         try {
             setLoading(true);
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/manage-providers`, {
-                method: 'GET',
-                credentials: 'include', headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+            const response = await axios.get(
+                `${import.meta.env.VITE_API_URL}/manage-providers`,
+                {
+                    withCredentials: true,
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
                 }
-            });
-            if (!response.ok) {
-                throw new Error('فشل في جلب البيانات');
-            }
-            const data = await response.json();
-            const transformedData = transformProviderData(data);
+            );
+
+            const transformedData = transformProviderData(response.data);
             setProviders(transformedData);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error fetching providers:', error);
-            alert('فشل في جلب بيانات المزودين');
+            const errorMessage = error?.response?.data?.message || error?.message || 'فشل في جلب بيانات المزودين';
+            alert(errorMessage);
         } finally {
             setLoading(false);
         }
@@ -147,21 +148,19 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
                     updateData.apiKey = formData.apiKey;
                 }
 
-                const response = await fetch(`${import.meta.env.VITE_API_URL}/manage-providers/${editingProvider.id}`, {
-                    method: 'PUT',
-                    credentials: 'include',
-                    body: JSON.stringify(updateData), headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                const response = await axios.put(
+                    `${import.meta.env.VITE_API_URL}/manage-providers/${editingProvider.id}`,
+                    updateData,
+                    {
+                        withCredentials: true,
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        }
                     }
-                });
+                );
 
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`فشل في تعديل المزود: ${response.status} ${response.statusText}`);
-                }
-
-                const updatedProviderData = await response.json();
+                const updatedProviderData = response.data;
                 const updatedProvider = {
                     id: updatedProviderData._id || updatedProviderData.id,
                     name: updatedProviderData.name,
@@ -173,22 +172,21 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
 
                 setProviders(providers.map(p => p.id === editingProvider.id ? updatedProvider : p));
                 alert('تم تعديل المزود بنجاح');
+
             } else {
-                const response = await fetch(`${import.meta.env.VITE_API_URL}/manage-providers`, {
-                    method: 'POST',
-                    credentials: 'include',
-                    body: JSON.stringify(formData), headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                const response = await axios.post(
+                    `${import.meta.env.VITE_API_URL}/manage-providers`,
+                    formData,
+                    {
+                        withCredentials: true,
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        }
                     }
-                });
+                );
 
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`فشل في إضافة المزود: ${response.status} ${response.statusText}`);
-                }
-
-                const newProviderData = await response.json();
+                const newProviderData = response.data;
                 const newProvider = {
                     id: newProviderData._id || newProviderData.id,
                     name: newProviderData.name,
@@ -203,9 +201,10 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
             }
 
             handleCloseModal();
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error saving provider:', error);
-            alert(`فشل في حفظ البيانات: ${error instanceof Error ? error.message : 'حدث خطأ غير معروف'}`);
+            const errorMessage = error?.response?.data?.message || error?.message || 'حدث خطأ غير معروف';
+            alert(`فشل في حفظ البيانات: ${errorMessage}`);
         } finally {
             setLoading(false);
         }
@@ -215,29 +214,27 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
         if (window.confirm('هل أنت متأكد من رغبتك في حذف هذا المزود؟ سيؤثر هذا على الخدمات المرتبطة به.')) {
             try {
                 setLoading(true);
-                const response = await fetch(`${import.meta.env.VITE_API_URL}/manage-providers/${providerId}`, {
-                    method: 'DELETE',
-                    credentials: 'include', headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                await axios.delete(
+                    `${import.meta.env.VITE_API_URL}/manage-providers/${providerId}`,
+                    {
+                        withCredentials: true,
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        }
                     }
-                });
-
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`فشل في حذف المزود: ${response.status} ${response.statusText}`);
-                }
+                );
 
                 setProviders(providers.filter(p => p.id !== providerId));
                 alert('تم حذف المزود بنجاح');
-            } catch (error) {
+            } catch (error: any) {
                 console.error('Error deleting provider:', error);
-                alert(`فشل في حذف المزود: ${error instanceof Error ? error.message : 'حدث خطأ غير معروف'}`);
+                const errorMessage = error?.response?.data?.message || error?.message || 'حدث خطأ غير معروف';
+                alert(`فشل في حذف المزود: ${errorMessage}`);
             } finally {
                 setLoading(false);
             }
         }
     };
-
 
 
     // فلترة المزودين حسب البحث
@@ -280,7 +277,6 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
     }
     return (
         <div className="p-4" style={{
-            backgroundColor: isDark ? '#1e2235' : '#f8f6f0',
             minHeight: "100vh",
             transition: "all 0.3s ease"
         }}>
@@ -322,80 +318,13 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
                 </div>
             </div>
 
-            {/* ✅ جدول عرض المزودين - للشاشات الكبيرة */}
-            <div className={`hidden md:block rounded-lg overflow-hidden transition-all duration-300 ${isDark
-                ? 'bg-gray-800 border border-gray-700'
-                : 'bg-white border border-[#dfd7bb] shadow-md'
-                }`}>
-                <div className="overflow-x-auto">
-                    <table className="w-full text-sm text-right" style={{ color: getTextColor() }}>
-                        <thead className={`text-xs uppercase ${isDark ? 'text-gray-400 bg-gray-700/50' : 'text-gray-500 bg-gray-50'
-                            }`}>
-                            <tr>
-                                <th className="px-4 py-3">الاسم</th>
-                                <th className="px-4 py-3">نقطة النهاية (API)</th>
-                                <th className="px-4 py-3">API_KEY</th>
-                                <th className="px-4 py-3">الحالة</th>
-                                <th className="px-4 py-3">الرصيد</th>
-                                <th className="px-4 py-3">الإجراءات</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredProviders.map((provider: any) => (
-                                <tr key={provider.id} className={`border-b transition-colors ${isDark
-                                    ? 'border-gray-700 hover:bg-gray-700/50'
-                                    : 'border-[#dfd7bb] hover:bg-gray-50'
-                                    }`}>
-                                    <td className="px-4 py-4 font-medium" style={{ color: getTextColor() }}>{provider.name}</td>
-                                    <td className="px-4 py-4 font-mono text-xs" style={{ color: getMutedTextColor() }}>{provider.apiEndpoint}</td>
-                                    <td className="px-4 py-4 font-mono text-xs" style={{ color: getMutedTextColor() }}>
-                                        {provider.apiKey ? `${provider.apiKey.substring(0, 20)}...` : 'N/A'}
-                                    </td>
-                                    <td className="px-4 py-4"><StatusBadge status={provider.status} /></td>
-                                    <td className="px-4 py-4">{formatPrice(provider.balance)}</td>
 
-                                    <td className="px-4 py-4">
-                                        <div className="flex justify-end gap-3 flex-wrap">
-                                            <button
-                                                onClick={() => handleOpenModal(provider)}
-                                                className={`p-2 rounded flex items-center gap-1 text-xs transition-colors ${isDark
-                                                    ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
-                                                    : 'bg-yellow-500 hover:bg-yellow-600 text-white'
-                                                    }`}
-                                                disabled={loading}
-                                            >
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                                </svg>
-                                                تعديل
-                                            </button>
-                                            <button
-                                                onClick={() => handleDelete(provider.id)}
-                                                className={`p-2 rounded flex items-center gap-1 text-xs transition-colors ${isDark
-                                                    ? 'bg-red-600 hover:bg-red-700 text-white'
-                                                    : 'bg-red-500 hover:bg-red-600 text-white'
-                                                    }`}
-                                                disabled={loading}
-                                            >
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                </svg>
-                                                حذف
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
 
             {/* تصميم البطاقات للهواتف */}
-            <div className="block md:hidden">
-                <div className={`rounded-lg overflow-hidden transition-all duration-300 ${isDark
-                    ? 'bg-gray-800 border border-gray-700'
-                    : 'bg-white border border-[#dfd7bb] shadow-md'
+            <div className="block ">
+                <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 rounded-lg overflow-hidden transition-all duration-300 ${isDark
+                    ? ''
+                    : ' '
                     }`}>
                     {filteredProviders.length === 0 ? (
                         <div className="text-center py-8" style={{ color: getMutedTextColor() }}>
@@ -403,7 +332,7 @@ const ManageProviders: React.FC<ManageProvidersProps> = ({ providers, setProvide
                         </div>
                     ) : (
                         filteredProviders.map((provider: any) => (
-                            <div key={provider.id} className={`border-b p-4 transition-colors ${isDark
+                            <div key={provider.id} className={`${isDark ? 'bg-gray-800' : 'bg-white'} border-2 rounded-lg p-4 transition-colors ${isDark
                                 ? 'border-gray-700 hover:bg-gray-700/50'
                                 : 'border-[#dfd7bb] hover:bg-gray-50'
                                 }`}>

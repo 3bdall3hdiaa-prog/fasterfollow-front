@@ -105,7 +105,7 @@ const Reviews = ({ serviceId, setAvrgRating, setNumReviews }: { serviceId: strin
                 comment: newReview.comment.trim(),
             }
 
-            const res = await axios.post(`${import.meta.env.VITE_API_URL}/reviews`, reviewData)
+            const res = await axios.post(`${import.meta.env.VITE_API_URL}/reviews`, reviewData, { withCredentials: true })
 
             if (res.data) {
                 setSubmitSuccess(true)
@@ -121,7 +121,7 @@ const Reviews = ({ serviceId, setAvrgRating, setNumReviews }: { serviceId: strin
                 }, 3000)
             }
         } catch (error: any) {
-            console.error('Error submitting review:', error)
+            console.error('Error submitting review:', error.response)
             alert(error.response?.data?.message || '❌ حدث خطأ في إرسال التقييم')
         } finally {
             setSubmitting(false)
@@ -240,7 +240,7 @@ const Reviews = ({ serviceId, setAvrgRating, setNumReviews }: { serviceId: strin
                                         ${submitting
                                             ? 'opacity-50 cursor-not-allowed bg-gray-400'
                                             : isDark
-                                                ? 'bg-[#c9a84c] hover:bg-[#b8973a] text-white'
+                                                ? 'bg-blue-700/70 hover:bg-blue-600 text-white'
                                                 : 'bg-[#c9a84c] hover:bg-[#b8973a] text-white shadow-md hover:shadow-lg'
                                         }
                                     `}
